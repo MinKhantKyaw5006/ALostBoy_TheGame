@@ -4,21 +4,41 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    PlayerStateList pState;
     private Rigidbody2D rb;
     private float xAxis;
     Animator anim;
     public static PlayerController Instance;
+    private bool canDash = true;
+    private bool Dashed;
+    private float gravity;
+
+
     [Header("Horizontal Movement Setting")]
     [SerializeField] private float walkspeed = 1;
+    [Space(5)]
 
-
+    [Header("Vertical Movement Setting")]
+    [SerializeField] private float jumpForce = 45f;
+    private int jumpbufferCounter = 0;
+    [SerializeField] private int jumpBufferFrames;
+    private float coyoteTimeCounter = 0;
+    [SerializeField] private float coyoteTime;
+    private int airJumpCounter = 0;
+    [SerializeField] private int MaxAirJumps;
+    [Space(5)]
     [Header("Ground Check Setting")]
-    [SerializeField] private float jumpForce = 45;
+    
     [SerializeField] private Transform groundCheckPoint;
     [SerializeField] private float groundCheckY = 0.2f;
     [SerializeField] private float groundCheckX = 0.5f;
     [SerializeField] private LayerMask WhatIsGround;
 
+    [Header("Dash Variable Setting")]
+    [SerializeField] private float dashSpeed;
+    [SerializeField] private float dashTime;
+    [SerializeField] private float dashCoolDown;
+    
     // Start is called before the first frame update
     private void Awake()
     {
@@ -33,17 +53,26 @@ public class PlayerController : MonoBehaviour
     }
     void Start()
     {
+        pState = GetComponent<PlayerStateList>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        gravity = rb.gravityScale;
     }
 
     // Update is called once per frame
     void Update()
     {
         GetInput();
+        UpdateJumpVariable();
+        if (pState.dashing) return;
+        Flip();
         Move();
         Jump();
-        Flip();
+        StartDash();
+
+        // Set the 'Idle' parameter
+        anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
+
     }
 
     void GetInput()
@@ -63,6 +92,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void StartDash()
+    {
+        if(Input.GetButtonDown("Dash") && canDash && !Dashed)
+        {
+            Debug.Log($"Dash input: {Input.GetButtonDown("Dash")}, canDash: {canDash}, Dashed: {Dashed}");
+            StartCoroutine(Dash());
+            Dashed = true;
+        }
+        if (Grounded())
+        {
+            Dashed = false;
+        }
+    }
+
+    IEnumerator Dash()
+    {
+        canDash = false;
+        pState.dashing = true;
+        anim.SetTrigger("Dashing");
+        rb.gravityScale = 0;
+        rb.velocity = new Vector2(transform.localScale.x * dashSpeed, 0);
+        yield return new WaitForSeconds(dashTime);
+        rb.gravityScale = gravity;
+        pState.dashing = false;
+        yield return new WaitForSeconds(dashCoolDown);
+        canDash = true;
+
+    }
     private void Move()
     {
         rb.velocity = new Vector2(walkspeed * xAxis, rb.velocity.y);
@@ -83,7 +140,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Jump()
+    void Jumpsmooth()
     {
         bool isJumping = Input.GetButton("Jump");
         bool jumpButtonReleased = Input.GetButtonUp("Jump");
@@ -104,5 +161,55 @@ public class PlayerController : MonoBehaviour
 
         // Check if grounded to update animation
         anim.SetBool("Jumping", !Grounded());
+    }
+
+    void Jump()
+    {
+        //variable height jump function
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 0);
+            pState.jumping = false;
+        }
+
+        if(!pState.jumping)
+        {
+            if (jumpbufferCounter > 0 && coyoteTimeCounter > 0)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+                pState.jumping = true;
+            }
+            else if(!Grounded() &&  airJumpCounter < MaxAirJumps &&  Input.GetButtonDown("Jump"))
+            {
+                pState.jumping = true;
+                airJumpCounter++;
+                rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+            }
+        }
+       
+        anim.SetBool("Jumping", !Grounded());
+    }
+
+    void UpdateJumpVariable()
+    {
+        if (Grounded())
+        {
+            pState.jumping = false;
+            coyoteTimeCounter = coyoteTime;
+            airJumpCounter = 0;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpbufferCounter = jumpBufferFrames;
+        }
+        else
+        {
+            jumpbufferCounter--;
+        }
     }
 }
