@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int MaxAirJumps;
     [Space(5)]
     [Header("Ground Check Setting")]
-    
+
     [SerializeField] private Transform groundCheckPoint;
     [SerializeField] private float groundCheckY = 0.2f;
     [SerializeField] private float groundCheckX = 0.5f;
@@ -38,7 +38,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dashSpeed;
     [SerializeField] private float dashTime;
     [SerializeField] private float dashCoolDown;
-    
+    [SerializeField] GameObject dashEffect;
+
+    bool attack = false;
+    float timeBetweenAttack, timeSinceAttack;
+
     // Start is called before the first frame update
     private void Awake()
     {
@@ -69,6 +73,7 @@ public class PlayerController : MonoBehaviour
         Move();
         Jump();
         StartDash();
+        Attack();
 
         // Set the 'Idle' parameter
         anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
@@ -78,6 +83,7 @@ public class PlayerController : MonoBehaviour
     void GetInput()
     {
         xAxis = Input.GetAxisRaw("Horizontal");
+        attack = Input.GetMouseButtonDown(0);
     }
 
     void Flip()
@@ -94,7 +100,7 @@ public class PlayerController : MonoBehaviour
 
     void StartDash()
     {
-        if(Input.GetButtonDown("Dash") && canDash && !Dashed)
+        if (Input.GetButtonDown("Dash") && canDash && !Dashed)
         {
             Debug.Log($"Dash input: {Input.GetButtonDown("Dash")}, canDash: {canDash}, Dashed: {Dashed}");
             StartCoroutine(Dash());
@@ -113,6 +119,7 @@ public class PlayerController : MonoBehaviour
         anim.SetTrigger("Dashing");
         rb.gravityScale = 0;
         rb.velocity = new Vector2(transform.localScale.x * dashSpeed, 0);
+        if (Grounded()) Instantiate(dashEffect, transform);
         yield return new WaitForSeconds(dashTime);
         rb.gravityScale = gravity;
         pState.dashing = false;
@@ -120,6 +127,17 @@ public class PlayerController : MonoBehaviour
         canDash = true;
 
     }
+
+    void Attack()
+    {
+        timeSinceAttack += Time.deltaTime;
+        if (attack && timeSinceAttack >= timeBetweenAttack)
+        {
+            timeSinceAttack = 0;
+            anim.SetTrigger("Attacking");
+        }
+    }
+
     private void Move()
     {
         rb.velocity = new Vector2(walkspeed * xAxis, rb.velocity.y);
@@ -172,21 +190,21 @@ public class PlayerController : MonoBehaviour
             pState.jumping = false;
         }
 
-        if(!pState.jumping)
+        if (!pState.jumping)
         {
             if (jumpbufferCounter > 0 && coyoteTimeCounter > 0)
             {
                 rb.velocity = new Vector3(rb.velocity.x, jumpForce);
                 pState.jumping = true;
             }
-            else if(!Grounded() &&  airJumpCounter < MaxAirJumps &&  Input.GetButtonDown("Jump"))
+            else if (!Grounded() && airJumpCounter < MaxAirJumps && Input.GetButtonDown("Jump"))
             {
                 pState.jumping = true;
                 airJumpCounter++;
                 rb.velocity = new Vector3(rb.velocity.x, jumpForce);
             }
         }
-       
+
         anim.SetBool("Jumping", !Grounded());
     }
 

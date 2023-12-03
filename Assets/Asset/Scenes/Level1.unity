@@ -8974,18 +8974,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.26707458, y: -0.31809998}
+  m_Offset: {x: -0.63416195, y: -0.31809998}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.168, y: 5.656}
-    newSize: {x: 7.92, y: 14.14}
+    oldSize: {x: 6.568, y: 5.728}
+    newSize: {x: 16.42, y: 14.32}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.5194473, y: 4.962389}
+  m_Size: {x: 1.1276054, y: 4.962389}
   m_EdgeRadius: 0
 --- !u!212 &1634613371
 SpriteRenderer:
@@ -9028,12 +9028,12 @@ SpriteRenderer:
   m_SortingLayerID: 886204325
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 49df7cc4f1490e8419d23a9dcaf85495, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 08e5b9805976582419691a365f750293, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 7.92, y: 14.14}
+  m_Size: {x: 16.42, y: 14.32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -9099,9 +9099,10 @@ MonoBehaviour:
   WhatIsGround:
     serializedVersion: 2
     m_Bits: 8
-  dashSpeed: 70
+  dashSpeed: 50
   dashTime: 0.2
   dashCoolDown: 0.35
+  dashEffect: {fileID: 3816988794576025319, guid: a986d2ca37d8c5d4faeb63a78792ddc2, type: 3}
 --- !u!95 &1634613375
 Animator:
   serializedVersion: 5
