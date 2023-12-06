@@ -169,12 +169,12 @@ public class PlayerController : MonoBehaviour
             else if (yAxis > 0)
             {
                 Hit(UpAttackTransform, UpAttackArea);
-                SlashEffectAtAngle(slashEffect, 90, UpAttackTransform);
+                SlashEffectAtAngle(slashEffect, 80, UpAttackTransform);
             }
             else if (yAxis < 0 || !Grounded())
             {
                 Hit(DownAttackTransform, DownAttackArea);
-                SlashEffectAtAngle(slashEffect, 90, DownAttackTransform);
+                SlashEffectAtAngle(slashEffect, -90, DownAttackTransform);
             }
         }
 
