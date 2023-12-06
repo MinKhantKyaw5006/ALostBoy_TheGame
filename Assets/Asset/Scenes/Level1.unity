@@ -13426,6 +13426,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   damage: 2
+  slashEffect: {fileID: 4106265945382460276, guid: f9ed95e9ac9c2cb478e5b94a904fa1de, type: 3}
 --- !u!95 &1634613375
 Animator:
   serializedVersion: 5
