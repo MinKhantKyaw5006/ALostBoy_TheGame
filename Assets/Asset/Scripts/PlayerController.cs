@@ -48,6 +48,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform SideAttackTransform, UpAttackTransform, DownAttackTransform;
     [SerializeField] Vector2 SideAttackArea, UpAttackArea, DownAttackArea;
     [SerializeField] LayerMask attackableLayer;
+    [SerializeField] float damage;
+    [SerializeField] GameObject slashEffect;
 
 
     // Start is called before the first frame update
@@ -92,6 +94,9 @@ public class PlayerController : MonoBehaviour
 
         // Set the 'Idle' parameter
         anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
+
+        // Update the Animator's Speed parameter every frame
+        anim.SetFloat("Speed", Mathf.Abs(xAxis));   
 
     }
 
@@ -152,20 +157,31 @@ public class PlayerController : MonoBehaviour
             timeSinceAttack = 0;
             anim.SetTrigger("Attacking");
 
-            if(yAxis ==0 || yAxis < 0 && Grounded())
+            // Update the Animator's Speed parameter even during the attack
+            anim.SetFloat("Speed", Mathf.Abs(xAxis)); // Add this line
+
+            // Perform the attack based on the vertical axis and grounded state
+            if (yAxis == 0 || (yAxis < 0 && Grounded()))
             {
                 Hit(SideAttackTransform, SideAttackArea);
+                Instantiate(slashEffect, SideAttackTransform);
             }
-            else if(yAxis > 0)
+            else if (yAxis > 0)
             {
                 Hit(UpAttackTransform, UpAttackArea);
+                SlashEffectAtAngle(slashEffect, 90, UpAttackTransform);
             }
             else if (yAxis < 0 || !Grounded())
             {
                 Hit(DownAttackTransform, DownAttackArea);
+                SlashEffectAtAngle(slashEffect, 90, DownAttackTransform);
             }
         }
+
+        // Set the Idle parameter based on the xAxis value and whether the player is grounded
+        anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
     }
+
 
     private void Hit(Transform _attackTransform, Vector2 _attackArea)
     {
@@ -175,6 +191,23 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Hit");
         }
+        for(int i = 0; i < objectsToHit.Length; i++)
+        {
+            if(objectsToHit[i].GetComponent<Enemy>() !=null)
+            {
+                if(objectsToHit[i].GetComponent<Enemy>() != null)
+                {
+                    objectsToHit[i].GetComponent<Enemy>().EnemyHit(damage);
+                }
+            }
+        }
+    }
+
+    void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform)
+    {
+        _slashEffect = Instantiate(_slashEffect, _attackTransform);
+        _slashEffect.transform.eulerAngles = new Vector3(0, 0, _effectAngle);
+        _slashEffect.transform.localScale = new Vector2(transform.localScale.x, transform.localScale.y);
     }
 
     private void Move()
