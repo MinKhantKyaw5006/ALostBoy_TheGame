@@ -48,7 +48,7 @@ public class HeartController : MonoBehaviour
     {
         for (int i = 0; i < heartFills.Length; i++)
         {
-            if (i < PlayerController.Instance.maxHealth)
+            if (i < PlayerController.Instance.health)
             {
                 heartFills[i].fillAmount = 1;
             }
