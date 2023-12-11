@@ -5,14 +5,12 @@ using UnityEngine;
 public class EnemyType1 : Enemy
 {
     // Start is called before the first frame update
-    void Start()
-    {
-        rb.gravityScale = 12f;
-    }
 
-    protected override void Awake()
+
+    protected override void Start()
     {
-        base.Awake();
+        base.Start();
+        rb.gravityScale = 12f;
     }
 
     // Update is called once per frame
@@ -23,7 +21,7 @@ public class EnemyType1 : Enemy
         base.Update();
         if (!isRecoiling)
         {
-            transform.position = Vector2.MoveTowards(transform.position, new Vector2(PlayerController.Instance.transform.position.x, transform.position.y), speed * Time.deltaTime);   
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(PlayerController.Instance.transform.position.x, transform.position.y), speed * Time.deltaTime);
         }
     }
 

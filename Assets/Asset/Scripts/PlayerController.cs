@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
     [Space(5)]
 
     [Header("Mana Setting")]
-    [SerializeField] Image  manaStorage;
+    [SerializeField] Image manaStorage;
     [SerializeField] float mana;
     [SerializeField] float manaDrainSpeed;
     [SerializeField] float manaGain;
@@ -40,13 +40,15 @@ public class PlayerController : MonoBehaviour
     //spell stats       
     [SerializeField] float manaSpellCost = 0.3f;
     [SerializeField] float timeBetweenCast = 0.5f;
-    float timeSinceCast;
+    
     [SerializeField] float spellDamage; //upspellexplosion downspellfireball    
     [SerializeField] float downSpellForce; //dive desolate
     //spell cast objects
     [SerializeField] GameObject sideSpellFireball;
     [SerializeField] GameObject upSpellExplosion;
     [SerializeField] GameObject downSpellFireball;
+    float timeSinceCast;
+    float castOrHealTimer;
     [Space(5)]
 
     [Header("Horizontal Movement Setting")]
@@ -107,7 +109,9 @@ public class PlayerController : MonoBehaviour
         {
             Instance = this;
         }
-        Health = maxHealth;
+
+        DontDestroyOnLoad(gameObject);
+        
     }
     void Start()
     {
@@ -118,6 +122,8 @@ public class PlayerController : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         Mana = mana;
         manaStorage.fillAmount = mana;
+
+        Health = maxHealth;
     }
 
     void Update()
@@ -147,7 +153,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D _other)
     {
-        if(_other.GetComponent<Enemy>() != null && pState.casting)
+        if (_other.GetComponent<Enemy>() != null && pState.casting)
         {
             _other.GetComponent<Enemy>().EnemyHit(spellDamage, (_other.transform.position - transform.position).normalized, -recoilYSpeed);
         }
@@ -181,7 +187,7 @@ public class PlayerController : MonoBehaviour
     void FlashWhileInvincible()
     {
         sr.material.color = pState.invincible ?
-            Color.Lerp(Color.white, Color.black, Mathf.PingPong(Time.time * hitFlashSpeed, 1.0f)) : 
+            Color.Lerp(Color.white, Color.black, Mathf.PingPong(Time.time * hitFlashSpeed, 1.0f)) :
             Color.white;
     }
 
@@ -189,7 +195,7 @@ public class PlayerController : MonoBehaviour
     {
         if (restoreTime)
         {
-            if(Time.timeScale < 1)
+            if (Time.timeScale < 1)
             {
                 Time.timeScale += Time.deltaTime * restoreTimeSpeed;
             }
@@ -206,14 +212,14 @@ public class PlayerController : MonoBehaviour
         restoreTimeSpeed = _restoreSpeed;
         Time.timeScale = _newTimeScale;
 
-        if(_delay > 0)
+        if (_delay > 0)
         {
             StopCoroutine(StartTimeAgain(_delay));
             StartCoroutine(StartTimeAgain(_delay));
         }
         else
         {
-            restoreTime = true;   
+            restoreTime = true;
         }
     }
 
@@ -228,11 +234,11 @@ public class PlayerController : MonoBehaviour
         get { return health; }
         set
         {
-            if(health != value)
+            if (health != value)
             {
                 health = Mathf.Clamp(value, 0, maxHealth);
 
-                if(onHealthChangedCallBack != null)
+                if (onHealthChangedCallBack != null)
                 {
                     onHealthChangedCallBack.Invoke();
                 }
@@ -242,7 +248,7 @@ public class PlayerController : MonoBehaviour
 
     void Heal()
     {
-        if(Input.GetButton("Healing") && health < maxHealth && Mana > 0 && !pState.jumping && !pState.dashing)
+        if (Input.GetButton("Cast/Heal") && castOrHealTimer > 0.05f && health < maxHealth && Mana > 0 && !pState.jumping && !pState.dashing)
         {
             pState.Healing = true;
             anim.SetBool("Healing", true);
@@ -252,7 +258,7 @@ public class PlayerController : MonoBehaviour
 
             //healing
             healTimer += Time.deltaTime;
-            if(healTimer >= timetoHeal)
+            if (healTimer >= timetoHeal)
             {
                 health++;
                 healTimer = 0;
@@ -293,6 +299,15 @@ public class PlayerController : MonoBehaviour
         xAxis = Input.GetAxisRaw("Horizontal");
         yAxis = Input.GetAxisRaw("Vertical");
         attack = Input.GetButtonDown("Attack");
+
+        if (Input.GetButton("Cast/Heal"))
+        {
+            castOrHealTimer += Time.deltaTime;
+        }
+        else
+        {
+            castOrHealTimer = 0;
+        }
     }
 
     void Flip()
@@ -300,8 +315,8 @@ public class PlayerController : MonoBehaviour
         if (xAxis < 0)
         {
             transform.localScale = new Vector2(-1, transform.localScale.y);
-            pState.lookingRight = false;    
-            
+            pState.lookingRight = false;
+
         }
         else if (xAxis > 0)
         {
@@ -330,7 +345,8 @@ public class PlayerController : MonoBehaviour
         pState.dashing = true;
         anim.SetTrigger("Dashing");
         rb.gravityScale = 0;
-        rb.velocity = new Vector2(transform.localScale.x * dashSpeed, 0);
+        int _dir = pState.lookingRight ? 1 : -1;
+        rb.velocity = new Vector2(_dir * dashSpeed, 0);
         if (Grounded()) Instantiate(dashEffect, transform);
         yield return new WaitForSeconds(dashTime);
         rb.gravityScale = gravity;
@@ -344,9 +360,9 @@ public class PlayerController : MonoBehaviour
     {
         pState.invincible = true;
         GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
-        Destroy(_bloodSpurtParticles, 1.5f); 
+        Destroy(_bloodSpurtParticles, 1.5f);
         anim.SetTrigger("TakeDamage");
-        
+
         yield return new WaitForSeconds(1f);
         pState.invincible = false;
     }
@@ -441,7 +457,7 @@ public class PlayerController : MonoBehaviour
 
         if (pState.recoilingY)
         {
-            if(yAxis < 0)
+            if (yAxis < 0)
             {
                 rb.gravityScale = 0;
                 rb.velocity = new Vector2(rb.velocity.x, recoilYSpeed);
@@ -490,7 +506,7 @@ public class PlayerController : MonoBehaviour
 
     void CastSpell()
     {
-        if(Input.GetButtonDown("CastSpell") && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        if (Input.GetButtonUp("Cast/Heal") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
         {
             pState.casting = true;
             timeSinceCast = 0;
@@ -519,7 +535,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(0.15f); //based on casting animtion, two parts, prep and cast state, take on frame on time 00:15 , frame time can change varies
 
         //side cast
-        if( yAxis ==0  || (yAxis < 0 && Grounded()))
+        if (yAxis == 0 || (yAxis < 0 && Grounded()))
         {
             GameObject _fireball = Instantiate(sideSpellFireball, SideAttackTransform.position, Quaternion.identity);
 
@@ -530,7 +546,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                _fireball.transform.eulerAngles = new Vector2(_fireball.transform.eulerAngles.x, 180); 
+                _fireball.transform.eulerAngles = new Vector2(_fireball.transform.eulerAngles.x, 180);
                 //if not facing right, rotate the effect 180 degree
             }
 
@@ -538,23 +554,23 @@ public class PlayerController : MonoBehaviour
         }
 
         //up cast
-        else if(yAxis > 0)
+        else if (yAxis > 0)
         {
             Instantiate(upSpellExplosion, transform);
             rb.velocity = Vector2.zero;
         }
 
         //down cast
-        else if(yAxis < 0 && !Grounded())
+        else if (yAxis < 0 && !Grounded())
         {
-            downSpellFireball.SetActive(true);  
+            downSpellFireball.SetActive(true);
         }
 
         Mana = manaSpellCost;
         yield return new WaitForSeconds(0.35f);
         anim.SetBool("Casting", false);
         pState.casting = false;
-            
+
     }
 
     public bool Grounded()
@@ -596,29 +612,24 @@ public class PlayerController : MonoBehaviour
 
     void Jump()
     {
-        //variable height jump function
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+        if(jumpbufferCounter > 0 &&  coyoteTimeCounter > 0 && !pState.jumping)
         {
-            rb.velocity = new Vector2(rb.velocity.x, 0);
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+            pState.jumping = true;
+        }
+        if (!Grounded() && airJumpCounter < MaxAirJumps && Input.GetButtonDown("Jump"))
+        {
+            pState.jumping = true;
+            airJumpCounter++;
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+        }
+        if(Input.GetButtonUp("Jump")  && rb.velocity.y > 3)
+        {
             pState.jumping = false;
+            rb.velocity = new Vector2(rb.velocity.x, 0);
         }
-
-        if (!pState.jumping)
-        {
-            if (jumpbufferCounter > 0 && coyoteTimeCounter > 0)
-            {
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce);
-                pState.jumping = true;
-            }
-            else if (!Grounded() && airJumpCounter < MaxAirJumps && Input.GetButtonDown("Jump"))
-            {
-                pState.jumping = true;
-                airJumpCounter++;
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce);
-            }
-        }
-
         anim.SetBool("Jumping", !Grounded());
+   
     }
 
     void UpdateJumpVariable()

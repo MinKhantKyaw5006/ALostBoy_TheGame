@@ -12,17 +12,13 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected PlayerController player;
     [SerializeField] protected float speed;
 
-    [SerializeField] protected float damage;    
-    
-    protected float recoilTimer;
-    protected Rigidbody2D rb; 
-    // Start is called before the first frame update
-    protected virtual void Start()
-    {
-        
-    }
+    [SerializeField] protected float damage;
 
-    protected virtual void Awake()
+    protected float recoilTimer;
+    protected Rigidbody2D rb;
+    // Start is called before the first frame update
+
+    protected virtual void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         player = PlayerController.Instance;
@@ -31,13 +27,13 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        if (health <=0)
+        if (health <= 0)
         {
             Destroy(gameObject);
         }
         if (isRecoiling)
         {
-            if(recoilTimer < recoilLength)
+            if (recoilTimer < recoilLength)
             {
                 recoilTimer += Time.deltaTime;
             }
@@ -46,7 +42,7 @@ public class Enemy : MonoBehaviour
                 isRecoiling = false;
                 recoilTimer = 0;
             }
-           
+
         }
     }
 
@@ -68,7 +64,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    protected  virtual  void Attack()
+    protected virtual void Attack()
     {
         PlayerController.Instance.TakeDamage(damage);
     }
