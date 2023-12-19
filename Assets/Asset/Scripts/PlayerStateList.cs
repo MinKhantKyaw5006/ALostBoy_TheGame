@@ -10,5 +10,6 @@ public class PlayerStateList : MonoBehaviour
     public bool lookingRight;
     public bool invincible;
     public bool Healing;
-    public bool casting;    
+    public bool casting;
+    public bool cutscene = false;
 }

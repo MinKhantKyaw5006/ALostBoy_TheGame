@@ -128,6 +128,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (pState.cutscene) return;
         GetInput();
         UpdateJumpVariable();
         if (pState.dashing) return;
@@ -161,6 +162,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (pState.cutscene) return;
         if (pState.dashing) return;
         Recoil();
     }
@@ -205,6 +207,25 @@ public class PlayerController : MonoBehaviour
                 restoreTime = false;
             }
         }
+    }
+
+    public IEnumerator WalkintoNewScene(Vector2 _exitDir, float _delay)
+    {
+        //if exit direction is upwards
+        if(_exitDir.y > 0)
+        {
+            rb.velocity = jumpForce * _exitDir;
+        }
+
+        //if exit direction require  horizontal movement    
+        if(_exitDir.x != 0)
+        {
+            xAxis = _exitDir.x > 0 ? 1 : -1;
+            Move();
+        }
+        Flip();
+        yield return new WaitForSeconds(_delay);
+        pState.cutscene = false;
     }
 
     public void HitStopTime(float _newTimeScale, int _restoreSpeed, float _delay)
