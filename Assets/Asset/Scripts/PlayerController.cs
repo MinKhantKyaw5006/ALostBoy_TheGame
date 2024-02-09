@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System; // Add this line
 
 public class PlayerController : MonoBehaviour
 {
@@ -17,6 +18,11 @@ public class PlayerController : MonoBehaviour
     bool attack = false;
     float timeBetweenAttack, timeSinceAttack;
     int stepXRecoiled, stepYRecoiled;
+
+    //camera zoomout
+    public delegate void PlayerJumpDelegate(int jumpCount);
+    public event PlayerJumpDelegate OnPlayerJump;
+    public event Action OnPlayerLanded;
 
     [Header("Health Setting")]
     public int health;
@@ -124,6 +130,8 @@ public class PlayerController : MonoBehaviour
         manaStorage.fillAmount = mana;
 
         Health = maxHealth;
+
+        
     }
 
     void Update()
@@ -132,9 +140,16 @@ public class PlayerController : MonoBehaviour
         GetInput();
         UpdateJumpVariable();
         if (pState.dashing) return;
+
+        if (Grounded() && pState.jumping)
+        {
+            pState.jumping = false;
+            OnPlayerLanded?.Invoke(); // Invoke the event when the player lands
+        }
+
         Flip();
         Move();
-        Jump();
+        Jump1();
         StartDash();
         Attack();
         RestoreTimeScale();
@@ -181,7 +196,7 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(float _damage)
     {
-        Debug.Log("TakeDamage called. Damage: " + _damage);
+        //Debug.Log("TakeDamage called. Damage: " + _damage);
         Health -= Mathf.RoundToInt(_damage);
         StartCoroutine(StopTakingDamage());
     }
@@ -209,24 +224,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public IEnumerator WalkintoNewScene(Vector2 _exitDir, float _delay)
+    IEnumerator Death()
     {
-        //if exit direction is upwards
-        if(_exitDir.y > 0)
-        {
-            rb.velocity = jumpForce * _exitDir;
-        }
+        pState.alive = false;
+        Time.timeScale = 1f;
+        GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
+        Destroy(_bloodSpurtParticles, 1.5f);
+        anim.SetTrigger("Death");
 
-        //if exit direction require  horizontal movement    
-        if(_exitDir.x != 0)
-        {
-            xAxis = _exitDir.x > 0 ? 1 : -1;
-            Move();
-        }
-        Flip();
-        yield return new WaitForSeconds(_delay);
-        pState.cutscene = false;
+        yield return new WaitForSeconds(0.9f);
     }
+
 
     public void HitStopTime(float _newTimeScale, int _restoreSpeed, float _delay)
     {
@@ -302,17 +310,16 @@ public class PlayerController : MonoBehaviour
         get { return mana; }
         set
         {
-            // Clamp the new value to be within 0 and your maximum mana value
-            float clampedValue = Mathf.Clamp(value, 0, 1); // Replace 1 with your max mana if different
-
-            // Update mana if the clamped value is different
+            float clampedValue = Mathf.Clamp(value, 0, 1); // Assuming mana is a value between 0 and 1.
             if (mana != clampedValue)
             {
+                //Debug.Log($"Updating mana UI to {clampedValue}"); // This will print the new mana value.
                 mana = clampedValue;
-                manaStorage.fillAmount = Mana;
+                manaStorage.fillAmount = mana;
             }
         }
     }
+
 
 
     void GetInput()
@@ -380,8 +387,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator StopTakingDamage()
     {
         pState.invincible = true;
-        GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
-        Destroy(_bloodSpurtParticles, 1.5f);
+
         anim.SetTrigger("TakeDamage");
 
         yield return new WaitForSeconds(1f);
@@ -432,7 +438,7 @@ public class PlayerController : MonoBehaviour
         if (objectsToHit.Length > 0)
         {
             _recoilDir = true; // Set recoil direction to true if any object is hit
-            Debug.Log("Recoil triggered");
+            //Debug.Log("Recoil triggered");
         }
 
         for (int i = 0; i < objectsToHit.Length; i++)
@@ -441,7 +447,7 @@ public class PlayerController : MonoBehaviour
             if (enemy != null)
             {
                 // Log a message when the player hits an enemy
-                Debug.Log("Player hit enemy: " + objectsToHit[i].name);
+                //Debug.Log("Player hit enemy: " + objectsToHit[i].name);
 
                 // Call the EnemyHit method on the enemy
                 enemy.EnemyHit(damage, (transform.position - objectsToHit[i].transform.position).normalized, _recoilStrength);
@@ -631,7 +637,7 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("Jumping", !Grounded());
     }
 
-    void Jump()
+    void Jump1()
     {
         if(jumpbufferCounter > 0 &&  coyoteTimeCounter > 0 && !pState.jumping)
         {
@@ -652,6 +658,84 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("Jumping", !Grounded());
    
     }
+
+    void Jump()
+    {
+        // Check for ground jump
+        if (Grounded() && Input.GetButtonDown("Jump"))
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            pState.jumping = true;
+            anim.SetBool("Jumping", true);
+            OnPlayerJump?.Invoke(1); // Trigger the jump event with a jump count of 1
+        }
+
+        // Check for air jumps
+        if (!Grounded() && airJumpCounter < MaxAirJumps && Input.GetButtonDown("Jump"))
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            pState.jumping = true;
+            airJumpCounter++;
+            anim.SetBool("Jumping", true);
+            OnPlayerJump?.Invoke(airJumpCounter + 1); // Trigger the jump event with the current air jump count
+        }
+
+        // Allow variable jump height
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+        }
+
+        // Reset jumping state when grounded
+        if (Grounded())
+        {
+            pState.jumping = false;
+            airJumpCounter = 0;
+            anim.SetBool("Jumping", false);
+        }
+    }
+
+    void Jump12()
+    {
+        bool isGrounded = Grounded();
+        bool jumpButtonDown = Input.GetButtonDown("Jump");
+
+        // Check for ground jump
+        if (isGrounded && jumpButtonDown)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            pState.jumping = true;
+            anim.SetBool("Jumping", true); // Trigger the jump animation
+            OnPlayerJump?.Invoke(1); // Notify about the first jump
+        }
+
+        // Check for air jump (double jump)
+        if (!isGrounded && jumpButtonDown && airJumpCounter < MaxAirJumps)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            pState.jumping = true;
+            airJumpCounter++;
+            anim.SetBool("Jumping", true); // Trigger the jump animation
+            OnPlayerJump?.Invoke(airJumpCounter + 1); // Notify about the second jump
+        }
+
+        // Allow variable jump height
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+        }
+
+        // Reset jumping state when grounded
+        if (isGrounded && pState.jumping)
+        {
+            pState.jumping = false;
+            airJumpCounter = 0;
+            anim.SetBool("Jumping", false);
+        }
+    }
+
+
+
 
     void UpdateJumpVariable()
     {
