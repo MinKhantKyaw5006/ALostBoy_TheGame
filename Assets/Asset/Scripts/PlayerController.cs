@@ -42,6 +42,22 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float mana;
     [SerializeField] float manaDrainSpeed;
     [SerializeField] float manaGain;
+    [SerializeField] private RectTransform manaBarRectTransform; // Assign in the inspector
+    [SerializeField] private float maxManaHeight = 160f; // The y-position when mana is empty
+    [SerializeField] private float manaIncrementPerAttack = 1f; // How much the bar should move up per attack
+    private float manaMaxHeight = 100f; // Adjust based on your UI setup
+    [SerializeField] private float manaChangeSpeed = 2f; // Speed of the mana bar animation
+    private float targetManaY; // Target y position of the mana bar based on current mana
+                               // These should be serialized or public if you want to set them in the Unity editor.
+    [SerializeField] private float maxMana = 1f; // The maximum value that 'mana' can reach.
+    [SerializeField] private float fullManaY = 160f; // The RectTransform's y position when the mana bar is full.
+    [SerializeField] private float emptyManaY = -100f; // The RectTransform's y position when the mana bar is empty.
+
+    // This can be private as we calculate it internally based on the current mana.
+
+
+
+
     [Space(5)]
 
     [Header("Spell Setting")]
@@ -125,35 +141,42 @@ public class PlayerController : MonoBehaviour
 
         // Checks if the current instance of the player should be destroyed
         CheckForDuplicatePlayerInstances();
+        Mana = 0f; // Initialize mana to 0 and update UI
 
 
     }
     void Start()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
         pState = GetComponent<PlayerStateList>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         gravity = rb.gravityScale;
         sr = GetComponent<SpriteRenderer>();
         Mana = mana;
-        manaStorage.fillAmount = mana;
+
 
         Health = maxHealth;
+
+        InitializeManaStorage();
+        Mana = 0f; // Set initial mana value and update UI.
 
         // Find the HeartController in the scene and keep a reference to it
         heartControllerInstance = FindObjectOfType<HeartController>();
     }
 
+
     void Update()
     {
-        
+
         if (PauseMenuController.IsGamePaused())
         {
             // The game is paused, so do something or don't do anything
             return; // Stop the Update method here if the game is paused.
         }
-        
-        
+
+
 
         if (pState.cutscene) return;
         GetInput();
@@ -206,6 +229,104 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void InitializeManaStorage()
+    {
+        GameObject manaStorageObject = GameObject.FindGameObjectWithTag("ManaStorageTag");
+        if (manaStorageObject != null)
+        {
+            manaBarRectTransform = manaStorageObject.GetComponent<RectTransform>();
+            if (manaBarRectTransform != null)
+            {
+                Debug.Log("ManaStorage found and assigned.");
+                Mana = 0f; // Reset mana and update UI.
+            }
+            else
+            {
+                Debug.LogWarning("Mana storage image is missing or not assigned.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Failed to find ManaStorage by tag.");
+        }
+    }
+
+    /*
+    void InitializeManaStorage()
+    {
+        if (manaStorage == null)
+        {
+            Debug.Log("Attempting to find ManaStorage by tag.");
+            manaStorage = GameObject.FindGameObjectWithTag("ManaStorageTag").GetComponent<Image>();
+            if (manaStorage != null)
+            {
+                Debug.Log("ManaStorage found successfully by tag.");
+                manaStorage.fillAmount = mana;
+            }
+            else
+            {
+                Debug.LogWarning("Failed to find ManaStorage by tag.");
+            }
+        }
+        else
+        {
+            Debug.Log("ManaStorage was pre-assigned.");
+        }
+    }
+    */
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        InitializeManaStorage();
+        if (scene.name == "MainMenu")
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Destroy(gameObject);
+
+
+            //return; // Add return here so that we don't attempt to reinitialize after destruction
+        }
+        // Perform the same initialization as in Start().
+        Debug.Log("Scene loaded, attempting to reinitialize.");
+        //InitializeManaStorage();
+        // Other necessary reinitializations.
+    }
+
+    public void ResetPlayerState()
+    {
+        // Reset player position
+        Transform spawnPoint = GameObject.FindGameObjectWithTag("PlayerSpawn").transform;
+        if (spawnPoint != null)
+        {
+            transform.position = spawnPoint.position;
+            // Reset other state variables like velocity if needed
+            rb.velocity = Vector2.zero;
+        }
+        else
+        {
+            Debug.LogWarning("Spawn point not found. Make sure your spawn point is tagged correctly.");
+        }
+
+        // Reset other parts of the player state if necessary, e.g., Mana, Health
+        Mana = 0f; // Assuming full mana is 1
+        Health = maxHealth;
+
+        // Reset logic for player state...
+
+        UpdateManaUI(mana); // Make sure UI reflects the reset state
+    }
+
+    /*
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
      
@@ -227,8 +348,9 @@ public class PlayerController : MonoBehaviour
                 heartControllerInstance.ReinitializeHeartContainers();
             }
         }
-        */
+        
     }
+    */
 
     private void OnTriggerEnter2D(Collider2D _other)
     {
@@ -256,6 +378,8 @@ public class PlayerController : MonoBehaviour
         }
     }
     */
+
+
 
     void StopRecoilX()
     {
@@ -399,20 +523,129 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    float Mana
+    /*
+    public float Mana
     {
         get { return mana; }
         set
         {
-            float clampedValue = Mathf.Clamp(value, 0, 1); // Assuming mana is a value between 0 and 1.
-            if (mana != clampedValue)
+            Debug.Log($"Updating Mana. New Value: {value}");
+            mana = Mathf.Clamp(value, 0, 1);
+            if (manaStorage != null)
             {
-                //Debug.Log($"Updating mana UI to {clampedValue}"); // This will print the new mana value.
-                mana = clampedValue;
                 manaStorage.fillAmount = mana;
+                Debug.Log($"Mana UI Updated. Fill Amount: {manaStorage.fillAmount}");
+            }
+            else
+            {
+                Debug.LogWarning("Mana storage image is missing or not assigned.");
             }
         }
     }
+    */
+
+
+    public float Mana
+    {
+        get { return mana; }
+        set
+        {
+            mana = Mathf.Clamp(value, 0, 1);
+            UpdateManaUI(mana); // Update the UI with the current mana percentage
+        }
+    }
+
+
+
+
+
+
+
+    /*
+    public void UpdateManaUI()
+    {
+        if (manaStorage != null)
+        {
+            manaStorage.fillAmount = Mana; // Ensure this uses the property to maintain any associated logic.
+        }
+        else
+        {
+            Debug.LogWarning("Attempting to update mana UI but manaStorage is null.");
+        }
+    }
+    */
+
+    /*
+    private void UpdateManaUI()
+    {
+        if (manaBarRectTransform != null)
+        {
+            // Calculate the new height based on the current mana.
+            float newHeight = manaMaxHeight * Mana; // Mana is a percentage of the max height.
+            manaBarRectTransform.sizeDelta = new Vector2(manaBarRectTransform.sizeDelta.x, newHeight);
+
+            // Optionally, adjust the position if needed (e.g., if the anchor is at the top).
+            // manaBarRectTransform.anchoredPosition = new Vector2(manaBarRectTransform.anchoredPosition.x, startingYPosition - (manaMaxHeight - newHeight));
+        }
+        else
+        {
+            Debug.LogWarning("ManaBar RectTransform is not assigned.");
+        }
+    }
+    */
+    /*
+    public void UpdateManaUI(float manaPercentage)
+    {
+        if (manaBarRectTransform != null)
+        {
+            // Assuming manaPercentage is a value between 0 and 1
+            float fullHeight = 160f; // The maximum height of the mana bar when it's full. You need to define this based on your UI setup.
+
+            // Calculate the new height based on the mana percentage
+            float newHeight = fullHeight * manaPercentage;
+
+            // Set the size of the mana bar
+            manaBarRectTransform.sizeDelta = new Vector2(manaBarRectTransform.sizeDelta.x, newHeight);
+
+            // Optionally, if you need to adjust the position as well (if it's not anchored at the bottom), you might need to adjust its position too.
+            // This is not needed if your RectTransform is anchored at the bottom.
+        }
+        else
+        {
+            Debug.LogWarning("ManaBar RectTransform is not assigned.");
+        }
+    }
+    */
+
+
+    public void UpdateManaUI(float manaPercentage)
+    {
+        if (manaBarRectTransform != null)
+        {
+            // Assuming the mana bar's anchor is at the bottom center of the bar.
+            // Calculate the Y position based on the mana percentage
+            float minY = -50f; // The starting Y position when mana is empty
+            float maxY = 50f; // The Y position when mana is full
+
+            // Calculate the new Y position within the range based on the current mana percentage
+            float newY = Mathf.Lerp(minY, maxY, manaPercentage);
+
+            // Set the new position of the mana bar
+            manaBarRectTransform.anchoredPosition = new Vector2(manaBarRectTransform.anchoredPosition.x, newY);
+        }
+        else
+        {
+            Debug.LogWarning("ManaBar RectTransform is not assigned.");
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 
@@ -495,7 +728,7 @@ public class PlayerController : MonoBehaviour
         {
             return; // If true, return early and do not proceed with the attack
         }
-        
+
 
         timeSinceAttack += Time.deltaTime;
         if (attack && timeSinceAttack >= timeBetweenAttack)
