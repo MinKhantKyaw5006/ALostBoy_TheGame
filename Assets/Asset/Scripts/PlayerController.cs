@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System; // Add this line
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement; // Add this line for scene management
 
 public class PlayerController : MonoBehaviour
 {
@@ -46,7 +48,7 @@ public class PlayerController : MonoBehaviour
     //spell stats       
     [SerializeField] float manaSpellCost = 0.3f;
     [SerializeField] float timeBetweenCast = 0.5f;
-    
+
     [SerializeField] float spellDamage; //upspellexplosion downspellfireball    
     [SerializeField] float downSpellForce; //dive desolate
     //spell cast objects
@@ -103,6 +105,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float recoilXSpeed = 100;
     [SerializeField] float recoilYSpeed = 100;
 
+    public HeartController heartControllerInstance;
+
+
 
     // Start is called before the first frame update
     private void Awake()
@@ -117,7 +122,11 @@ public class PlayerController : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-        
+
+        // Checks if the current instance of the player should be destroyed
+        CheckForDuplicatePlayerInstances();
+
+
     }
     void Start()
     {
@@ -131,14 +140,25 @@ public class PlayerController : MonoBehaviour
 
         Health = maxHealth;
 
-        
+        // Find the HeartController in the scene and keep a reference to it
+        heartControllerInstance = FindObjectOfType<HeartController>();
     }
 
     void Update()
     {
+        
+        if (PauseMenuController.IsGamePaused())
+        {
+            // The game is paused, so do something or don't do anything
+            return; // Stop the Update method here if the game is paused.
+        }
+        
+        
+
         if (pState.cutscene) return;
         GetInput();
         UpdateJumpVariable();
+        RestoreTimeScale();
         if (pState.dashing) return;
 
         if (Grounded() && pState.jumping)
@@ -152,7 +172,6 @@ public class PlayerController : MonoBehaviour
         Jump1();
         StartDash();
         Attack();
-        RestoreTimeScale();
         FlashWhileInvincible();
         Heal();
         CastSpell();
@@ -165,6 +184,50 @@ public class PlayerController : MonoBehaviour
         // Update the Animator's Speed parameter every frame
         anim.SetFloat("Speed", Mathf.Abs(xAxis));
 
+        // Check for scene change to Main Menu at the end of Update method or in a separate method called from Update
+        //CheckCurrentScene();
+
+        // Add a Debug.Log statement to check the time scale each frame
+        //Debug.Log("Player Current Time.timeScale: " + Time.timeScale);
+
+    }
+
+    private void CheckForDuplicatePlayerInstances()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            DontDestroyOnLoad(gameObject);
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+     
+
+        // If we load the main menu, remove this player instance
+        if (scene.name == "MainMenu")
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Destroy(gameObject);
+
+            //return; // Add return here so that we don't attempt to reinitialize after destruction
+        }
+        /*else
+        {
+            // Re-establish reference to HeartController if needed
+            HeartController heartControllerInstance = FindObjectOfType<HeartController>();
+            if (heartControllerInstance != null)
+            {
+                heartControllerInstance.ReinitializeHeartContainers();
+            }
+        }
+        */
     }
 
     private void OnTriggerEnter2D(Collider2D _other)
@@ -181,6 +244,18 @@ public class PlayerController : MonoBehaviour
         if (pState.dashing) return;
         Recoil();
     }
+
+    /*void CheckCurrentScene()
+    {
+        // Check if the current scene is the Main Menu
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+        { // Assume "MainMenu" is your scene's name
+            Destroy(gameObject); // Destroy the player object
+                                 // Alternatively, deactivate the player object if you don't want to destroy it
+                                 // gameObject.SetActive(false);
+        }
+    }
+    */
 
     void StopRecoilX()
     {
@@ -222,6 +297,25 @@ public class PlayerController : MonoBehaviour
                 restoreTime = false;
             }
         }
+    }
+
+    public IEnumerator WalkIntoNewScene(Vector2 _exitDir, float _delay)
+    {
+        //if exit direction is upwards
+        if (_exitDir.y > 0)
+        {
+            rb.velocity = jumpForce * _exitDir;
+        }
+
+        //if exit direciton is horizontal movements
+        if (_exitDir.x != 0)
+        {
+            xAxis = _exitDir.x > 0 ? 1 : -1;
+            Move();
+        }
+        Flip();
+        yield return new WaitForSeconds(_delay);
+        pState.cutscene = false;
     }
 
     IEnumerator Death()
@@ -357,7 +451,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Dash") && canDash && !Dashed)
         {
-            Debug.Log($"Dash input: {Input.GetButtonDown("Dash")}, canDash: {canDash}, Dashed: {Dashed}");
+            //Debug.Log($"Dash input: {Input.GetButtonDown("Dash")}, canDash: {canDash}, Dashed: {Dashed}");
             StartCoroutine(Dash());
             Dashed = true;
         }
@@ -396,6 +490,13 @@ public class PlayerController : MonoBehaviour
 
     void Attack()
     {
+        // Check if the mouse is currently over a UI element
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return; // If true, return early and do not proceed with the attack
+        }
+        
+
         timeSinceAttack += Time.deltaTime;
         if (attack && timeSinceAttack >= timeBetweenAttack)
         {
@@ -429,6 +530,51 @@ public class PlayerController : MonoBehaviour
         // Set the Idle parameter based on the xAxis value and whether the player is grounded
         anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
     }
+
+    void Attacknew()
+    {
+        // Check if the mouse is currently over a UI element
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return; // If true, return early and do not proceed with the attack
+        }
+
+        timeSinceAttack += Time.deltaTime;
+        if (attack && timeSinceAttack >= timeBetweenAttack)
+        {
+            timeSinceAttack = 0;
+            anim.SetTrigger("Attacking");
+
+            // Perform the attack based on the vertical axis and grounded state
+            if (yAxis == 0 || (yAxis < 0 && Grounded()))
+            {
+                Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
+                Instantiate(slashEffect, SideAttackTransform.position, Quaternion.identity);
+            }
+            else if (yAxis > 0)
+            {
+                Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
+                SlashEffectAtAngle(slashEffect, 80, UpAttackTransform.position);
+            }
+            else if (yAxis < 0 || !Grounded())
+            {
+                Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
+                SlashEffectAtAngle(slashEffect, -90, DownAttackTransform.position);
+            }
+        }
+
+        // Update the Animator's parameters
+        anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
+        anim.SetFloat("Speed", Mathf.Abs(xAxis));
+    }
+
+    // Helper method to instantiate slash effects at a given angle
+    void SlashEffectAtAngle(GameObject effect, float angle, Vector3 position)
+    {
+        var instantiatedEffect = Instantiate(effect, position, Quaternion.Euler(0f, 0f, angle));
+        instantiatedEffect.transform.localScale = transform.localScale; // Ensure effect scales with player
+    }
+
 
 
     private void Hit(Transform _attackTransform, Vector2 _attackArea, ref bool _recoilDir, float _recoilStrength)
@@ -639,7 +785,7 @@ public class PlayerController : MonoBehaviour
 
     void Jump1()
     {
-        if(jumpbufferCounter > 0 &&  coyoteTimeCounter > 0 && !pState.jumping)
+        if (jumpbufferCounter > 0 && coyoteTimeCounter > 0 && !pState.jumping)
         {
             rb.velocity = new Vector3(rb.velocity.x, jumpForce);
             pState.jumping = true;
@@ -650,13 +796,13 @@ public class PlayerController : MonoBehaviour
             airJumpCounter++;
             rb.velocity = new Vector3(rb.velocity.x, jumpForce);
         }
-        if(Input.GetButtonUp("Jump")  && rb.velocity.y > 3)
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 3)
         {
             pState.jumping = false;
             rb.velocity = new Vector2(rb.velocity.x, 0);
         }
         anim.SetBool("Jumping", !Grounded());
-   
+
     }
 
     void Jump()

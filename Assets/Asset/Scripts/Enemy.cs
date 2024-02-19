@@ -11,12 +11,21 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] protected PlayerController player;
     [SerializeField] protected float speed;
-
     [SerializeField] protected float damage;
 
     protected float recoilTimer;
     protected Rigidbody2D rb;
-    // Start is called before the first frame update
+
+    // Existing enemy states
+    protected enum EnemyStates
+    {
+        Idle, // Added Idle state
+        Crawler_Idle,
+        Crawler_Flip,
+        Following // Added Following state for when the zombie detects the player
+    }
+
+    protected EnemyStates currentEnemyState = EnemyStates.Idle;
 
     protected virtual void Start()
     {
@@ -24,13 +33,15 @@ public class Enemy : MonoBehaviour
         player = PlayerController.Instance;
     }
 
-    // Update is called once per frame
     protected virtual void Update()
     {
+        UpdateEnemyStates();
+
         if (health <= 0)
         {
             Destroy(gameObject);
         }
+
         if (isRecoiling)
         {
             if (recoilTimer < recoilLength)
@@ -42,7 +53,6 @@ public class Enemy : MonoBehaviour
                 isRecoiling = false;
                 recoilTimer = 0;
             }
-
         }
     }
 
@@ -64,8 +74,16 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    protected virtual void UpdateEnemyStates() { }
+
+    protected void ChangeState(EnemyStates _newState)
+    {
+        currentEnemyState = _newState;
+    }
+
     protected virtual void Attack()
     {
         PlayerController.Instance.TakeDamage(damage);
     }
 }
+
