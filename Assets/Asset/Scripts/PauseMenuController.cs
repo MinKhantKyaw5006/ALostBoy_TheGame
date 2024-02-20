@@ -117,16 +117,30 @@ public class PauseMenuController : MonoBehaviour
 
     public void RestartChapter()
     {
-        // Reset the pause state before restarting the chapter
-        ResetPauseState();
+        // Ensure the game is not considered paused anymore.
+        if (PauseMenuController.IsGamePaused())
+        {
+            PauseMenuController.ResetPauseState(); // This method should set the game's pause state to false and handle any necessary UI changes.
+        }
 
-        // Reload the current scene to restart the chapter
+        // Find and reset the player state
+        PlayerController playerController = FindObjectOfType<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.ResetPlayerState();
+        }
+        else
+        {
+            Debug.LogWarning("PlayerController not found in the scene.");
+        }
+
+        // Reload the current scene to reset all other game objects and states
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        Time.timeScale = 1f;
+        Time.timeScale = 1f; // Ensure the game's time scale is resumed.
 
-        // Debug to confirm the time scale is reset
-        Debug.Log("Restarting chapter, Time.timeScale should be 1. Current value: " + Time.timeScale);
+        // Any additional restart logic goes here...
     }
+
 
 
     public void LoadMainMenu()

@@ -7,6 +7,9 @@ TagManager:
   - Enemy
   - UIComponent
   - HeartParent
+  - ManaStorageTag
+  - PlayerSpawn
+  - HeartFillTag
   layers:
   - Default
   - TransparentFX

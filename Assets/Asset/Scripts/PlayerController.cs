@@ -27,14 +27,19 @@ public class PlayerController : MonoBehaviour
     public event Action OnPlayerLanded;
 
     [Header("Health Setting")]
-    public int health;
-    public int maxHealth;
+    public float health; // Now a float
+    public float maxHealth;
     [SerializeField] GameObject bloodSpurt;
     [SerializeField] float hitFlashSpeed;
     public delegate void OnHealthChangedDelegate();
     [HideInInspector] public OnHealthChangedDelegate onHealthChangedCallBack;
     float healTimer;
     [SerializeField] float timetoHeal;
+    [SerializeField] private RectTransform heartFillRectTransform; // Assign this in the Inspector
+    [SerializeField] private float maxWidth = 100f; // Adjust based on your full heart UI width
+
+    //public HeartController heartController;
+
     [Space(5)]
 
     [Header("Mana Setting")]
@@ -121,7 +126,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float recoilXSpeed = 100;
     [SerializeField] float recoilYSpeed = 100;
 
-    public HeartController heartControllerInstance;
+    //public HeartController heartControllerInstance;
 
 
 
@@ -157,13 +162,19 @@ public class PlayerController : MonoBehaviour
         Mana = mana;
 
 
-        Health = maxHealth;
+       
 
         InitializeManaStorage();
         Mana = 0f; // Set initial mana value and update UI.
 
+        Health = maxHealth;
+        InitializeHeartUI();
+        
+
+
+
         // Find the HeartController in the scene and keep a reference to it
-        heartControllerInstance = FindObjectOfType<HeartController>();
+        //heartControllerInstance = FindObjectOfType<HeartController>();
     }
 
 
@@ -261,6 +272,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void UpdateHeartUI()
+    {
+        if (heartFillRectTransform != null)
+        {
+            float healthPercentage = health / maxHealth;
+            float newWidth = maxWidth * healthPercentage;
+            heartFillRectTransform.sizeDelta = new Vector2(newWidth, heartFillRectTransform.sizeDelta.y);
+        }
+        else
+        {
+            Debug.LogError("HeartFill RectTransform not found.");
+        }
+    }
+
+
+
     /*
     void InitializeManaStorage()
     {
@@ -288,6 +315,8 @@ public class PlayerController : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         InitializeManaStorage();
+        InitializeHeartUI(); // Call initialization explicitly here // Ensure heart UI reflects current health
+        //UpdateHeartUI(); // Ensure this updates UI based on current health.
         if (scene.name == "MainMenu")
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -301,6 +330,42 @@ public class PlayerController : MonoBehaviour
         //InitializeManaStorage();
         // Other necessary reinitializations.
     }
+
+    private void InitializeHeartUI()
+    {
+        // Attempt to find the heartFill if not manually assigned
+        if (heartFillRectTransform == null)
+        {
+            GameObject heartFillObject = GameObject.FindGameObjectWithTag("HeartFillTag");
+            if (heartFillObject)
+            {
+                heartFillRectTransform = heartFillObject.GetComponent<RectTransform>();
+                if (heartFillRectTransform != null)
+                {
+                    Debug.Log("HeartFill found and assigned dynamically.");
+                    Debug.Log("HeartFill width after found: " + heartFillRectTransform.rect.width);
+                    maxWidth = heartFillRectTransform.rect.width;
+                    UpdateHeartUI(); // Update immediately to ensure UI is correct
+                    Debug.Log("HeartFill width after UpdateHeartUI call: " + heartFillRectTransform.rect.width);
+                }
+                else
+                {
+                    Debug.LogError("HeartFill GameObject found, but it does not have a RectTransform component.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to find HeartFill GameObject. Check if the tag is correctly applied.");
+            }
+        }
+        else
+        {
+            Debug.Log("HeartFill already assigned through Inspector with width: " + heartFillRectTransform.rect.width);
+            UpdateHeartUI(); // Update again to be certain UI is correct
+        }
+    }
+
+
 
     public void ResetPlayerState()
     {
@@ -393,18 +458,87 @@ public class PlayerController : MonoBehaviour
         pState.recoilingY = false;
     }
 
+    /*
     public void TakeDamage(float _damage)
     {
         //Debug.Log("TakeDamage called. Damage: " + _damage);
         Health -= Mathf.RoundToInt(_damage);
         StartCoroutine(StopTakingDamage());
+    }*/
+
+    /*
+    public void TakeDamage(float damage)
+    {
+        if (!pState.invincible) // Only take damage if not already invincible
+        {
+            Debug.Log($"Before taking damage: Health = {health}");
+            Health -= damage; // Directly subtract the floating-point damage value
+            Debug.Log($"After taking damage: Health = {health}");
+
+            anim.SetTrigger("TakeDamage");
+            StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
+            heartControllerInstance?.UpdateHeartBar(); // Update health UI
+        }
+    }*/
+
+    public void TakeDamage(float damage)
+    {
+        if (!pState.invincible) // Only take damage if not already invincible
+        {
+            Debug.Log($"Before taking damage: Health = {health}");
+            health -= damage; // Directly subtract the floating-point damage value
+            health = Mathf.Clamp(health, 0, maxHealth); // Ensure health does not go below 0 or above maxHealth
+            UpdateHeartUI(); // Update heart UI based on new health
+            Debug.Log($"After taking damage: Health = {health}");
+
+            anim.SetTrigger("TakeDamage");
+            StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
+
+            // Calculate the health percentage
+            float healthPercentage = health / maxHealth;
+            // Update the heart UI with the current health percentage
+            //heartControllerInstance?.UpdateHeartBar(healthPercentage);
+        }
     }
+
+
+    // Assuming this is somewhere within the PlayerController class where you handle health changes
+    public void HandleHealthChanged()
+    {
+        float healthPercentage = (float)health / maxHealth; // Ensure health and maxHealth are float for accurate calculation
+        //heartControllerInstance.UpdateHeartBar(healthPercentage);
+    }
+
+
+
+    IEnumerator MakeInvincible(float duration)
+    {
+        pState.invincible = true;
+        StartCoroutine(FlashEffect()); // Start flashing
+        yield return new WaitForSeconds(duration);
+        pState.invincible = false;
+        StopCoroutine(FlashEffect()); // Ensure to stop the flashing effect
+        sr.material.color = Color.white; // Reset sprite color back to normal
+    }
+
+    IEnumerator FlashEffect()
+    {
+        float endTime = Time.time + 1.0f; // Adjust duration accordingly
+        while (pState.invincible) // Use invincibility check to control flashing duration
+        {
+            sr.material.color = sr.material.color == Color.white ? new Color(1f, 1f, 1f, 0.5f) : Color.white;
+            yield return new WaitForSeconds(0.1f);
+        }
+        sr.material.color = Color.white; // Ensure color is reset after the loop
+    }
+
 
     void FlashWhileInvincible()
     {
         sr.material.color = pState.invincible ?
             Color.Lerp(Color.white, Color.black, Mathf.PingPong(Time.time * hitFlashSpeed, 1.0f)) :
             Color.white;
+        StartCoroutine(FlashEffect());
     }
 
     void RestoreTimeScale()
@@ -454,44 +588,43 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void HitStopTime(float _newTimeScale, int _restoreSpeed, float _delay)
-    {
-        restoreTimeSpeed = _restoreSpeed;
-        Time.timeScale = _newTimeScale;
+    /* public void HitStopTime(float _newTimeScale, int _restoreSpeed, float _delay)
+     {
+         restoreTimeSpeed = _restoreSpeed;
+         Time.timeScale = _newTimeScale;
 
-        if (_delay > 0)
-        {
-            StopCoroutine(StartTimeAgain(_delay));
-            StartCoroutine(StartTimeAgain(_delay));
-        }
-        else
-        {
-            restoreTime = true;
-        }
-    }
+         if (_delay > 0)
+         {
+             StopCoroutine(StartTimeAgain(_delay));
+             StartCoroutine(StartTimeAgain(_delay));
+         }
+         else
+         {
+             restoreTime = true;
+         }
+     }
 
-    IEnumerator StartTimeAgain(float _delay)
-    {
-        restoreTime = true;
-        yield return new WaitForSeconds(_delay);
-    }
+     IEnumerator StartTimeAgain(float _delay)
+     {
+         restoreTime = true;
+         yield return new WaitForSeconds(_delay);
+     }
+    */
 
-    public int Health
+    public float Health
     {
         get { return health; }
         set
         {
             if (health != value)
             {
-                health = Mathf.Clamp(value, 0, maxHealth);
-
-                if (onHealthChangedCallBack != null)
-                {
-                    onHealthChangedCallBack.Invoke();
-                }
+                health = Mathf.Clamp(value, 0f, maxHealth);
+                UpdateHeartUI(); // Update the heart UI to reflect the change.
             }
         }
     }
+
+
 
     void Heal()
     {

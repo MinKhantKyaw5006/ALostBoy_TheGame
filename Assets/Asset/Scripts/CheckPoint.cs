@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CheckPoint : MonoBehaviour
+public class Checkpoint : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private bool isActivated = false;
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        
+        // Check if the colliding object is the player
+        if (other.CompareTag("Player") && !isActivated)
+        {
+            isActivated = true; // Prevent the checkpoint from being activated again
+            // Call your game manager's save method
+            FindObjectOfType<GameManager>().SaveGame();
+            // Provide visual feedback or play a sound to indicate checkpoint activation
+            Debug.Log("Checkpoint reached!");
+        }
     }
 }

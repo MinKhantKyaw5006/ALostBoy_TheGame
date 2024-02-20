@@ -67,7 +67,34 @@ public class MainMenuController : MonoBehaviour
         Debug.Log("After loading new game, Time.timeScale should be 1. Current value: " + Time.timeScale);
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnNewGameSceneLoaded;
+    }
 
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnNewGameSceneLoaded;
+    }
+
+    private void OnNewGameSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Chapter1")
+        {
+            // Find the PlayerController in the new scene
+            PlayerController playerController = FindObjectOfType<PlayerController>();
+
+            // Reset player state if the playerController is found
+            if (playerController != null)
+            {
+                playerController.ResetPlayerState();
+            }
+
+            // The following line is important to ensure this method doesn't get called again
+            // unless we are loading a new game again.
+            SceneManager.sceneLoaded -= OnNewGameSceneLoaded;
+        }
+    }
 
 
     // Call this function when the Load Game button is clicked
