@@ -46,6 +46,7 @@ GameObject:
   - component: {fileID: 4926894689176328907}
   - component: {fileID: 4926894689176328906}
   - component: {fileID: 4926894689176328757}
+  - component: {fileID: 2690833067856956342}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -112,7 +113,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 886204325
-  m_SortingLayer: 3
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 08e5b9805976582419691a365f750293, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -190,10 +191,18 @@ MonoBehaviour:
   bloodSpurt: {fileID: 5680099737411559056, guid: 369ac0e3a5e5b9f4dbf66f264b5291d2, type: 3}
   hitFlashSpeed: 10
   timetoHeal: 1
+  heartFillRectTransform: {fileID: 0}
+  maxWidth: 100
   manaStorage: {fileID: 0}
   mana: 0
   manaDrainSpeed: 0.2
   manaGain: 0.3
+  manaBarRectTransform: {fileID: 0}
+  maxManaHeight: 160
+  manaChangeSpeed: 2
+  maxMana: 1
+  fullManaY: 160
+  emptyManaY: -100
   manaSpellCost: 0.1
   timeBetweenCast: 0.5
   spellDamage: 10000
@@ -271,6 +280,20 @@ MonoBehaviour:
   invincible: 0
   Healing: 0
   casting: 0
+  cutscene: 0
+  alive: 0
+--- !u!114 &2690833067856956342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4926894689176328908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f114af5a41e81ba4ba8dfadfb0dad781, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4926894690032258411
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,7 +398,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 886204325
-  m_SortingLayer: 3
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 2c961366528f28c458c619797d0bbb2f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
