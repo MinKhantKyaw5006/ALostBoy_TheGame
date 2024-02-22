@@ -1,19 +1,48 @@
-using UnityEngine;
+/*using UnityEngine;
 
-public class Checkpoint : MonoBehaviour
+public class CheckPoint : MonoBehaviour
 {
-    private bool isActivated = false;
+    public int checkpointID; // Assign unique ID to each checkpoint in the inspector
+    private GameMaster gm;
 
-    private void OnTriggerEnter2D(Collider2D other)
+    void Start()
     {
-        // Check if the colliding object is the player
-        if (other.CompareTag("Player") && !isActivated)
+        gm = GameObject.FindGameObjectWithTag("GM").GetComponent<GameMaster>();
+        // Disable collider if this checkpoint has already been activated
+        if (gm.activatedCheckpoints.Contains(checkpointID))
         {
-            isActivated = true; // Prevent the checkpoint from being activated again
-            // Call your game manager's save method
-            FindObjectOfType<GameManager>().SaveGame();
-            // Provide visual feedback or play a sound to indicate checkpoint activation
-            Debug.Log("Checkpoint reached!");
+            GetComponent<Collider2D>().enabled = false;
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player") && !gm.activatedCheckpoints.Contains(checkpointID))
+        {
+            gm.lastCheckpointPos = transform.position;
+            gm.lastCheckpointID = checkpointID;
+            gm.activatedCheckpoints.Add(checkpointID);
+            GetComponent<Collider2D>().enabled = false; // Disable the collider to prevent reactivation
+            Debug.Log($"Activated Checkpoint: {checkpointID}");
         }
     }
 }
+*
+
+
+public class CheckPoint : MonoBehaviour
+{
+    public int checkpointID;
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player") && !GameMaster.activatedCheckpoints.Contains(checkpointID))
+        {
+            GameMaster.ActivateCheckpoint(checkpointID, transform.position);
+            GameMaster.Instance.SaveGame(); // Save the game state after activating a checkpoint
+        }
+    }
+}
+*/
+
+

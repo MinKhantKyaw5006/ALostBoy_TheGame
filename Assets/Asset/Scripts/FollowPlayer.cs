@@ -62,3 +62,61 @@ public class FollowPlayer : MonoBehaviour
         zoomedOut = false; // Reset zoomedOut flag when player lands
     }
 }
+
+
+
+/*using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class FollowPlayer : MonoBehaviour
+{
+    [SerializeField] private Transform playerTransform;
+    [SerializeField] private float followSpeed = 0.1f;
+    [SerializeField] private Vector3 offset = new Vector3(0, 2, -10); // Example offset
+    [SerializeField] private float zoomSpeed = 0.05f; // Adjust for smoother transition
+    private float currentZoomFactor = 1f; // Start with no zoom
+    private float targetZoomFactor = 1f; // Target zoom level, changes based on jump
+    private Vector3 originalOffset;
+
+    void Start()
+    {
+        originalOffset = offset;
+        // Attach delegates if using events from the PlayerController
+    }
+
+    void FixedUpdate()
+    {
+        HandleCameraFollowAndZoom();
+    }
+
+    private void HandleCameraFollowAndZoom()
+    {
+        if (playerTransform != null)
+        {
+            // Interpolate the current zoom factor towards the target zoom factor for smooth zooming
+            currentZoomFactor = Mathf.Lerp(currentZoomFactor, targetZoomFactor, zoomSpeed);
+
+            Vector3 adjustedOffset = originalOffset * currentZoomFactor;
+            Vector3 targetPosition = playerTransform.position + adjustedOffset;
+
+            // Smoothly interpolate the camera's position towards the target position
+            transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed);
+        }
+    }
+
+    private void HandlePlayerJump(int jumpCount)
+    {
+        // Adjust the target zoom factor based on the jump count
+        targetZoomFactor = jumpCount == 1 ? firstJumpZoomFactor : secondJumpZoomFactor;
+    }
+
+    private void HandlePlayerLanded()
+    {
+        // Reset the zoom when the player lands
+        targetZoomFactor = 1f;
+    }
+
+}
+
+*/

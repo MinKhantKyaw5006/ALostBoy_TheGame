@@ -10,6 +10,12 @@ TagManager:
   - ManaStorageTag
   - PlayerSpawn
   - HeartFillTag
+  - GM
+  - EntryFromChapter1
+  - nextSpawnPointTag
+  - spawnPointTag
+  - SpawnPointChapter2
+  - SpawnPoint
   layers:
   - Default
   - TransparentFX

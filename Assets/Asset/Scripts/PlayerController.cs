@@ -6,83 +6,59 @@ using System; // Add this line
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement; // Add this line for scene management
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDataPersistence
 {
     [HideInInspector] public PlayerStateList pState;
     private Rigidbody2D rb;
     private float xAxis, yAxis;
     private SpriteRenderer sr;
-    Animator anim;
+    private Animator anim;
     public static PlayerController Instance;
     private bool canDash = true;
     private bool Dashed;
     private float gravity;
-    bool attack = false;
-    float timeBetweenAttack, timeSinceAttack;
-    int stepXRecoiled, stepYRecoiled;
-
-    //camera zoomout
-    public delegate void PlayerJumpDelegate(int jumpCount);
-    public event PlayerJumpDelegate OnPlayerJump;
-    public event Action OnPlayerLanded;
+    private bool attack = false;
+    private float timeBetweenAttack, timeSinceAttack;
+    private int stepXRecoiled, stepYRecoiled;
 
     [Header("Health Setting")]
-    public float health; // Now a float
+    public float health;
     public float maxHealth;
-    [SerializeField] GameObject bloodSpurt;
-    [SerializeField] float hitFlashSpeed;
+    [SerializeField] private GameObject bloodSpurt;
+    [SerializeField] private float hitFlashSpeed;
     public delegate void OnHealthChangedDelegate();
     [HideInInspector] public OnHealthChangedDelegate onHealthChangedCallBack;
-    float healTimer;
-    [SerializeField] float timetoHeal;
-    [SerializeField] private RectTransform heartFillRectTransform; // Assign this in the Inspector
-    [SerializeField] private float maxWidth = 100f; // Adjust based on your full heart UI width
-
-    //public HeartController heartController;
-
-    [Space(5)]
+    private float healTimer;
+    [SerializeField] private float timetoHeal;
+    [SerializeField] private RectTransform heartFillRectTransform;
+    [SerializeField] private float maxWidth = 100f;
 
     [Header("Mana Setting")]
-    [SerializeField] Image manaStorage;
-    [SerializeField] float mana;
-    [SerializeField] float manaDrainSpeed;
-    [SerializeField] float manaGain;
-    [SerializeField] private RectTransform manaBarRectTransform; // Assign in the inspector
-    [SerializeField] private float maxManaHeight = 160f; // The y-position when mana is empty
-    [SerializeField] private float manaIncrementPerAttack = 1f; // How much the bar should move up per attack
-    private float manaMaxHeight = 100f; // Adjust based on your UI setup
-    [SerializeField] private float manaChangeSpeed = 2f; // Speed of the mana bar animation
-    private float targetManaY; // Target y position of the mana bar based on current mana
-                               // These should be serialized or public if you want to set them in the Unity editor.
-    [SerializeField] private float maxMana = 1f; // The maximum value that 'mana' can reach.
-    [SerializeField] private float fullManaY = 160f; // The RectTransform's y position when the mana bar is full.
-    [SerializeField] private float emptyManaY = -100f; // The RectTransform's y position when the mana bar is empty.
-
-    // This can be private as we calculate it internally based on the current mana.
-
-
-
-
-    [Space(5)]
+    [SerializeField] private Image manaStorage;
+    [SerializeField] private float mana;
+    [SerializeField] private float manaDrainSpeed;
+    [SerializeField] private float manaGain;
+    [SerializeField] private RectTransform manaBarRectTransform;
+    [SerializeField] private float maxManaHeight = 160f;
+    private float manaMaxHeight = 100f;
+    [SerializeField] private float manaChangeSpeed = 2f;
+    [SerializeField] private float maxMana = 1f;
+    [SerializeField] private float fullManaY = 160f;
+    [SerializeField] private float emptyManaY = -100f;
 
     [Header("Spell Setting")]
-    //spell stats       
-    [SerializeField] float manaSpellCost = 0.3f;
-    [SerializeField] float timeBetweenCast = 0.5f;
-
-    [SerializeField] float spellDamage; //upspellexplosion downspellfireball    
-    [SerializeField] float downSpellForce; //dive desolate
-    //spell cast objects
-    [SerializeField] GameObject sideSpellFireball;
-    [SerializeField] GameObject upSpellExplosion;
-    [SerializeField] GameObject downSpellFireball;
-    float timeSinceCast;
-    float castOrHealTimer;
-    [Space(5)]
+    [SerializeField] private float manaSpellCost = 0.3f;
+    [SerializeField] private float timeBetweenCast = 0.5f;
+    [SerializeField] private float spellDamage;
+    [SerializeField] private float downSpellForce;
+    [SerializeField] private GameObject sideSpellFireball;
+    [SerializeField] private GameObject upSpellExplosion;
+    [SerializeField] private GameObject downSpellFireball;
+    private float timeSinceCast;
+    private float castOrHealTimer;
 
     [Header("Horizontal Movement Setting")]
     [SerializeField] private float walkspeed = 1;
-    [Space(5)]
 
     [Header("Vertical Movement Setting")]
     [SerializeField] private float jumpForce = 45f;
@@ -92,40 +68,45 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float coyoteTime;
     private int airJumpCounter = 0;
     [SerializeField] private int MaxAirJumps;
-    [Space(5)]
 
     [Header("Ground Check Setting")]
     [SerializeField] private Transform groundCheckPoint;
     [SerializeField] private float groundCheckY = 0.2f;
     [SerializeField] private float groundCheckX = 0.5f;
     [SerializeField] private LayerMask WhatIsGround;
-    [Space(5)]
 
     [Header("Dash Variable Setting")]
     [SerializeField] private float dashSpeed;
     [SerializeField] private float dashTime;
     [SerializeField] private float dashCoolDown;
-    [SerializeField] GameObject dashEffect;
-    [Space(5)]
+    [SerializeField] private GameObject dashEffect;
 
     [Header("Attack Setting")]
-    [SerializeField] Transform SideAttackTransform;
-    [SerializeField] Transform UpAttackTransform;
-    [SerializeField] Transform DownAttackTransform;
-    [SerializeField] Vector2 SideAttackArea, UpAttackArea, DownAttackArea;
-    [SerializeField] LayerMask attackableLayer;
-    [SerializeField] float damage;
-    [SerializeField] GameObject slashEffect;
-    bool restoreTime;
-    float restoreTimeSpeed;
-    [Space(5)]
+    [SerializeField] private Transform SideAttackTransform;
+    [SerializeField] private Transform UpAttackTransform;
+    [SerializeField] private Transform DownAttackTransform;
+    [SerializeField] private Vector2 SideAttackArea, UpAttackArea, DownAttackArea;
+    [SerializeField] private LayerMask attackableLayer;
+    [SerializeField] private float damage;
+    [SerializeField] private GameObject slashEffect;
 
     [Header("Recoil Setting")]
-    [SerializeField] int recoilXSteps = 5;
-    [SerializeField] int recoilYSteps = 5;
-    [SerializeField] float recoilXSpeed = 100;
-    [SerializeField] float recoilYSpeed = 100;
+    [SerializeField] private int recoilXSteps = 5;
+    [SerializeField] private int recoilYSteps = 5;
+    [SerializeField] private float recoilXSpeed = 100;
+    [SerializeField] private float recoilYSpeed = 100;
 
+
+    [Header("Jumpzoom Setting")]
+    [SerializeField] private float firstJumpZoomFactor = 1.2f; // Adjust for the first jump
+    [SerializeField] private float secondJumpZoomFactor = 1.5f; // Adjust for the second jump
+    private int currentJumpCount = 0;
+
+
+    //camera zoomout
+    public delegate void PlayerJumpDelegate(int jumpCount);
+    public event PlayerJumpDelegate OnPlayerJump;
+    public event Action OnPlayerLanded;
     //public HeartController heartControllerInstance;
 
 
@@ -140,106 +121,37 @@ public class PlayerController : MonoBehaviour
         else
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-
-        DontDestroyOnLoad(gameObject);
-
-        // Checks if the current instance of the player should be destroyed
-        CheckForDuplicatePlayerInstances();
-        Mana = 0f; // Initialize mana to 0 and update UI
 
 
     }
     void Start()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-
         pState = GetComponent<PlayerStateList>();
+
+        pState.alive = true; // Ensure the player is marked as alive at the start
+
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         gravity = rb.gravityScale;
         sr = GetComponent<SpriteRenderer>();
         Mana = mana;
-
-
-       
-
-        InitializeManaStorage();
-        Mana = 0f; // Set initial mana value and update UI.
-
         Health = maxHealth;
-        InitializeHeartUI();
-        
 
-
-
-        // Find the HeartController in the scene and keep a reference to it
-        //heartControllerInstance = FindObjectOfType<HeartController>();
     }
 
-
-    void Update()
+    public void LoadData(GameData data)
     {
-
-        if (PauseMenuController.IsGamePaused())
-        {
-            // The game is paused, so do something or don't do anything
-            return; // Stop the Update method here if the game is paused.
-        }
-
-
-
-        if (pState.cutscene) return;
-        GetInput();
-        UpdateJumpVariable();
-        RestoreTimeScale();
-        if (pState.dashing) return;
-
-        if (Grounded() && pState.jumping)
-        {
-            pState.jumping = false;
-            OnPlayerLanded?.Invoke(); // Invoke the event when the player lands
-        }
-
-        Flip();
-        Move();
-        Jump1();
-        StartDash();
-        Attack();
-        FlashWhileInvincible();
-        Heal();
-        CastSpell();
-
-
-
-        // Set the 'Idle' parameter
-        anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
-
-        // Update the Animator's Speed parameter every frame
-        anim.SetFloat("Speed", Mathf.Abs(xAxis));
-
-        // Check for scene change to Main Menu at the end of Update method or in a separate method called from Update
-        //CheckCurrentScene();
-
-        // Add a Debug.Log statement to check the time scale each frame
-        //Debug.Log("Player Current Time.timeScale: " + Time.timeScale);
-
+        // Load the player's position from the saved data
+        transform.position = data.playerPosition;
     }
 
-    private void CheckForDuplicatePlayerInstances()
+    public void SaveData(ref GameData data)
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            DontDestroyOnLoad(gameObject);
-        }
+        // Save the current player's position to the data
+        data.playerPosition = transform.position;
     }
-
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -249,6 +161,33 @@ public class PlayerController : MonoBehaviour
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
+
+
+
+    void Update()
+    {
+
+        if (pState.cutscene) return;
+        GetInput();
+        UpdateJumpVariable();
+        if (pState.dashing) return;
+
+        if (Grounded() && pState.jumping)
+        {
+            pState.jumping = false;
+        }
+
+        Flip();
+        Move();
+        Jump();
+        StartDash();
+        Attack();
+        FlashWhileInvincible();
+        Heal();
+        CastSpell();
+
+    }
+
 
     void InitializeManaStorage()
     {
@@ -287,30 +226,6 @@ public class PlayerController : MonoBehaviour
     }
 
 
-
-    /*
-    void InitializeManaStorage()
-    {
-        if (manaStorage == null)
-        {
-            Debug.Log("Attempting to find ManaStorage by tag.");
-            manaStorage = GameObject.FindGameObjectWithTag("ManaStorageTag").GetComponent<Image>();
-            if (manaStorage != null)
-            {
-                Debug.Log("ManaStorage found successfully by tag.");
-                manaStorage.fillAmount = mana;
-            }
-            else
-            {
-                Debug.LogWarning("Failed to find ManaStorage by tag.");
-            }
-        }
-        else
-        {
-            Debug.Log("ManaStorage was pre-assigned.");
-        }
-    }
-    */
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -367,56 +282,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-    public void ResetPlayerState()
-    {
-        // Reset player position
-        Transform spawnPoint = GameObject.FindGameObjectWithTag("PlayerSpawn").transform;
-        if (spawnPoint != null)
-        {
-            transform.position = spawnPoint.position;
-            // Reset other state variables like velocity if needed
-            rb.velocity = Vector2.zero;
-        }
-        else
-        {
-            Debug.LogWarning("Spawn point not found. Make sure your spawn point is tagged correctly.");
-        }
-
-        // Reset other parts of the player state if necessary, e.g., Mana, Health
-        Mana = 0f; // Assuming full mana is 1
-        Health = maxHealth;
-
-        // Reset logic for player state...
-
-        UpdateManaUI(mana); // Make sure UI reflects the reset state
-    }
-
-    /*
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-     
-
-        // If we load the main menu, remove this player instance
-        if (scene.name == "MainMenu")
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            Destroy(gameObject);
-
-            //return; // Add return here so that we don't attempt to reinitialize after destruction
-        }
-        /*else
-        {
-            // Re-establish reference to HeartController if needed
-            HeartController heartControllerInstance = FindObjectOfType<HeartController>();
-            if (heartControllerInstance != null)
-            {
-                heartControllerInstance.ReinitializeHeartContainers();
-            }
-        }
-        
-    }
-    */
-
     private void OnTriggerEnter2D(Collider2D _other)
     {
         if (_other.GetComponent<Enemy>() != null && pState.casting)
@@ -432,18 +297,6 @@ public class PlayerController : MonoBehaviour
         Recoil();
     }
 
-    /*void CheckCurrentScene()
-    {
-        // Check if the current scene is the Main Menu
-        if (SceneManager.GetActiveScene().name == "MainMenu")
-        { // Assume "MainMenu" is your scene's name
-            Destroy(gameObject); // Destroy the player object
-                                 // Alternatively, deactivate the player object if you don't want to destroy it
-                                 // gameObject.SetActive(false);
-        }
-    }
-    */
-
 
 
     void StopRecoilX()
@@ -458,32 +311,10 @@ public class PlayerController : MonoBehaviour
         pState.recoilingY = false;
     }
 
-    /*
-    public void TakeDamage(float _damage)
-    {
-        //Debug.Log("TakeDamage called. Damage: " + _damage);
-        Health -= Mathf.RoundToInt(_damage);
-        StartCoroutine(StopTakingDamage());
-    }*/
-
-    /*
-    public void TakeDamage(float damage)
-    {
-        if (!pState.invincible) // Only take damage if not already invincible
-        {
-            Debug.Log($"Before taking damage: Health = {health}");
-            Health -= damage; // Directly subtract the floating-point damage value
-            Debug.Log($"After taking damage: Health = {health}");
-
-            anim.SetTrigger("TakeDamage");
-            StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
-            heartControllerInstance?.UpdateHeartBar(); // Update health UI
-        }
-    }*/
 
     public void TakeDamage(float damage)
     {
-        if (!pState.invincible) // Only take damage if not already invincible
+        if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
         {
             Debug.Log($"Before taking damage: Health = {health}");
             health -= damage; // Directly subtract the floating-point damage value
@@ -491,15 +322,17 @@ public class PlayerController : MonoBehaviour
             UpdateHeartUI(); // Update heart UI based on new health
             Debug.Log($"After taking damage: Health = {health}");
 
+            if (health <= 0)
+            {
+                StartCoroutine(Death()); // Trigger death sequence
+                return; // Exit the function to not proceed further after death
+            }
+
             anim.SetTrigger("TakeDamage");
             StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
-
-            // Calculate the health percentage
-            float healthPercentage = health / maxHealth;
-            // Update the heart UI with the current health percentage
-            //heartControllerInstance?.UpdateHeartBar(healthPercentage);
         }
     }
+
 
 
     // Assuming this is somewhere within the PlayerController class where you handle health changes
@@ -541,75 +374,19 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(FlashEffect());
     }
 
-    void RestoreTimeScale()
-    {
-        if (restoreTime)
-        {
-            if (Time.timeScale < 1)
-            {
-                Time.timeScale += Time.deltaTime * restoreTimeSpeed;
-            }
-            else
-            {
-                Time.timeScale = 1;
-                restoreTime = false;
-            }
-        }
-    }
-
-    public IEnumerator WalkIntoNewScene(Vector2 _exitDir, float _delay)
-    {
-        //if exit direction is upwards
-        if (_exitDir.y > 0)
-        {
-            rb.velocity = jumpForce * _exitDir;
-        }
-
-        //if exit direciton is horizontal movements
-        if (_exitDir.x != 0)
-        {
-            xAxis = _exitDir.x > 0 ? 1 : -1;
-            Move();
-        }
-        Flip();
-        yield return new WaitForSeconds(_delay);
-        pState.cutscene = false;
-    }
-
     IEnumerator Death()
     {
+        
         pState.alive = false;
         Time.timeScale = 1f;
-        GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
-        Destroy(_bloodSpurtParticles, 1.5f);
+        //GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
+        //Destroy(_bloodspurtParticles, 1, 5f);
         anim.SetTrigger("Death");
 
         yield return new WaitForSeconds(0.9f);
+
     }
 
-
-    /* public void HitStopTime(float _newTimeScale, int _restoreSpeed, float _delay)
-     {
-         restoreTimeSpeed = _restoreSpeed;
-         Time.timeScale = _newTimeScale;
-
-         if (_delay > 0)
-         {
-             StopCoroutine(StartTimeAgain(_delay));
-             StartCoroutine(StartTimeAgain(_delay));
-         }
-         else
-         {
-             restoreTime = true;
-         }
-     }
-
-     IEnumerator StartTimeAgain(float _delay)
-     {
-         restoreTime = true;
-         yield return new WaitForSeconds(_delay);
-     }
-    */
 
     public float Health
     {
@@ -656,26 +433,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /*
-    public float Mana
-    {
-        get { return mana; }
-        set
-        {
-            Debug.Log($"Updating Mana. New Value: {value}");
-            mana = Mathf.Clamp(value, 0, 1);
-            if (manaStorage != null)
-            {
-                manaStorage.fillAmount = mana;
-                Debug.Log($"Mana UI Updated. Fill Amount: {manaStorage.fillAmount}");
-            }
-            else
-            {
-                Debug.LogWarning("Mana storage image is missing or not assigned.");
-            }
-        }
-    }
-    */
+    
 
 
     public float Mana
@@ -685,70 +443,9 @@ public class PlayerController : MonoBehaviour
         {
             mana = Mathf.Clamp(value, 0, 1);
             UpdateManaUI(mana); // Update the UI with the current mana percentage
+            Debug.Log($"Mana updated to: {mana}");
         }
     }
-
-
-
-
-
-
-
-    /*
-    public void UpdateManaUI()
-    {
-        if (manaStorage != null)
-        {
-            manaStorage.fillAmount = Mana; // Ensure this uses the property to maintain any associated logic.
-        }
-        else
-        {
-            Debug.LogWarning("Attempting to update mana UI but manaStorage is null.");
-        }
-    }
-    */
-
-    /*
-    private void UpdateManaUI()
-    {
-        if (manaBarRectTransform != null)
-        {
-            // Calculate the new height based on the current mana.
-            float newHeight = manaMaxHeight * Mana; // Mana is a percentage of the max height.
-            manaBarRectTransform.sizeDelta = new Vector2(manaBarRectTransform.sizeDelta.x, newHeight);
-
-            // Optionally, adjust the position if needed (e.g., if the anchor is at the top).
-            // manaBarRectTransform.anchoredPosition = new Vector2(manaBarRectTransform.anchoredPosition.x, startingYPosition - (manaMaxHeight - newHeight));
-        }
-        else
-        {
-            Debug.LogWarning("ManaBar RectTransform is not assigned.");
-        }
-    }
-    */
-    /*
-    public void UpdateManaUI(float manaPercentage)
-    {
-        if (manaBarRectTransform != null)
-        {
-            // Assuming manaPercentage is a value between 0 and 1
-            float fullHeight = 160f; // The maximum height of the mana bar when it's full. You need to define this based on your UI setup.
-
-            // Calculate the new height based on the mana percentage
-            float newHeight = fullHeight * manaPercentage;
-
-            // Set the size of the mana bar
-            manaBarRectTransform.sizeDelta = new Vector2(manaBarRectTransform.sizeDelta.x, newHeight);
-
-            // Optionally, if you need to adjust the position as well (if it's not anchored at the bottom), you might need to adjust its position too.
-            // This is not needed if your RectTransform is anchored at the bottom.
-        }
-        else
-        {
-            Debug.LogWarning("ManaBar RectTransform is not assigned.");
-        }
-    }
-    */
 
 
     public void UpdateManaUI(float manaPercentage)
@@ -897,42 +594,6 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
     }
 
-    void Attacknew()
-    {
-        // Check if the mouse is currently over a UI element
-        if (EventSystem.current.IsPointerOverGameObject())
-        {
-            return; // If true, return early and do not proceed with the attack
-        }
-
-        timeSinceAttack += Time.deltaTime;
-        if (attack && timeSinceAttack >= timeBetweenAttack)
-        {
-            timeSinceAttack = 0;
-            anim.SetTrigger("Attacking");
-
-            // Perform the attack based on the vertical axis and grounded state
-            if (yAxis == 0 || (yAxis < 0 && Grounded()))
-            {
-                Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
-                Instantiate(slashEffect, SideAttackTransform.position, Quaternion.identity);
-            }
-            else if (yAxis > 0)
-            {
-                Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
-                SlashEffectAtAngle(slashEffect, 80, UpAttackTransform.position);
-            }
-            else if (yAxis < 0 || !Grounded())
-            {
-                Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
-                SlashEffectAtAngle(slashEffect, -90, DownAttackTransform.position);
-            }
-        }
-
-        // Update the Animator's parameters
-        anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
-        anim.SetFloat("Speed", Mathf.Abs(xAxis));
-    }
 
     // Helper method to instantiate slash effects at a given angle
     void SlashEffectAtAngle(GameObject effect, float angle, Vector3 position)
@@ -1043,6 +704,7 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("Walking", rb.velocity.x != 0 && Grounded());
     }
 
+    /* original 
     void CastSpell()
     {
         if (Input.GetButtonUp("Cast/Heal") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
@@ -1067,6 +729,42 @@ public class PlayerController : MonoBehaviour
             rb.velocity += downSpellForce * Vector2.down;
         }
     }
+    */
+
+    void CastSpell()
+    {
+        if (Input.GetButtonUp("Cast/Heal") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        {
+            Debug.Log($"Mana before cast: {Mana}");
+            Debug.Log($"Mana cost for casting: {manaSpellCost}");
+
+            Mana -= manaSpellCost; // Deduct the mana spell cost from the current mana
+
+            Debug.Log($"Mana after cast: {Mana}");
+
+            pState.casting = true;
+            timeSinceCast = 0;
+            StartCoroutine(CastCoroutine());
+        }
+        else
+        {
+            timeSinceCast += Time.deltaTime;
+        }
+
+        // Disable down spell on ground
+        if (Grounded())
+        {
+            downSpellFireball.SetActive(false);
+        }
+
+        // If down spell is active, force player down until ground
+        if (downSpellFireball.activeInHierarchy)
+        {
+            rb.velocity += downSpellForce * Vector2.down;
+        }
+    }
+
+
 
     IEnumerator CastCoroutine()
     {
@@ -1126,30 +824,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Jumpsmooth()
-    {
-        bool isJumping = Input.GetButton("Jump");
-        bool jumpButtonReleased = Input.GetButtonUp("Jump");
-        bool canJump = Grounded();
 
-        // Start jump
-        if (isJumping && canJump)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            anim.SetBool("Jumping", true);
-        }
-
-        // If jump button is released and player is still ascending, reduce the jump force
-        if (jumpButtonReleased && rb.velocity.y > 0)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-        }
-
-        // Check if grounded to update animation
-        anim.SetBool("Jumping", !Grounded());
-    }
-
-    void Jump1()
+    void Jump()
     {
         if (jumpbufferCounter > 0 && coyoteTimeCounter > 0 && !pState.jumping)
         {
@@ -1171,80 +847,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    void Jump()
-    {
-        // Check for ground jump
-        if (Grounded() && Input.GetButtonDown("Jump"))
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            pState.jumping = true;
-            anim.SetBool("Jumping", true);
-            OnPlayerJump?.Invoke(1); // Trigger the jump event with a jump count of 1
-        }
 
-        // Check for air jumps
-        if (!Grounded() && airJumpCounter < MaxAirJumps && Input.GetButtonDown("Jump"))
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            pState.jumping = true;
-            airJumpCounter++;
-            anim.SetBool("Jumping", true);
-            OnPlayerJump?.Invoke(airJumpCounter + 1); // Trigger the jump event with the current air jump count
-        }
-
-        // Allow variable jump height
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-        }
-
-        // Reset jumping state when grounded
-        if (Grounded())
-        {
-            pState.jumping = false;
-            airJumpCounter = 0;
-            anim.SetBool("Jumping", false);
-        }
-    }
-
-    void Jump12()
-    {
-        bool isGrounded = Grounded();
-        bool jumpButtonDown = Input.GetButtonDown("Jump");
-
-        // Check for ground jump
-        if (isGrounded && jumpButtonDown)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            pState.jumping = true;
-            anim.SetBool("Jumping", true); // Trigger the jump animation
-            OnPlayerJump?.Invoke(1); // Notify about the first jump
-        }
-
-        // Check for air jump (double jump)
-        if (!isGrounded && jumpButtonDown && airJumpCounter < MaxAirJumps)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            pState.jumping = true;
-            airJumpCounter++;
-            anim.SetBool("Jumping", true); // Trigger the jump animation
-            OnPlayerJump?.Invoke(airJumpCounter + 1); // Notify about the second jump
-        }
-
-        // Allow variable jump height
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-        }
-
-        // Reset jumping state when grounded
-        if (isGrounded && pState.jumping)
-        {
-            pState.jumping = false;
-            airJumpCounter = 0;
-            anim.SetBool("Jumping", false);
-        }
-    }
 
 
 

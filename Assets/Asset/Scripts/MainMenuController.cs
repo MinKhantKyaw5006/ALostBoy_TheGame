@@ -1,124 +1,43 @@
-/*using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using System.Collections;
-
-public class MainMenuController : MonoBehaviour
-{
-    public GameObject loadingScreenPanel;
-    public Text loadingText;
-
-    // Call this function when the New Game button is clicked
-    public void OnNewGameClicked()
-    {
-        StartCoroutine(LoadNewGame());
-    }
-
-    IEnumerator LoadNewGame()
-    {
-        // Activate the loading screen
-        loadingScreenPanel.SetActive(true);
-        loadingText.text = "Loading...";
-
-        // Fake a 3 second load time
-        yield return new WaitForSeconds(3);
-
-        // Load the Chapter1 scene
-        SceneManager.LoadScene("Chapter1");
-    }
-}
-*/
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.Collections;
 
 public class MainMenuController : MonoBehaviour
 {
-    public GameObject loadingScreenPanel;
-    public Text loadingText;
+    [Header("Main Menu Buttons")]
+    [SerializeField] private Button newGameButton;
+    [SerializeField] private Button continueGameButton;
 
-    // Call this function when the New Game button is clicked
-    public void OnNewGameClicked()
+    private void Start()
     {
-        StartCoroutine(LoadNewGame());
-    }
-
-    IEnumerator LoadNewGame()
-    {
-        // Activate the loading screen
-        loadingScreenPanel.SetActive(true);
-        loadingText.text = "Loading...";
-
-        // Fake a 3 second load time
-        yield return new WaitForSeconds(3);
-
-        // Make sure the game is unpaused when loading a new game
-        Time.timeScale = 1f;
-
-        // Reset the pause state before loading the new game scene
-        PauseMenuController.ResetPauseState();
-
-        // Load the Chapter1 scene
-        SceneManager.LoadScene("Chapter1");
-
-        // Debug the current time scale after loading completes
-        Debug.Log("After loading new game, Time.timeScale should be 1. Current value: " + Time.timeScale);
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnNewGameSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnNewGameSceneLoaded;
-    }
-
-    private void OnNewGameSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.name == "Chapter1")
+        if (!DataPersistenceManager.instance.hasGameData())
         {
-            // Find the PlayerController in the new scene
-            PlayerController playerController = FindObjectOfType<PlayerController>();
-
-            // Reset player state if the playerController is found
-            if (playerController != null)
-            {
-                playerController.ResetPlayerState();
-            }
-
-            // The following line is important to ensure this method doesn't get called again
-            // unless we are loading a new game again.
-            SceneManager.sceneLoaded -= OnNewGameSceneLoaded;
+            continueGameButton.interactable = false;
         }
     }
-
-
-    // Call this function when the Load Game button is clicked
-    public void OnLoadGameClicked()
+    public void OnNewGameClicked()
     {
-        // Implement your loading game logic here
+        DisableMenuButtons();
+        Debug.Log("New Game Clicked");
+        //create new game - which will initialize our game data
+        DataPersistenceManager.instance.NewGame();
+        //load the gameplay scene - which will turn on save the game because of
+        //onsceneunloaded method in the datapersistence manager
+        SceneManager.LoadSceneAsync("Chapter1");
     }
 
-    // Call this function when the Exit button is clicked
-    public void OnExitClicked()
+    public void OnContinueGameClicked()
     {
-        // Implement your exit game logic here
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        DisableMenuButtons();
+        Debug.Log("Continue Game Clicked");
+        // Load the next scene - which will load the game because of
+        //On SceneLoaded() in the Datapersistence Manager
+        SceneManager.LoadSceneAsync("Chapter1");
     }
 
-    // Call this function when you need to return to the main menu from the game
-    public void LoadMainMenu()
+    private void DisableMenuButtons() 
     {
-        // Load the main menu scene
-        SceneManager.LoadScene("MainMenu");
+        newGameButton.interactable = false;
+        continueGameButton.interactable = false;
     }
 }
-
