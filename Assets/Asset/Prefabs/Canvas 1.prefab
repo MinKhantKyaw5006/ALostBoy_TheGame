@@ -1245,6 +1245,7 @@ GameObject:
   - component: {fileID: 4661885958609161865}
   - component: {fileID: 4661885958609161864}
   - component: {fileID: 4661885958609161863}
+  - component: {fileID: 3156339188524729539}
   m_Layer: 5
   m_Name: Canvas 1
   m_TagString: Untagged
@@ -1353,6 +1354,19 @@ MonoBehaviour:
   heartFillRectTransform: {fileID: 4661885957300377010}
   heartFillTag: HeartFillTag
   maxWidth: 100
+--- !u!114 &3156339188524729539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4661885958609161862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dda6526a9a72a6840b7dce97d885d6cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseMenuPanel: {fileID: 0}
 --- !u!1 &4661885958627104216
 GameObject:
   m_ObjectHideFlags: 0
