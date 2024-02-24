@@ -123,6 +123,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
+        
 
 
     }
@@ -147,7 +148,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         transform.position = data.playerPosition;
     }
 
-    public void SaveData(ref GameData data)
+    public void SaveData( GameData data)
     {
         // Save the current player's position to the data
         data.playerPosition = transform.position;
