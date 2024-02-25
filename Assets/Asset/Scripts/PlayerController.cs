@@ -312,7 +312,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         pState.recoilingY = false;
     }
 
-
+    /*
     public void TakeDamage(float damage)
     {
         if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
@@ -333,6 +333,32 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
         }
     }
+    */
+    public void TakeDamage(float damage, bool isFallDamage = false)
+    {
+        if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
+        {
+            Debug.Log($"Before taking damage: Health = {health}");
+            health -= damage; // Directly subtract the floating-point damage value
+            health = Mathf.Clamp(health, 0, maxHealth); // Ensure health does not go below 0 or above maxHealth
+            UpdateHeartUI(); // Update heart UI based on new health
+            Debug.Log($"After taking damage: Health = {health}");
+
+            if (health <= 0)
+            {
+                StartCoroutine(Death()); // Trigger death sequence
+                return; // Exit the function to not proceed further after death
+            }
+
+            // If damage is not from a fall, perform flashing and make the player temporarily invincible
+            if (!isFallDamage)
+            {
+                anim.SetTrigger("TakeDamage");
+                StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
+            }
+        }
+    }
+
 
 
 
