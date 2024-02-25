@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private float timetoHeal;
     [SerializeField] private RectTransform heartFillRectTransform;
     [SerializeField] private float maxWidth = 100f;
+    // Reference to SaveGroundCP script
+    [SerializeField] private SaveGroundCP saveGroundCP;
+
 
     [Header("Mana Setting")]
     [SerializeField] private Image manaStorage;
@@ -139,6 +142,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         sr = GetComponent<SpriteRenderer>();
         Mana = mana;
         Health = maxHealth;
+        saveGroundCP = FindObjectOfType<SaveGroundCP>(); // Find the SaveGroundCP component in the scene
 
     }
 
@@ -401,6 +405,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         StartCoroutine(FlashEffect());
     }
 
+    /*
     IEnumerator Death()
     {
         
@@ -412,7 +417,75 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
         yield return new WaitForSeconds(0.9f);
 
+
+        // Warp back to checkpoint position
+        if (saveGroundCP != null)
+        {
+            transform.position = saveGroundCP.safeGroundLocation;
+        }
+        else
+        {
+            Debug.LogError("SaveGroundCP reference not set in PlayerController.");
+        }
+
+        // Reset health to full and update UI
+        Health = maxHealth;
+        UpdateHeartUI();
+
+        // Set animation state to idle
+        anim.SetBool("Idle", true);
+
+        // Optionally, make the player invincible for a short duration after respawning
+        StartCoroutine(MakeInvincible(2.0f));
+
+        // Set the player to alive again
+        pState.alive = true;
     }
+    */
+
+    
+    IEnumerator Death()
+    {
+        pState.alive = false;
+        //Time.timeScale = 1f;
+        // anim.SetBool("IsAlive", false); // Indicate death in the Animator
+        anim.SetBool("IsDead", true); // Trigger death animation
+
+        yield return new WaitForSeconds(0f); // Wait time could be adjusted based on your death animation length
+
+        // Additional wait time before warping
+        //float warpUpDelay = 4f; // Adjust this value to match your needs
+        //yield return new WaitForSeconds(warpUpDelay);
+
+        
+
+        // Warp back to checkpoint position
+        if (saveGroundCP != null)
+        {
+            
+            transform.position = saveGroundCP.safeGroundLocation;
+        }
+        else
+        {
+            Debug.LogError("SaveGroundCP reference not set in PlayerController.");
+        }
+
+       
+
+        // Set the player to alive again for the Animator and state
+        // Respawn logic here
+        anim.SetBool("IsDead", false); // Exit death animation
+                                       // Reset health to full and update UI
+        Health = maxHealth;
+        UpdateHeartUI();
+        anim.SetBool("IsAlive", true);
+        pState.alive = true;
+
+        // Optionally, make the player invincible for a short duration after respawning
+        StartCoroutine(MakeInvincible(2.0f));
+    }
+    
+
 
 
     public float Health

@@ -8,10 +8,15 @@ public class SaveGroundCP : MonoBehaviour
 
     public Vector2 safeGroundLocation { get; private set; } = Vector2.zero;
 
+    private Collider2D coll;
+    private float safeSpotYOffset;
+
     private void Start()
     {
         //initializing   a starting safe position
         safeGroundLocation = transform.position;
+        coll = GetComponent<Collider2D>();
+        safeSpotYOffset = (coll.bounds.size.y / 2);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -20,7 +25,7 @@ public class SaveGroundCP : MonoBehaviour
         if((whatIsCheckPoint.value &(1 << collision.gameObject.layer)) > 0)
         {
             //update the safegroundlocation
-            safeGroundLocation = new Vector2(collision.bounds.center.x, collision.bounds.min.y);
+            safeGroundLocation = new Vector2(collision.bounds.center.x, collision.bounds.min.y + safeSpotYOffset);
         }
 
     }

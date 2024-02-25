@@ -46,6 +46,7 @@ GameObject:
   - component: {fileID: 4926894689176328907}
   - component: {fileID: 4926894689176328906}
   - component: {fileID: 4926894689176328757}
+  - component: {fileID: 267463199864509965}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -283,6 +284,21 @@ MonoBehaviour:
   casting: 0
   cutscene: 0
   alive: 0
+--- !u!114 &267463199864509965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4926894689176328908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 356edd5c7345c474e877a53fe7b2fb27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  whatIsCheckPoint:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &4926894690032258411
 GameObject:
   m_ObjectHideFlags: 0
