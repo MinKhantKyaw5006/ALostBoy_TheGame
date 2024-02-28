@@ -16,6 +16,8 @@ TagManager:
   - spawnPointTag
   - SpawnPointChapter2
   - SpawnPoint
+  - MovingPlatform
+  - CollectibleItem
   layers:
   - Default
   - TransparentFX

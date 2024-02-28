@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System; // Add this line
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement; // Add this line for scene management
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IDataPersistence
 {
@@ -112,9 +113,20 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     public event Action OnPlayerLanded;
     //public HeartController heartControllerInstance;
 
+    private PlayerControls playerControls;
+    private Vector2 currentMovementInput;
 
-
+    private bool leftTriggerPressed = false;
+    private bool rightTriggerPressed = false;
+    private bool isHealing = false; // Add this to keep track of healing state
     // Start is called before the first frame update
+    
+    //moving platform
+    private GameObject currentPlatform = null;
+    private Vector3 lastPlatformPosition;
+    private Rigidbody2D playerRigidbody;
+    private Vector2 platformVelocityLastFrame;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -126,13 +138,24 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        
+
+        // Initialize the input controls
+        playerControls = new PlayerControls();
+
+        // Subscribe to the performed and canceled events of the Move action
+        playerControls.Player.Move.performed += OnMovePerformed;
+        playerControls.Player.Move.canceled += OnMoveCanceled;
+        // Initialize healing action callbacks
+      
 
 
     }
+
+
     void Start()
     {
         pState = GetComponent<PlayerStateList>();
+        playerRigidbody = GetComponent<Rigidbody2D>();
 
         pState.alive = true; // Ensure the player is marked as alive at the start
 
@@ -160,12 +183,84 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        playerControls.Enable();
+        playerControls.Player.Jump.performed += OnJumpPerformed;
+        playerControls.Player.Dash.performed += OnDashPerformed;
+        playerControls.Player.Attack.performed += OnAttackPerformed;
+        playerControls.Player.Heal.performed += OnHealPerformed;
+        playerControls.Player.Heal.canceled += OnHealCanceled;
+        playerControls.Player.SpellCast.performed += OnSpellCastPerformed;
+        playerControls.Enable();
     }
 
     void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        playerControls.Disable();
+        playerControls.Player.Jump.performed -= OnJumpPerformed;
+        playerControls.Player.Dash.performed -= OnDashPerformed;
+        playerControls.Player.Attack.performed -= OnAttackPerformed;
+        playerControls.Player.Heal.performed -= OnHealPerformed;
+        playerControls.Player.Heal.canceled -= OnHealCanceled;
+        playerControls.Player.SpellCast.performed -= OnSpellCastPerformed;  
+        playerControls.Disable();
+
     }
+    // Callbacks from the new input system
+    private void OnHealPerformed(InputAction.CallbackContext context)
+    {
+        isHealing = true; // Start healing
+    }
+
+    private void OnHealCanceled(InputAction.CallbackContext context)
+    {
+        isHealing = false; // Stop healing
+    }
+
+    private void OnAttackPerformed(InputAction.CallbackContext context)
+    {
+        // Perform the attack logic
+        Attack();
+    }
+
+    private void OnJumpPerformed(InputAction.CallbackContext context)
+    {
+        // If jump is performed and player is on the ground or has air jumps left, make the player jump
+        if (Grounded() || (airJumpCounter < MaxAirJumps && !pState.jumping))
+        {
+            pState.jumping = true;
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            if (!Grounded())
+            {
+                airJumpCounter++;
+            }
+            anim.SetBool("Jumping", true);
+        }
+    }
+
+    private void OnDashPerformed(InputAction.CallbackContext context)
+    {
+        // Check if dash is performed and the player can dash
+        if (canDash && !Dashed)
+        {
+            StartCoroutine(Dash());
+            Dashed = true;
+        }
+    }
+
+
+    private void OnMovePerformed(InputAction.CallbackContext context)
+    {
+        // Set the current movement input to the value of the input
+        currentMovementInput = context.ReadValue<Vector2>();
+    }
+
+    private void OnMoveCanceled(InputAction.CallbackContext context)
+    {
+        // Reset the current movement input when the input is canceled
+        currentMovementInput = Vector2.zero;
+    }
+
 
 
 
@@ -300,6 +395,14 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         if (pState.cutscene) return;
         if (pState.dashing) return;
         Recoil();
+
+        if (currentPlatform != null)
+        {
+            Vector3 deltaPosition = currentPlatform.transform.position - lastPlatformPosition;
+            transform.position += deltaPosition;
+            lastPlatformPosition = currentPlatform.transform.position;
+        }
+
     }
 
 
@@ -316,28 +419,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         pState.recoilingY = false;
     }
 
-    /*
-    public void TakeDamage(float damage)
-    {
-        if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
-        {
-            Debug.Log($"Before taking damage: Health = {health}");
-            health -= damage; // Directly subtract the floating-point damage value
-            health = Mathf.Clamp(health, 0, maxHealth); // Ensure health does not go below 0 or above maxHealth
-            UpdateHeartUI(); // Update heart UI based on new health
-            Debug.Log($"After taking damage: Health = {health}");
 
-            if (health <= 0)
-            {
-                StartCoroutine(Death()); // Trigger death sequence
-                return; // Exit the function to not proceed further after death
-            }
-
-            anim.SetTrigger("TakeDamage");
-            StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
-        }
-    }
-    */
     public void TakeDamage(float damage, bool isFallDamage = false)
     {
         if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
@@ -405,44 +487,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         StartCoroutine(FlashEffect());
     }
 
-    /*
-    IEnumerator Death()
-    {
-        
-        pState.alive = false;
-        Time.timeScale = 1f;
-        //GameObject _bloodSpurtParticles = Instantiate(bloodSpurt, transform.position, Quaternion.identity);
-        //Destroy(_bloodspurtParticles, 1, 5f);
-        anim.SetTrigger("Death");
-
-        yield return new WaitForSeconds(0.9f);
-
-
-        // Warp back to checkpoint position
-        if (saveGroundCP != null)
-        {
-            transform.position = saveGroundCP.safeGroundLocation;
-        }
-        else
-        {
-            Debug.LogError("SaveGroundCP reference not set in PlayerController.");
-        }
-
-        // Reset health to full and update UI
-        Health = maxHealth;
-        UpdateHeartUI();
-
-        // Set animation state to idle
-        anim.SetBool("Idle", true);
-
-        // Optionally, make the player invincible for a short duration after respawning
-        StartCoroutine(MakeInvincible(2.0f));
-
-        // Set the player to alive again
-        pState.alive = true;
-    }
-    */
-
     
     IEnumerator Death()
     {
@@ -503,35 +547,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
 
 
-    void Heal()
-    {
-        if (Input.GetButton("Cast/Heal") && castOrHealTimer > 0.05f && health < maxHealth && Mana > 0 && !pState.jumping && !pState.dashing)
-        {
-            pState.Healing = true;
-            anim.SetBool("Healing", true);
 
-            // Drain mana outside of the Mana property to avoid recursion
-            Mana -= Time.deltaTime * manaDrainSpeed;
-
-            //healing
-            healTimer += Time.deltaTime;
-            if (healTimer >= timetoHeal)
-            {
-                health++;
-                healTimer = 0;
-                if (onHealthChangedCallBack != null)
-                {
-                    onHealthChangedCallBack.Invoke();
-                }
-            }
-        }
-        else
-        {
-            pState.Healing = false;
-            anim.SetBool("Healing", false);
-            healTimer = 0;
-        }
-    }
 
     
 
@@ -612,12 +628,9 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     void StartDash()
     {
-        if (Input.GetButtonDown("Dash") && canDash && !Dashed)
-        {
-            //Debug.Log($"Dash input: {Input.GetButtonDown("Dash")}, canDash: {canDash}, Dashed: {Dashed}");
-            StartCoroutine(Dash());
-            Dashed = true;
-        }
+        // The dash input is now handled by OnDashPerformed.
+
+        // Resetting Dashed if the player is grounded
         if (Grounded())
         {
             Dashed = false;
@@ -651,6 +664,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         pState.invincible = false;
     }
 
+    
     void Attack()
     {
         // Check if the mouse is currently over a UI element
@@ -693,6 +707,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         // Set the Idle parameter based on the xAxis value and whether the player is grounded
         anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
     }
+    
+
+ 
+
 
 
     // Helper method to instantiate slash effects at a given angle
@@ -800,45 +818,71 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void Move()
     {
-        rb.velocity = new Vector2(walkspeed * xAxis, rb.velocity.y);
-        anim.SetBool("Walking", rb.velocity.x != 0 && Grounded());
+        // Use currentMovementInput to set the velocity
+        float moveX = currentMovementInput.x * walkspeed;
+        float moveY = rb.velocity.y;
+        rb.velocity = new Vector2(moveX, moveY);
+
+        // Update the animator with the walking state
+        anim.SetBool("Walking", moveX != 0 && Grounded());
     }
 
-    /* original 
-    void CastSpell()
+
+
+
+
+
+   
+    // Updated Heal method without direct input checks
+    void Heal()
     {
-        if (Input.GetButtonUp("Cast/Heal") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        if (isHealing && health < maxHealth && Mana > 0 && !pState.jumping && !pState.dashing)
         {
-            pState.casting = true;
-            timeSinceCast = 0;
-            StartCoroutine(CastCoroutine());
+            pState.Healing = true;
+            anim.SetBool("Healing", true);
+
+            // Drain mana outside of the Mana property to avoid recursion
+            Mana -= Time.deltaTime * manaDrainSpeed;
+
+            // Healing
+            healTimer += Time.deltaTime;
+            if (healTimer >= timetoHeal)
+            {
+                health++;
+                healTimer = 0;
+                if (onHealthChangedCallBack != null)
+                {
+                    onHealthChangedCallBack.Invoke();
+                }
+            }
         }
         else
         {
-            timeSinceCast += Time.deltaTime;
-        }
-
-        if (Grounded())
-        {
-            //disable downspell on ground
-            downSpellFireball.SetActive(false);
-        }
-        // if down spell is active, force player down until ground
-        if (downSpellFireball.activeInHierarchy)
-        {
-            rb.velocity += downSpellForce * Vector2.down;
+            pState.Healing = false;
+            anim.SetBool("Healing", false);
+            healTimer = 0;
         }
     }
-    */
+    private void OnSpellCastPerformed(InputAction.CallbackContext context)
+    {
+        // Check if it's the right time to cast a spell
+        if (castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        {
+            CastSpell();
+        }
+    }
 
+ 
     void CastSpell()
     {
-        if (Input.GetButtonUp("Cast/Heal") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        // Check if mana is full and other conditions are met before casting
+        if (Input.GetButtonUp("Cast/Heal") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost && Mana == maxMana)
         {
             Debug.Log($"Mana before cast: {Mana}");
             Debug.Log($"Mana cost for casting: {manaSpellCost}");
 
-            Mana -= manaSpellCost; // Deduct the mana spell cost from the current mana
+            // Deduct the mana spell cost from the current mana
+            Mana -= manaSpellCost;
 
             Debug.Log($"Mana after cast: {Mana}");
 
@@ -863,6 +907,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             rb.velocity += downSpellForce * Vector2.down;
         }
     }
+
 
 
 
@@ -924,7 +969,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
-
+    /*
     void Jump()
     {
         if (jumpbufferCounter > 0 && coyoteTimeCounter > 0 && !pState.jumping)
@@ -938,7 +983,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             airJumpCounter++;
             rb.velocity = new Vector3(rb.velocity.x, jumpForce);
         }
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 3)
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 3) 
         {
             pState.jumping = false;
             rb.velocity = new Vector2(rb.velocity.x, 0);
@@ -946,7 +991,21 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         anim.SetBool("Jumping", !Grounded());
 
     }
+    */
 
+    void Jump()
+    {
+        // Jump logic is now handled by OnJumpPerformed.
+        // The following is to handle the "letting go" of the jump button for variable jump height
+
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 3)
+        {
+            pState.jumping = false;
+            rb.velocity = new Vector2(rb.velocity.x, 0);
+        }
+
+        anim.SetBool("Jumping", !Grounded());
+    }
 
 
 
@@ -974,4 +1033,21 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             jumpbufferCounter--;
         }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("MovingPlatform"))
+        {
+            currentPlatform = collision.gameObject;
+            lastPlatformPosition = currentPlatform.transform.position;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("MovingPlatform"))
+        {
+            currentPlatform = null;
+        }
+    }
+
 }

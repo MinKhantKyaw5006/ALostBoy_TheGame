@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 4926894689176328906}
   - component: {fileID: 4926894689176328757}
   - component: {fileID: 267463199864509965}
+  - component: {fileID: 1791979228159533892}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -193,6 +194,7 @@ MonoBehaviour:
   timetoHeal: 1
   heartFillRectTransform: {fileID: 0}
   maxWidth: 100
+  saveGroundCP: {fileID: 0}
   manaStorage: {fileID: 0}
   mana: 0
   manaDrainSpeed: 0.2
@@ -299,6 +301,19 @@ MonoBehaviour:
   whatIsCheckPoint:
     serializedVersion: 2
     m_Bits: 0
+--- !u!114 &1791979228159533892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4926894689176328908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 086f55cdfaeab704d950c536c8375829, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemCount: 0
 --- !u!1 &4926894690032258411
 GameObject:
   m_ObjectHideFlags: 0
