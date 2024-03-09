@@ -18,6 +18,7 @@ TagManager:
   - SpawnPoint
   - MovingPlatform
   - CollectibleItem
+  - Teleporter
   layers:
   - Default
   - TransparentFX
