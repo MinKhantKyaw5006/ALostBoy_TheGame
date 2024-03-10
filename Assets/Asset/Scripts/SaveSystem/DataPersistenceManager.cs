@@ -243,7 +243,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     [Header("File Storage Config")]
     [SerializeField] private string fileName = "MyGame.json";
-
+    [SerializeField] private string checkpointFileName = "CheckpointData.json"; // File name for checkpoint data
     [SerializeField] private string sceneDataFileName = "sceneData.json"; // Different file for scene data
     public bool shouldReset = false; // Add this field to DataPersistenceManager
 
@@ -257,6 +257,15 @@ public class DataPersistenceManager : MonoBehaviour
     // New field to indicate a reset is requested
     public bool resetGameOnLoad = false;
     public static DataPersistenceManager instance { get; private set; }
+
+    // Define the IsNewGame property here
+    public bool IsNewGame { get; private set; } = false;
+
+    public GameData GameData
+    {
+        get { return gameData; }
+    }
+
 
     private void Awake()
     {
@@ -378,6 +387,15 @@ public class DataPersistenceManager : MonoBehaviour
         }
 
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
+
+        //if not work delete
+        // Initialize or update checkpoint data
+        if (SceneManager.GetActiveScene().name != "GameMainMenu")
+        {
+            //InitializeCheckpoints();
+
+        }
+
         LoadGame(); // Continue to load game data
         
     }
@@ -420,6 +438,7 @@ public class DataPersistenceManager : MonoBehaviour
         Debug.Log("New game started, resetting game data including player position.");
         gameData = new GameData();
         shouldReset = true; // Indicate that we've started a new game
+      
     }
 
 
@@ -463,6 +482,8 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void LoadGame()
     {
+
+
         if (disableDataPersistence) return;
 
         // Check if we should reset the game data based on the flag
@@ -558,8 +579,8 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void OnApplicationQuit()
     {
-        SaveGame();
-        Debug.Log("Quit Saved");
+        
+        
     }
 
     public bool HasGameData()
@@ -629,6 +650,104 @@ public class DataPersistenceManager : MonoBehaviour
             File.Delete(filePath);
         }
     }
+
+    //original
+    /*
+    private void InitializeCheckpoints()
+    {
+        // Find all GameObjects with the "Checkpoint" tag
+        GameObject[] checkpointObjects = GameObject.FindGameObjectsWithTag("CheckPoint");
+
+        // Convert the GameObject array to a list of Checkpoint components
+        List<CheckPoint> checkpoints = checkpointObjects.Select(obj => obj.GetComponent<CheckPoint>()).ToList();
+
+        // Sort the checkpoints by their ID
+        checkpoints.Sort((a, b) => a.checkpointID.CompareTo(b.checkpointID));
+
+        // Optionally: Store the sorted checkpoint IDs in the GameData (assuming GameData has a list for this)
+        // Clear existing IDs to avoid duplicates
+        gameData.checkpointIDs.Clear();
+
+        foreach (var checkpoint in checkpoints)
+        {
+            gameData.checkpointIDs.Add(checkpoint.checkpointID);
+        }
+
+        // Debug: Print the ordered list of checkpoint IDs
+        Debug.Log("Ordered Checkpoint IDs: " + string.Join(", ", gameData.checkpointIDs));
+
+        SaveCheckpointsOnly();
+    }
+
+    
+    //current working codes
+    private void SaveCheckpointsOnly()
+    {
+        // Avoid saving checkpoint data when in the main menu scene
+        if (SceneManager.GetActiveScene().name == "GameMainMenu") // Adjust the scene name as per your main menu's scene name
+        {
+            Debug.Log("Currently in the Main Menu. Skipping checkpoint save.");
+            return;
+        }
+
+        if (gameData == null)
+        {
+            Debug.LogError("GameData is null. Cannot save checkpoints.");
+            return;
+        }
+
+        // Ensure we have a valid profile ID selected
+        if (string.IsNullOrEmpty(selectedProfileId))
+        {
+            Debug.LogError("No selected profile ID. Cannot save checkpoints.");
+            return;
+        }
+
+        // Extract only checkpoint data from gameData
+        var checkpointData = new CheckpointData
+        {
+            checkpointIDs = gameData.checkpointIDs
+            // Add any other checkpoint-specific data you might have
+        };
+
+        // Serialize the checkpoint data object to JSON
+        string jsonData = JsonUtility.ToJson(checkpointData, true);
+
+        // Define the path for the save file within the selected profile's directory
+        string profilePath = Path.Combine(Application.persistentDataPath, selectedProfileId);
+        if (!Directory.Exists(profilePath))
+        {
+            Directory.CreateDirectory(profilePath);
+        }
+        // Use a specific file name for checkpoint data
+        string filePath = Path.Combine(profilePath, "CheckpointData.json"); // Consider using a constant or a setting for file names
+
+        // Write the JSON string to the file
+        File.WriteAllText(filePath, jsonData);
+
+        Debug.Log($"Checkpoint data saved successfully for profile {selectedProfileId}.");
+    }
+
+
+
+
+  
+
+
+
+
+
+
+    [System.Serializable]
+    public class CheckpointData
+    {
+        public List<int> checkpointIDs;
+        // Include other checkpoint-specific fields as needed
+
+        
+    }
+    */
+ 
 
 
 

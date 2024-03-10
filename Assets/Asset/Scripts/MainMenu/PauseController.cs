@@ -85,7 +85,7 @@ public class PauseController : MonoBehaviour
             }
 
             // Save the game state before transitioning to the main menu
-            DataPersistenceManager.instance.SaveGame();
+            //DataPersistenceManager.instance.SaveGame();
 
             // Ensure game time is resumed
             Time.timeScale = 1f;

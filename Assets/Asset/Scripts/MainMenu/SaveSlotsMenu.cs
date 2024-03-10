@@ -68,6 +68,10 @@ public class SaveSlotsMenu : Menu
         SceneManager.LoadSceneAsync(sceneToLoad);
     }
     */
+
+
+    //original
+    
     public void OnSaveSlotClicked(SaveSlot saveSlot)
     {
         // Disable all buttons
@@ -101,6 +105,11 @@ public class SaveSlotsMenu : Menu
         // Load the determined scene
         SceneManager.LoadSceneAsync(sceneToLoad);
     }
+    
+    
+ 
+
+
 
 
 
@@ -111,8 +120,8 @@ public class SaveSlotsMenu : Menu
         this.DeactivateMenu();
     }
 
-
-
+    //original
+    /*
     public void ActivateMenu(bool isLoadingGame)
     {
         //Set this menu to be active
@@ -152,6 +161,51 @@ public class SaveSlotsMenu : Menu
         //set the first selected button
         StartCoroutine(this.SetFirstSelected(firstSelected));
     }
+    */
+
+    public void ActivateMenu(bool isLoadingGame)
+    {
+        //Set this menu to be active
+        this.gameObject.SetActive(true);
+
+        //set mode
+        this.isLoadingGame = isLoadingGame;
+
+        //load all of  the profiles that exist
+        Dictionary<string, GameData> profilesGameData = DataPersistenceManager.instance.GetAllProfilesGameData();
+
+        //loop through each save slot in the UI and set the content appropriately
+        GameObject firstSelected = backButton.gameObject;
+
+        foreach (SaveSlot saveSlot in saveSlots)
+        {
+            GameData profileData = null;
+            string profileId = saveSlot.GetProfileId(); // Get the profile ID for each save slot
+            profilesGameData.TryGetValue(profileId, out profileData);
+
+            // Pass both profileData and profileId to the SetData method
+            saveSlot.SetData(profileData, profileId);
+
+            //disable interaction if not data in saveslot
+            //enable if have data
+            if (profileData == null && isLoadingGame)
+            {
+                saveSlot.Setinteractable(false);
+            }
+            else
+            {
+                saveSlot.Setinteractable(true);
+                //defaulting saveslot position
+                if (firstSelected.Equals(backButton.gameObject))
+                {
+                    firstSelected = saveSlot.gameObject;
+                }
+            }
+        }
+        //set the first selected button
+        StartCoroutine(this.SetFirstSelected(firstSelected));
+    }
+
 
     public void DeactivateMenu() 
     {
