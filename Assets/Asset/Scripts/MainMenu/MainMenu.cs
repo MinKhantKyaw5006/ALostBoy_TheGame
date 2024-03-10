@@ -15,7 +15,8 @@ public class MainMenu : Menu
     [SerializeField] private Button loadGameButton;
     [SerializeField] private Button quitGameButton; // Add this line
 
-
+    ///original
+    
     public void Start()
     {
         
@@ -30,6 +31,13 @@ public class MainMenu : Menu
         }
        
     }
+    
+    
+
+    
+
+    
+
     /*
     public void OnNewGameClicked()
     {
@@ -58,6 +66,10 @@ public class MainMenu : Menu
         //load the next scene - which will  in turn load the game  because of
         // Explicitly load game data before loading the gameplay scene
         DataPersistenceManager.instance.LoadGame();
+
+        //save game data
+        DataPersistenceManager.instance.SaveGame();
+
 
         // Determine which scene to load based on saved scene data
         string sceneToLoad = DataPersistenceManager.instance.DetermineSceneToLoad();

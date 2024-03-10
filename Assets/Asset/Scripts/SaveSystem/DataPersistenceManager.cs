@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using System;
+using System.IO;
+
 
 
 /*
@@ -236,10 +239,14 @@ public class DataPersistenceManager : MonoBehaviour
     [SerializeField] private bool overrideSelectedProfileId = false;
     [SerializeField] private string testSelectedProfileId = "test";
 
+   
+
     [Header("File Storage Config")]
     [SerializeField] private string fileName = "MyGame.json";
 
     [SerializeField] private string sceneDataFileName = "sceneData.json"; // Different file for scene data
+    public bool shouldReset = false; // Add this field to DataPersistenceManager
+
 
     private SceneData sceneData;
     private GameData gameData;
@@ -247,6 +254,8 @@ public class DataPersistenceManager : MonoBehaviour
     private FileDataHandler dataHandler;
     public SceneDataHandler sceneDataHandler;
     private string selectedProfileId = "";
+    // New field to indicate a reset is requested
+    public bool resetGameOnLoad = false;
     public static DataPersistenceManager instance { get; private set; }
 
     private void Awake()
@@ -282,17 +291,17 @@ public class DataPersistenceManager : MonoBehaviour
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.sceneUnloaded += OnSceneUnloaded;
+        //SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        //SceneManager.sceneUnloaded -= OnSceneUnloaded;
     }
 
 
-
+    /*
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         string sceneName = scene.name;
@@ -328,11 +337,64 @@ public class DataPersistenceManager : MonoBehaviour
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
         LoadGame(); // Continue to load game data
     }
+    */
+
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"Scene {scene.name} loaded, checking if game data reset is requested");
+        
+
+
+        string sceneName = scene.name;
+        SceneData existingSceneData = sceneDataHandler.LoadSceneData();
+
+        if (existingSceneData != null)
+        {
+            if (sceneName == "GameMainMenu" && !string.IsNullOrEmpty(existingSceneData.previousScene) && existingSceneData.previousScene != "GameMainMenu")
+            {
+                // Skip updating scene data for "GameMainMenu" if coming from another scene
+            }
+            else
+            {
+                sceneData.previousScene = existingSceneData.currentScene;
+                sceneData.currentScene = sceneName;
+                Debug.Log($"Scene transition: Previous - {sceneData.previousScene}, Current - {sceneData.currentScene}");
+                sceneDataHandler.SaveSceneData(sceneData);
+            }
+        }
+        else
+        {
+            sceneData.previousScene = "";
+            sceneData.currentScene = sceneName;
+            Debug.Log($"First scene load, setting scene data: Current - {sceneData.currentScene}");
+            sceneDataHandler.SaveSceneData(sceneData);
+        }
+
+        // New logic to handle SaveSlot.json
+        // Check if the scene is not "GameMainMenu" before saving the scene name to SaveSlot.json
+        if (sceneName != "GameMainMenu" && !string.IsNullOrEmpty(selectedProfileId))
+        {
+            SaveSceneNameToSaveSlotJson(selectedProfileId, sceneName);
+        }
+
+        this.dataPersistenceObjects = FindAllDataPersistenceObjects();
+        LoadGame(); // Continue to load game data
+        
+    }
+
+    private void SaveSceneNameToSaveSlotJson(string profileId, string sceneName)
+    {
+        // Assuming fileDataHandler is an instance of FileDataHandler already defined in your class.
+        SaveSlotData saveSlotData = new SaveSlotData { lastPlayedScene = sceneName };
+        dataHandler.SaveSaveSlotData(profileId, saveSlotData); // Use the instance to call the method
+        Debug.Log($"Saved '{sceneName}' to SaveSlot.json for profile {profileId}");
+    }
 
 
 
 
 
+    /*
     public void OnSceneUnloaded(Scene scene)
     {
         // Optional: Handle any additional logic needed when a scene unloads
@@ -340,17 +402,30 @@ public class DataPersistenceManager : MonoBehaviour
 
         SaveGame();
     }
+    */
 
 
-
+    //original
+    /*
+    public void NewGame()
+    {
+        Debug.Log("New game started, resetting game data including player position");
+        this.gameData = new GameData();
+  
+    }
+    */
 
     public void NewGame()
     {
-        this.gameData = new GameData();
+        Debug.Log("New game started, resetting game data including player position.");
+        gameData = new GameData();
+        shouldReset = true; // Indicate that we've started a new game
     }
 
 
 
+
+    /*
     public void LoadGame()
     {
         //return right away if data  persistence is disabled
@@ -369,6 +444,7 @@ public class DataPersistenceManager : MonoBehaviour
         if (this.gameData == null && initializeDataIfNull)
         {
             NewGame();
+
         }
 
         //if no data can be loaded, initialize to new game
@@ -383,6 +459,52 @@ public class DataPersistenceManager : MonoBehaviour
             dataPersistenceObj.LoadData(gameData);
         }
     }
+    */
+
+    public void LoadGame()
+    {
+        if (disableDataPersistence) return;
+
+        // Check if we should reset the game data based on the flag
+        if (shouldReset)
+        {
+            Debug.Log("Resetting game data as requested.");
+            NewGame();
+            shouldReset = false; // Reset the flag after handling
+            SaveGame(); // Optionally save immediately to persist the reset state
+        }
+        else
+        {
+            // Proceed with loading saved data
+            gameData = dataHandler.Load(selectedProfileId);
+
+            if (gameData == null)
+            {
+                Debug.Log("No saved data was found. Starting a new game.");
+                if (initializeDataIfNull)
+                {
+                    NewGame(); // Optionally start a new game if configured to do so
+                }
+                else
+                {
+                    // Optionally, handle disabling continue/load game in main menu here
+                    // This might involve setting a flag or calling a method on your menu controller
+                }
+            }
+            else
+            {
+                Debug.Log("Loading game data.");
+                foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
+                {
+                    dataPersistenceObj.LoadData(gameData);
+                }
+            }
+        }
+    }
+
+
+
+
 
 
 
@@ -411,7 +533,7 @@ public class DataPersistenceManager : MonoBehaviour
         //Debug.Log($"Player position saved: {gameData.playerPosition}");
 
         // save that data to a file using file data handler
-        dataHandler.Save(gameData,selectedProfileId);
+        dataHandler.Save(gameData, selectedProfileId);
 
         //timestamp the data so we know when it was last saved
         gameData.lastUpdated = System.DateTime.Now.ToBinary();
@@ -488,5 +610,27 @@ public class DataPersistenceManager : MonoBehaviour
         //load the game which will use that profile, updating our game data accordingly
         LoadGame();
     }
+
+
+    // Method to load SaveSlotData
+    public SaveSlotData LoadSaveSlotData(string profileId)
+    {
+        return dataHandler.LoadSaveSlotData(profileId); // Utilize existing dataHandler
+    }
+
+    public void DeleteGameDataFile()
+    {
+        string profilePath = Path.Combine(dataHandler.DataDirPath, selectedProfileId);
+        string filePath = Path.Combine(profilePath, fileName);
+
+        if (File.Exists(filePath))
+        {
+            Debug.Log($"Deleting game data file: {filePath}");
+            File.Delete(filePath);
+        }
+    }
+
+
+
 
 }

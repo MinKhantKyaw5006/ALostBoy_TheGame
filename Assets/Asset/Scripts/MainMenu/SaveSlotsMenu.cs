@@ -22,6 +22,7 @@ public class SaveSlotsMenu : Menu
         saveSlots = this.GetComponentsInChildren<SaveSlot>();
     }
 
+    /*
     public void OnSaveSlotClicked(SaveSlot saveSlot)
     {
         //disable all buttons
@@ -40,6 +41,69 @@ public class SaveSlotsMenu : Menu
         //load the scene - which will in turn save the game because of OnSceneUnloaded() in the DataPersistenceManager
         SceneManager.LoadSceneAsync("Chapter1");
     }
+    */
+
+    //new game click error
+    /*
+    public void OnSaveSlotClicked(SaveSlot saveSlot)
+    {
+        // Disable all buttons
+        DisableMenuButtons();
+
+        // Update the selected profile ID for data persistence
+        string profileId = saveSlot.GetProfileId();
+        DataPersistenceManager.instance.ChangeSelectedProfileId(profileId);
+
+        // Load SaveSlotData for the last played scene
+        SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
+        string sceneToLoad = saveSlotData != null && !string.IsNullOrEmpty(saveSlotData.lastPlayedScene) ? saveSlotData.lastPlayedScene : "Chapter1";
+
+        // If not loading a game (i.e., starting new), initialize new game data
+        if (!isLoadingGame)
+        {
+            DataPersistenceManager.instance.NewGame();
+        }
+
+        // Load the scene
+        SceneManager.LoadSceneAsync(sceneToLoad);
+    }
+    */
+    public void OnSaveSlotClicked(SaveSlot saveSlot)
+    {
+        // Disable all buttons
+        DisableMenuButtons();
+
+        // Update the selected profile ID for data persistence
+        string profileId = saveSlot.GetProfileId();
+        DataPersistenceManager.instance.ChangeSelectedProfileId(profileId);
+
+        string sceneToLoad;
+
+        // Check whether we are loading a game or starting a new game
+        if (isLoadingGame)
+        {
+            // If loading a game, attempt to load the last played scene
+            SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
+            sceneToLoad = saveSlotData != null && !string.IsNullOrEmpty(saveSlotData.lastPlayedScene)
+                          ? saveSlotData.lastPlayedScene
+                          : "Chapter1"; // Fallback to "Chapter1" if no data found
+        }
+        else
+        {
+            // If starting a new game, ignore last played scene and load "Chapter1"
+            DataPersistenceManager.instance.NewGame();
+            sceneToLoad = "Chapter1";
+        }
+
+        //save game data
+        DataPersistenceManager.instance.SaveGame();
+
+        // Load the determined scene
+        SceneManager.LoadSceneAsync(sceneToLoad);
+    }
+
+
+
 
     public void OnBackClicked()
     {

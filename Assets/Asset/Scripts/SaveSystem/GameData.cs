@@ -25,6 +25,7 @@ public class GameData
 {
     public Vector2 playerPosition;
     public long lastUpdated; //timestamp storage
+    public bool shouldReset = false;
 
     public GameData()
     {

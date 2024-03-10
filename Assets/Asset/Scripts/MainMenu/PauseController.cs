@@ -20,6 +20,7 @@ public class PauseController : MonoBehaviour
                 Pause();
             }
         }
+
     }
 
     public void Resume()
@@ -63,6 +64,9 @@ public class PauseController : MonoBehaviour
     }
     */
 
+
+    //original
+    
     public void LoadMainMenu()
     {
         // Check if DataPersistenceManager and SceneDataHandler instances are available
@@ -94,5 +98,7 @@ public class PauseController : MonoBehaviour
             Debug.LogError("DataPersistenceManager or SceneDataHandler instance not found. Game not saved.");
         }
     }
+
+
 
 }
