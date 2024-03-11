@@ -27,9 +27,10 @@ public class GameData
     public long lastUpdated; //timestamp storage
     public bool shouldReset = false;
 
-    public List<int> checkpointIDs = new List<int>();
+    public List<int> checkpointIDs = new List<int>();// IDs of checkpoints the player has activated
+    
 
-    public List<int> allCheckpointIDsInScene = new List<int>();  // All checkpoint IDs available in the current scene
+
 
     public GameData()
     {

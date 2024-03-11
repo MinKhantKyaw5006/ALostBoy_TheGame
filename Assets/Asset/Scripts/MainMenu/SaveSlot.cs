@@ -77,7 +77,7 @@ public class SaveSlot : MonoBehaviour
             }
 
             // Update the game progress percentage text
-            percentageCompleteText.text = "game progress percent"; // Update this based on your game's logic
+            percentageCompleteText.text = "Game In Progress"; // Update this based on your game's logic
         }
     }
     

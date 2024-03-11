@@ -22,6 +22,12 @@ public class PauseController : MonoBehaviour
         }
 
     }
+    public void Pause()
+    {
+        pauseMenuUI.SetActive(true);
+        Time.timeScale = 0f; // Pause the game
+    }
+
 
     public void Resume()
     {
@@ -29,44 +35,56 @@ public class PauseController : MonoBehaviour
         Time.timeScale = 1f; // Resume game time
     }
 
-    public void Pause()
+    public void RestartChapter()
     {
-        pauseMenuUI.SetActive(true);
-        Time.timeScale = 0f; // Pause the game
-    }
-
-    /*
-    public void LoadMainMenu()
-    {
-        Time.timeScale = 1f; // Ensure game time is resumed
-        SceneManager.LoadScene("GameMainMenu");
-        
-    }
-    */
-
-    /*
-    public void LoadMainMenu()
-    {
-        // Save the game before going back to the main menu
+        // Ensure DataPersistenceManager instance is available
         if (DataPersistenceManager.instance != null)
         {
+            // Indicate that a reset is requested
+            DataPersistenceManager.instance.shouldReset = true;
+
+            // Save the game to apply the reset immediately
             DataPersistenceManager.instance.SaveGame();
+
+            // Ensure game time is resumed before reloading
+            Time.timeScale = 1f;
+
+            // Reload the current scene
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {
-            Debug.LogError("DataPersistenceManager instance not found. Game not saved.");
+            Debug.LogError("DataPersistenceManager instance not found. Cannot restart chapter.");
         }
-
-        Time.timeScale = 1f; // Ensure game time is resumed
-        SceneManager.LoadScene("GameMainMenu");
-
-
     }
-    */
+
+
+    public void RestartFromLastCheckpoint()
+    {
+        // Check if DataPersistenceManager instance is available
+        if (DataPersistenceManager.instance != null)
+        {
+            // Load the most recent game state, which should be the last checkpoint
+            DataPersistenceManager.instance.LoadGame();
+
+            Debug.Log("Restarted from last checkpoint");
+            pauseMenuUI.SetActive(false);
+            Time.timeScale = 1f;
+
+
+        }
+        else
+        {
+            Debug.LogError("DataPersistenceManager instance not found. Cannot restart from last checkpoint.");
+        }
+    }
+
+
+
 
 
     //original
-    
+
     public void LoadMainMenu()
     {
         // Check if DataPersistenceManager and SceneDataHandler instances are available
@@ -84,8 +102,7 @@ public class PauseController : MonoBehaviour
                 Debug.Log($"Updated scene data for transition to main menu: Previous - {currentSceneData.previousScene}, Current - {currentSceneData.currentScene}");
             }
 
-            // Save the game state before transitioning to the main menu
-            //DataPersistenceManager.instance.SaveGame();
+
 
             // Ensure game time is resumed
             Time.timeScale = 1f;

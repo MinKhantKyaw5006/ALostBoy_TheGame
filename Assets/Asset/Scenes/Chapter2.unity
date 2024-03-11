@@ -218,6 +218,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4939171863085888288, guid: ddd5e2f14a376844c862b9c64e3c6688, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RestartChapter
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddd5e2f14a376844c862b9c64e3c6688, type: 3}
 --- !u!1 &403275064
@@ -322,9 +326,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce27a2b6c6572b648b43491b25d1f227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whatIsCheckPoint:
-    serializedVersion: 2
-    m_Bits: 512
   checkpointID: 3
 --- !u!61 &445208056
 BoxCollider2D:
@@ -450,9 +451,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce27a2b6c6572b648b43491b25d1f227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whatIsCheckPoint:
-    serializedVersion: 2
-    m_Bits: 512
   checkpointID: 2
 --- !u!61 &1007725213
 BoxCollider2D:
@@ -757,9 +755,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce27a2b6c6572b648b43491b25d1f227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whatIsCheckPoint:
-    serializedVersion: 2
-    m_Bits: 512
   checkpointID: 0
 --- !u!61 &1412818091
 BoxCollider2D:
@@ -969,9 +964,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce27a2b6c6572b648b43491b25d1f227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whatIsCheckPoint:
-    serializedVersion: 2
-    m_Bits: 512
   checkpointID: 1
 --- !u!61 &1682593342
 BoxCollider2D:
