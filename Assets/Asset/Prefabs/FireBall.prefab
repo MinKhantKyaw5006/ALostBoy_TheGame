@@ -142,10 +142,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6177140696113983917}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f981969d800bed4479e2841506607b9b, type: 3}
+  m_Script: {fileID: 11500000, guid: 7905bba766353af4fabdd22f73466374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 100
-  hitForce: 2
-  speed: 1
+  damage: 5
+  hitForce: 5
+  speed: 5
   lifetime: 1
