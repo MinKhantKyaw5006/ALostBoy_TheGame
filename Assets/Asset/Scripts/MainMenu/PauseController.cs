@@ -2,30 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class PauseController : MonoBehaviour
 {
     public GameObject pauseMenuUI; // Assign this in the Inspector
+    private AudioSource[] allAudioSources; // Array to hold all audio sources in the scene
+    private bool isPaused = false; // Track if the game is paused
+
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Check if the pause button is pressed
+        if (Keyboard.current.rKey.wasPressedThisFrame)
         {
-            if (pauseMenuUI.activeInHierarchy)
+            if (!isPaused)
             {
-                Resume();
+                Pause();
             }
             else
             {
-                Pause();
+                Resume();
             }
         }
 
     }
+    void Start()
+    {
+        // Get all audio sources in the scene
+        allAudioSources = FindObjectsOfType<AudioSource>();
+    }
+
     public void Pause()
     {
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f; // Pause the game
+        ControlAudioSources(true); // Mute or pause all audio sources
     }
 
 
@@ -116,6 +129,23 @@ public class PauseController : MonoBehaviour
         }
     }
 
+    // Method to control audio sources (mute or pause)
+    private void ControlAudioSources(bool mute)
+    {
+        foreach (AudioSource audioSource in allAudioSources)
+        {
+            if (mute)
+            {
+                audioSource.Pause(); // Pause the audio source
+            }
+            else
+            {
+                audioSource.UnPause(); // Resume the audio source
+            }
+        }
+    }
+
 
 
 }
+

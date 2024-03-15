@@ -21,6 +21,9 @@ public class CheckPoint : MonoBehaviour
             {
                 Debug.Log("No current checkpoint in the list. Adding checkpoint ID " + checkpointID);
                 checkpointIDs.Add(checkpointID);
+
+    
+
                 DataPersistenceManager.instance.SaveGame();
                 Debug.Log("Game Saved at Checkpoint" + checkpointID);
             }

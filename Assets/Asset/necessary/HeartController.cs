@@ -166,6 +166,8 @@ private void InitializeHeartUI()
 }
 */
 
+
+/*
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -260,3 +262,4 @@ public class HeartController : MonoBehaviour
         }
     }
 }
+*/

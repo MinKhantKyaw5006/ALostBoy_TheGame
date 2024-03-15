@@ -114,6 +114,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private float secondJumpZoomFactor = 1.5f; // Adjust for the second jump
     private int currentJumpCount = 0;
 
+    [SerializeField] private SaveGroundCP saveGroundCP;
+
 
     //camera zoomout
     public delegate void PlayerJumpDelegate(int jumpCount);
@@ -142,6 +144,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private AudioSource healSoundEffect;
     [SerializeField] private AudioSource spellSoundEffect;
     [SerializeField] private AudioSource onGroundSoundEffect;
+    [SerializeField] private AudioSource WalkingEffect;
 
 
     private void Awake()
@@ -183,12 +186,14 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     public void LoadData(GameData data)
     {
         this.transform.position = data.playerPosition;
+
     }
 
     //saving player data
     public void SaveData(ref GameData data)
     {
         data.playerPosition = this.transform.position;
+   
     }
     //------------------------Save&Load---------------------------------------------------------
 
@@ -269,12 +274,17 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     {
         // Set the current movement input to the value of the input
         currentMovementInput = context.ReadValue<Vector2>();
+
+        WalkingEffect.Play();
     }
 
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
         // Reset the current movement input when the input is canceled
         currentMovementInput = Vector2.zero;
+
+        // Stop the walking sound effect
+        WalkingEffect.Stop();
     }
 
 
@@ -282,6 +292,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     void Update()
     {
+        // Get the movement input
+        xAxis = currentMovementInput.x;
 
         if (pState.cutscene) return;
         GetInput();
@@ -365,6 +377,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        /*
         // Check if we're loading into a gameplay scene where the player is needed.
         if (scene.name == "Chapter1" )
         {
@@ -383,9 +396,11 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             gameObject.SetActive(false);
             Debug.Log("Non-gameplay scene loaded, player deactivated.");
         }
+        */
     }
 
-
+    //original for now
+    /*
     private void InitializeHeartUI()
     {
         // Attempt to find the heartFill if not manually assigned
@@ -419,7 +434,40 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             UpdateHeartUI(); // Update again to be certain UI is correct
         }
     }
+    */
 
+    void InitializeHealthUI()
+    {
+        // Find the heartFillRectTransform if not manually assigned
+        if (heartFillRectTransform == null)
+        {
+            GameObject heartFillObject = GameObject.FindGameObjectWithTag("HeartFillTag");
+            if (heartFillObject != null)
+            {
+                heartFillRectTransform = heartFillObject.GetComponent<RectTransform>();
+                if (heartFillRectTransform != null)
+                {
+                    maxWidth = heartFillRectTransform.sizeDelta.x;
+                }
+            }
+        }
+
+        // Update health UI immediately to reflect current health
+        UpdateHealthUI();
+    }
+
+    public void UpdateHealthUI()
+    {
+        if (heartFillRectTransform != null)
+        {
+            float healthPercentage = health / maxHealth;
+            heartFillRectTransform.sizeDelta = new Vector2(maxWidth * healthPercentage, heartFillRectTransform.sizeDelta.y);
+        }
+        else
+        {
+            Debug.LogWarning("HeartFill RectTransform is not assigned.");
+        }
+    }
 
 
     private void OnTriggerEnter2D(Collider2D _other)
@@ -428,11 +476,14 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         {
             _other.GetComponent<Enemy>().EnemyHit(spellDamage, (_other.transform.position - transform.position).normalized, -recoilYSpeed);
         }
+
+ 
+
     }
 
     private void FixedUpdate()
     {
-        if (pState.cutscene) return;
+        //if (pState.cutscene) return;
         if (pState.dashing) return;
         Recoil();
 
@@ -460,14 +511,14 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     }
 
 
-    public void TakeDamage(float damage, bool isFallDamage = false)
+    public void TakeDamage(float damage)
     {
         if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
         {
             Debug.Log($"Before taking damage: Health = {health}");
             health -= damage; // Directly subtract the floating-point damage value
             health = Mathf.Clamp(health, 0, maxHealth); // Ensure health does not go below 0 or above maxHealth
-            UpdateHeartUI(); // Update heart UI based on new health
+            UpdateHealthUI(); // Update heart UI based on new health
             Debug.Log($"After taking damage: Health = {health}");
 
             if (health <= 0)
@@ -477,11 +528,14 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             }
 
             // If damage is not from a fall, perform flashing and make the player temporarily invincible
+            /*
             if (!isFallDamage)
             {
                 anim.SetTrigger("TakeDamage");
                 StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
             }
+            */
+            StartCoroutine(MakeInvincible(1.0f)); // Make player invincible for 1 second after taking damage
         }
     }
 
@@ -534,6 +588,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         //Time.timeScale = 1f;
         // anim.SetBool("IsAlive", false); // Indicate death in the Animator
         anim.SetBool("IsDead", true); // Trigger death animation
+        Debug.Log("Player Death Animation Triggered");
 
         yield return new WaitForSeconds(0f); // Wait time could be adjusted based on your death animation length
 
@@ -543,8 +598,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
         
 
-        // Warp back to checkpoint position
-       /*
+       
         if (saveGroundCP != null)
         {
             
@@ -554,7 +608,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         {
             Debug.LogError("SaveGroundCP reference not set in PlayerController.");
         }
-       */
+       
 
        
 
@@ -583,6 +637,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             {
                 health = Mathf.Clamp(value, 0f, maxHealth);
                 UpdateHeartUI(); // Update the heart UI to reflect the change.
+                Debug.Log($"health updated to: {health}");
             }
         }
     }
@@ -628,20 +683,21 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     }
 
 
-
-
-
-
-
-
-
-
-
     void GetInput()
     {
+        /*
         xAxis = Input.GetAxisRaw("Horizontal");
         yAxis = Input.GetAxisRaw("Vertical");
         attack = Input.GetButtonDown("Attack");
+        */
+
+        // Use the value from the new input system
+        xAxis = currentMovementInput.x;
+        yAxis = Input.GetAxisRaw("Vertical");
+
+        // Check for attack input
+        attack = Input.GetButtonDown("Attack");
+
 
         if (Input.GetButton("Cast/Heal"))
         {
@@ -734,19 +790,19 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             {
                 Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
                 Instantiate(slashEffect, SideAttackTransform);
-                //Debug.Log("Side Attack!");
+                Debug.Log("Side Attack!");
             }
             else if (yAxis > 0)
             {
                 Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, 80, UpAttackTransform);
-                //Debug.Log("Up Attack!");
+                Debug.Log("Up Attack!");
             }
             else if (yAxis < 0 || !Grounded())
             {
                 Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, -90, DownAttackTransform);
-                //Debug.Log("Down Attack!");
+                Debug.Log("Down Attack!");
             }
         }
 
@@ -754,8 +810,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
     }
     
-
- 
 
 
 
@@ -874,10 +928,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     }
 
 
-
-
-
-
    
     // Updated Heal method without direct input checks
     void Heal()
@@ -886,6 +936,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         {
             pState.Healing = true;
             anim.SetBool("Healing", true);
+            Debug.Log("Player healing");    
 
             // Play heal sound effect if not already playing
             //if (!healSoundEffect.isPlaying) healSoundEffect.Play();
@@ -897,7 +948,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             healTimer += Time.deltaTime;
             if (healTimer >= timetoHeal)
             {
-                health++;
+                //health++;
+                Health++; // Increment health using the Health property
                 healTimer = 0;
                 if (onHealthChangedCallBack != null)
                 {
@@ -1021,29 +1073,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
-    /*
-    void Jump()
-    {
-        if (jumpbufferCounter > 0 && coyoteTimeCounter > 0 && !pState.jumping)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce);
-            pState.jumping = true;
-        }
-        if (!Grounded() && airJumpCounter < MaxAirJumps && Input.GetButtonDown("Jump"))
-        {
-            pState.jumping = true;
-            airJumpCounter++;
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce);
-        }
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 3) 
-        {
-            pState.jumping = false;
-            rb.velocity = new Vector2(rb.velocity.x, 0);
-        }
-        anim.SetBool("Jumping", !Grounded());
 
-    }
-    */
 
     void Jump()
     {
