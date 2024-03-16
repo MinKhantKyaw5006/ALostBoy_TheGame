@@ -19,21 +19,25 @@ public class CameraFollowObject : MonoBehaviour
     private void Awake()
     {
         _player = _playerTransforms.gameObject.GetComponent<PlayerController>();
-        //_isFacingRight = _player.IsFacingRight;
+
     }
 
     private void Update()
     {
         //make the camerafollowobject follow the player's position
         transform.position = _playerTransforms.position;
+
+
     }
 
     public void CallTurn()
     {
-        
+
 
         LeanTween.rotateY(gameObject, DetermineEndRotation(), _flipYRotationTime).setEaseInOutSine();
         //_turnCoroutine = StartCoroutine(FlipYLerp());
+
+
     }
 
     private IEnumerator FlipYLerp()

@@ -146,6 +146,12 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private AudioSource onGroundSoundEffect;
     [SerializeField] private AudioSource WalkingEffect;
 
+    public bool IsFacingRight
+    {
+        get { return pState.lookingRight; } // Assuming pState.lookingRight exists and indicates facing direction
+    }
+
+
 
     private void Awake()
     {
@@ -328,6 +334,19 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         FlashWhileInvincible();
         Heal();
         CastSpell();
+
+        //if we are falling past a certain speed thresold
+        if (rb.velocity.y < _fallSpeedYDampingChangethresold && !CameraManager.instance.IsLerpingYDamping && !CameraManager.instance.LerpedFromPlayerFalling)
+        {
+            CameraManager.instance.LerpYDamping(true);
+        }
+        //if we are standing still or moving up
+        if (rb.velocity.y >= 0f && !CameraManager.instance.IsLerpingYDamping && CameraManager.instance.LerpedFromPlayerFalling)
+        {
+            //reset so it can be called again
+            CameraManager.instance.LerpedFromPlayerFalling = false;
+            CameraManager.instance.LerpYDamping(false);
+        }
 
     }
 
@@ -754,6 +773,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     {
         canDash = false;
         pState.dashing = true;
+        pState.invincible = true; // Make the player invincible during dash
         anim.SetTrigger("Dashing");
         rb.gravityScale = 0;
         int _dir = pState.lookingRight ? 1 : -1;
@@ -765,10 +785,15 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         // Play dash sound effect
         dashSoundEffect.Play();
 
+
+
+
+
         yield return new WaitForSeconds(dashTime);
         rb.gravityScale = gravity;
         pState.dashing = false;
         yield return new WaitForSeconds(dashCoolDown);
+        pState.invincible = false; // Reset invincibility
         canDash = true;
 
     }

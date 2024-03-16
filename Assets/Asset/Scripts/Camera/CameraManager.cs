@@ -12,6 +12,15 @@ public class CameraManager : MonoBehaviour
     [Header("Controls for lerping the Y Damping during player jump/fall")]
     [SerializeField] private float _fallPanAmount = 0.25f;
     [SerializeField] private float _fallYPanTime = 0.35f;
+    // Add a public variable for zoom adjustment
+
+    [SerializeField]private float originalFOV;
+    public float OriginalFOV { get => originalFOV; }
+
+
+
+
+    public float defaultZoomAmount = 5f; // This can be adjusted in the Inspector
     public float _fallSpeedYDampingChangeThreshold = -15f;
 
     public bool IsLerpingYDamping { get; private set; }
@@ -53,6 +62,10 @@ public class CameraManager : MonoBehaviour
         //_normYPanAmount = _framingTransposer.m_YDamping;
 
         //_startingTrackedObjectOffset = _framingTransposer.m_TrackedObjectOffset;
+
+        // Assume you initialize _currentCamera somewhere here
+      
+
     }
 
     #region Lerp the Y Damping
@@ -160,6 +173,37 @@ public class CameraManager : MonoBehaviour
     }
 
     #endregion
+
+    #region
+    public void ZoomCamera(float amount, float duration, bool zoomIn)
+    {
+        float targetFOV = zoomIn ? originalFOV - amount : originalFOV + amount;
+        StartCoroutine(AdjustFOV(targetFOV, duration));
+    }
+
+
+    public void ResetZoom(float duration)
+    {
+        StartCoroutine(AdjustFOV(originalFOV, duration));
+    }
+
+    private IEnumerator AdjustFOV(float targetFOV, float duration)
+    {
+        float startFOV = _currentCamera.m_Lens.FieldOfView;
+        float time = 0;
+
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            _currentCamera.m_Lens.FieldOfView = Mathf.Lerp(startFOV, targetFOV, time / duration);
+            yield return null;
+        }
+    }
+
+
+
+    #endregion
+
 
     #region Swap Cameras
     public void SwapCamera(CinemachineVirtualCamera cameraFromLeft, CinemachineVirtualCamera cameraFromRight, Vector2 triggerExitDirection)

@@ -72,7 +72,7 @@ public class PlayerCollect : MonoBehaviour
             case CollectibleType.Diamond:
                 return diamondCount >= count;
             default:
-                return false;
+                return false;   
         }
     }
 
@@ -81,23 +81,42 @@ public class PlayerCollect : MonoBehaviour
         switch (itemType)
         {
             case CollectibleType.Gem:
-                gemCount -= count;
+                gemCount = Mathf.Max(0, gemCount - count);
                 gemCountText.text = gemCount.ToString();
                 break;
             case CollectibleType.Key:
-                keyCount -= count;
+                keyCount = Mathf.Max(0, keyCount - count);
                 keyCountText.text = keyCount.ToString();
                 break;
             case CollectibleType.Stone:
-                stoneCount -= count;
+                stoneCount = Mathf.Max(0, stoneCount - count);
                 stoneCountText.text = stoneCount.ToString();
                 break;
             case CollectibleType.Diamond:
-                diamondCount -= count;
+                diamondCount = Mathf.Max(0, diamondCount - count);
                 diamondCountText.text = diamondCount.ToString();
                 break;
         }
     }
+
+    public int GetItemCount(CollectibleType itemType)
+    {
+        switch (itemType)
+        {
+            case CollectibleType.Gem:
+                return gemCount;
+            case CollectibleType.Key:
+                return keyCount;
+            case CollectibleType.Stone:
+                return stoneCount;
+            case CollectibleType.Diamond:
+                return diamondCount;
+            default:
+                Debug.LogError("Unknown item type.");
+                return 0;
+        }
+    }
+
 
 }
 

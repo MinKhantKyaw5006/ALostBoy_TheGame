@@ -16,17 +16,26 @@ public class Enemy : MonoBehaviour
 
     protected float recoilTimer;
     protected Rigidbody2D rb;
+    protected SpriteRenderer sr;
 
     // Static reference to the instance
     private PlayerController playerController;
 
     // Existing enemy states
     protected enum EnemyStates
-    {
+    {   //crawler
         Idle, // Added Idle state
         Crawler_Idle,
         Crawler_Flip,
-        Following // Added Following state for when the zombie detects the player
+        Following, // Added Following state for when the zombie detects the player
+
+        
+        //bat
+        Bat_Idle,
+        Bat_Chase,
+        Bat_Stunned,
+        Bat_Death,
+
     }
 
     protected EnemyStates currentEnemyState = EnemyStates.Idle;
@@ -35,6 +44,7 @@ public class Enemy : MonoBehaviour
     protected virtual void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
         player = PlayerController.Instance;
 
         playerController = FindObjectOfType<PlayerController>(); // Find the player controller instance in the scene

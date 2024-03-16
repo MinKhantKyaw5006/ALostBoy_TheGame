@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
+
 public class PauseController : MonoBehaviour
 {
     public GameObject pauseMenuUI; // Assign this in the Inspector
@@ -13,10 +14,34 @@ public class PauseController : MonoBehaviour
     public AudioSource bgmusic;
     private bool isPaused = false; // Track if the game is paused
 
+    //private PlayerControls playerControls; // Reference to the generated PlayerControls class
+    private PlayerInput playerInput;
+
+
+
+
+    void Awake()
+    {
+        playerInput = FindObjectOfType<PlayerInput>(); // Find the PlayerInput component in the scene
+        // Subscribe to the pause action
+        playerInput.actions["PauseOpen"].performed += OnPausePerformed;
+    }
+
+
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from the pause action to clean up
+        if (playerInput != null)
+        {
+            playerInput.actions["PauseOpen"].performed -= OnPausePerformed;
+        }
+    }
 
 
     void Update()
     {
+        
         // Check if the pause button is pressed
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
@@ -29,6 +54,7 @@ public class PauseController : MonoBehaviour
                 Resume();
             }
         }
+        
 
     }
     void Start()
@@ -37,20 +63,50 @@ public class PauseController : MonoBehaviour
         allAudioSources = FindObjectsOfType<AudioSource>();
     }
 
+
+
+    void OnPausePerformed(InputAction.CallbackContext context)
+    {
+        Debug.Log("Pause button clicked");
+        TogglePause();
+    }
+
+    public void TogglePause()
+    {
+        if (!isPaused)
+        {
+            Pause();
+        }
+        else
+        {
+            Resume();
+        }
+    }
+
+
+
+
     public void Pause()
     {
+        isPaused = true;
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f; // Pause the game
         ControlAudioSources(true); // Mute or pause all audio sources
+                                   // Use InputManager to switch to UI action map
+        
+
+
     }
 
 
     public void Resume()
     {
+        isPaused = false;
         pauseMenuUI.SetActive(false);
         Time.timeScale = 1f; // Resume game time
-        //not sure
         ControlAudioSources(false); // Unpause all audio sources
+                                    // Use InputManager to switch back to Player action map
+        
     }
 
     public void RestartChapter()
@@ -82,6 +138,9 @@ public class PauseController : MonoBehaviour
         // Check if DataPersistenceManager instance is available
         if (DataPersistenceManager.instance != null)
         {
+            // Reload the current scene
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
             // Load the most recent game state, which should be the last checkpoint
             DataPersistenceManager.instance.LoadGame();
 

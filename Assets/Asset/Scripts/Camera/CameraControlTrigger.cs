@@ -37,7 +37,14 @@ public class CameraControlTrigger : MonoBehaviour
                 CameraManager.instance.PanCameraOnContact(CustomInspectorObjects.panDistance, CustomInspectorObjects.panTime, CustomInspectorObjects.panDirection,false);
             }
 
-    
+
+            if (CustomInspectorObjects.zoomCameraOnContact)
+            {
+                // Determine whether to zoom in based on the ZoomDirection
+                bool zoomIn = CustomInspectorObjects.zoomDirection == ZoomDirection.In;
+                CameraManager.instance.ZoomCamera(CustomInspectorObjects.zoomAmount, CustomInspectorObjects.zoomTime, zoomIn);
+            }
+
         }
     }
 
@@ -51,7 +58,12 @@ public class CameraControlTrigger : MonoBehaviour
                 CameraManager.instance.PanCameraOnContact(CustomInspectorObjects.panDistance, CustomInspectorObjects.panTime, CustomInspectorObjects.panDirection, true);
 
 
-           
+
+            }
+
+            if (CustomInspectorObjects.zoomCameraOnContact)
+            {
+                CameraManager.instance.ResetZoom(CustomInspectorObjects.zoomTime);
             }
         }
     }
@@ -62,7 +74,12 @@ public class CustomInspectorObjects
 {
     public bool swapCameras = false;
     public bool panCameraOnContact = false;
-  
+
+
+    // Add Zoom fields
+    public bool zoomCameraOnContact = false;
+
+
 
     [HideInInspector] public CinemachineVirtualCamera cameraOnLeft;
     [HideInInspector] public CinemachineVirtualCamera cameraOnRight;
@@ -71,9 +88,13 @@ public class CustomInspectorObjects
     [HideInInspector] public float panDistance = 3f;
     [HideInInspector] public float panTime = 0.35f;
 
+    [HideInInspector] public ZoomDirection zoomDirection;
+    [HideInInspector] public float zoomAmount = 15f; // Or any default value you like
+    [HideInInspector] public float zoomTime = 0.5f;
 
-    
- 
+
+
+
 
 
 }
@@ -85,6 +106,14 @@ public enum PanDirection
     Right
 }
 
+public enum ZoomDirection
+{
+    In,
+    Out
+}
+
+
+
 
 
 #if UNITY_EDITOR
@@ -93,11 +122,15 @@ public enum PanDirection
 public class MyScriptEditor : Editor
 {
     CameraControlTrigger cameraControlTrigger;
+    SerializedProperty zoomAmount; // Make sure you have this SerializedProperty for zoomAmount
 
     private void OnEnable()
     {
         cameraControlTrigger = (CameraControlTrigger)target;
+        zoomAmount = serializedObject.FindProperty("CustomInspectorObjects.zoomAmount"); // Correctly reference zoomAmount
     }
+
+
 
     public override void OnInspectorGUI()
     {
@@ -123,6 +156,20 @@ public class MyScriptEditor : Editor
 
         }
 
+        // Conditionally show zoom settings
+        if (cameraControlTrigger.CustomInspectorObjects.zoomCameraOnContact)
+        {
+            cameraControlTrigger.CustomInspectorObjects.zoomDirection = (ZoomDirection)EditorGUILayout.EnumPopup("Zoom Direction", 
+                cameraControlTrigger.CustomInspectorObjects.zoomDirection);
+
+            //cameraControlTrigger.CustomInspectorObjects.panDistance = EditorGUILayout.FloatField("Zoom Amount", cameraControlTrigger.CustomInspectorObjects.zoomAmount);
+            //cameraControlTrigger.CustomInspectorObjects.zoomTime = EditorGUILayout.FloatField("Zoom Time", cameraControlTrigger.CustomInspectorObjects.zoomTime);
+            // Fix here: Change to directly edit the zoomAmount instead of panDistance
+            EditorGUILayout.PropertyField(zoomAmount, new GUIContent("Zoom Amount"));
+            cameraControlTrigger.CustomInspectorObjects.zoomTime = EditorGUILayout.FloatField("Zoom Time", cameraControlTrigger.CustomInspectorObjects.zoomTime);
+
+        }
+
 
 
 
@@ -133,3 +180,4 @@ public class MyScriptEditor : Editor
     }
 }
 #endif
+
