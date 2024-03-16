@@ -940,7 +940,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: dc6df5a10e518d34c84ec1855407d5b3, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.614
+  m_Volume: 1
   m_Pitch: 1.68
   Loop: 0
   Mute: 0
@@ -1409,6 +1409,7 @@ MonoBehaviour:
   firstJumpZoomFactor: 1.2
   secondJumpZoomFactor: 1.5
   saveGroundCP: {fileID: 3418311730526758414}
+  speedBoostActive: 0
   jumpSoundEffect: {fileID: 1726687058}
   dashSoundEffect: {fileID: 964007481}
   attackSoundEffect: {fileID: 308719985}

@@ -106,7 +106,7 @@ public class DoorUnlocker : MonoBehaviour
         }
 
         // Uncomment and correctly position this line
-        isDoorUnlocked = true; // Set the door as unlocked
+        isDoorUnlocked = true; // Set the door as unlocked 
         // Optionally, disable the door collider to prevent further interaction
         /*
         Collider2D collider = GetComponent<Collider2D>();

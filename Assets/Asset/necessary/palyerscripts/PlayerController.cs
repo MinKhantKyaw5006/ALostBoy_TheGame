@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     private float castOrHealTimer;
 
     [Header("Horizontal Movement Setting")]
-    [SerializeField] private float walkspeed = 1;
+    public float walkspeed = 1f;
     [SerializeField] private float PlayerScale = 1;
 
     [Header("Vertical Movement Setting")]
@@ -79,7 +79,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     private float coyoteTimeCounter = 0;
     [SerializeField] private float coyoteTime;
     private int airJumpCounter = 0;
-    [SerializeField] private int MaxAirJumps;
+    public int MaxAirJumps;
 
     [Header("Ground Check Setting")]
     [SerializeField] private Transform groundCheckPoint;
@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private Transform DownAttackTransform;
     [SerializeField] private Vector2 SideAttackArea, UpAttackArea, DownAttackArea;
     [SerializeField] private LayerMask attackableLayer;
-    [SerializeField] private float damage;
+    public float damage;
     [SerializeField] private GameObject slashEffect;
 
     [Header("Recoil Setting")]
@@ -129,8 +129,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     private bool leftTriggerPressed = false;
     private bool rightTriggerPressed = false;
     private bool isHealing = false; // Add this to keep track of healing state
+    public bool speedBoostActive = false;
+
     // Start is called before the first frame update
-    
+
     //moving platform
     private GameObject currentPlatform = null;
     private Vector3 lastPlatformPosition;
