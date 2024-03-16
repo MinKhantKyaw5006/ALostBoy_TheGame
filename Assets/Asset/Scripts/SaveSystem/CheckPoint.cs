@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CheckPoint : MonoBehaviour
 {
-    
+    [SerializeField] private AudioSource checkpointSound;
+
     public int checkpointID; // Unique identifier for the checkpoint
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -26,6 +27,7 @@ public class CheckPoint : MonoBehaviour
 
                 DataPersistenceManager.instance.SaveGame();
                 Debug.Log("Game Saved at Checkpoint" + checkpointID);
+                checkpointSound.Play();
             }
             else
             {

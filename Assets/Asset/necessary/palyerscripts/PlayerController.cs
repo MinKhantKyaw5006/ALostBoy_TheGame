@@ -255,7 +255,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             }
             anim.SetBool("Jumping", true);
 
-            //jumpSoundEffect.Play();
+            jumpSoundEffect.Play();
         }
     }
 
@@ -284,7 +284,21 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         currentMovementInput = Vector2.zero;
 
         // Stop the walking sound effect
-        WalkingEffect.Stop();
+        //WalkingEffect.Stop();
+    }
+
+    void HandleWalkingSound()
+    {
+        // Only play the walking sound if the player is moving and grounded
+        if (Grounded() && Mathf.Abs(currentMovementInput.x) > 0.1f && !WalkingEffect.isPlaying)
+        {
+            WalkingEffect.Play();
+        }
+        else if (!Grounded() || Mathf.Abs(currentMovementInput.x) <= 0.1f)
+        {
+            // Optionally, stop the walking sound if the player is airborne or not moving
+            WalkingEffect.Stop();
+        }
     }
 
 
@@ -305,6 +319,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             pState.jumping = false;
         }
 
+        HandleWalkingSound();
         Flip();
         Move();
         Jump();
@@ -745,8 +760,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         rb.velocity = new Vector2(_dir * dashSpeed, 0);
         if (Grounded()) Instantiate(dashEffect, transform);
 
+        //not sure
+        WalkingEffect.Stop();
         // Play dash sound effect
-        //dashSoundEffect.Play();
+        dashSoundEffect.Play();
 
         yield return new WaitForSeconds(dashTime);
         rb.gravityScale = gravity;
@@ -791,18 +808,21 @@ public class PlayerController : MonoBehaviour, IDataPersistence
                 Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
                 Instantiate(slashEffect, SideAttackTransform);
                 Debug.Log("Side Attack!");
+                attackSoundEffect.Play();
             }
             else if (yAxis > 0)
             {
                 Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, 80, UpAttackTransform);
                 Debug.Log("Up Attack!");
+                attackSoundEffect.Play();
             }
             else if (yAxis < 0 || !Grounded())
             {
                 Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, -90, DownAttackTransform);
                 Debug.Log("Down Attack!");
+                attackSoundEffect.Play();
             }
         }
 
@@ -1018,7 +1038,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         yield return new WaitForSeconds(0.15f); //based on casting animtion, two parts, prep and cast state, take on frame on time 00:15 , frame time can change varies
 
         // Play spell sound effect
-        //spellSoundEffect.Play();
+        spellSoundEffect.Play();
 
         //side cast
         if (yAxis == 0 || (yAxis < 0 && Grounded()))
@@ -1084,9 +1104,13 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         {
             pState.jumping = false;
             rb.velocity = new Vector2(rb.velocity.x, 0);
+            Debug.Log("PlayerJumped");
+            //jumpSoundEffect.Play();
+            
         }
 
         anim.SetBool("Jumping", !Grounded());
+
     }
 
 
@@ -1100,6 +1124,9 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             pState.jumping = false;
             coyoteTimeCounter = coyoteTime;
             airJumpCounter = 0;
+
+       
+
         }
         else
         {
@@ -1109,6 +1136,11 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         if (Input.GetButtonDown("Jump"))
         {
             jumpbufferCounter = jumpBufferFrames;
+            //WalkingEffect.Stop();
+            //jumpSoundEffect.Play();
+
+            //WalkingEffect.Stop();
+            
         }
         else
         {

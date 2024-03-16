@@ -9,7 +9,10 @@ public class PauseController : MonoBehaviour
 {
     public GameObject pauseMenuUI; // Assign this in the Inspector
     private AudioSource[] allAudioSources; // Array to hold all audio sources in the scene
+    public AudioSource themeMusic; // Assign your theme music audio source in the Inspector
+    public AudioSource bgmusic;
     private bool isPaused = false; // Track if the game is paused
+
 
 
     void Update()
@@ -46,6 +49,8 @@ public class PauseController : MonoBehaviour
     {
         pauseMenuUI.SetActive(false);
         Time.timeScale = 1f; // Resume game time
+        //not sure
+        ControlAudioSources(false); // Unpause all audio sources
     }
 
     public void RestartChapter()
@@ -129,11 +134,19 @@ public class PauseController : MonoBehaviour
         }
     }
 
+
+
     // Method to control audio sources (mute or pause)
     private void ControlAudioSources(bool mute)
     {
         foreach (AudioSource audioSource in allAudioSources)
         {
+            // Skip the theme music audio source
+            if (audioSource == themeMusic || audioSource == bgmusic)
+            {
+                continue;
+            }
+
             if (mute)
             {
                 audioSource.Pause(); // Pause the audio source

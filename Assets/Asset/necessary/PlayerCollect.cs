@@ -18,6 +18,8 @@ public class PlayerCollect : MonoBehaviour
     [SerializeField] private TextMeshProUGUI keyCountText;
     [SerializeField] private TextMeshProUGUI stoneCountText;
     [SerializeField] private TextMeshProUGUI diamondCountText;
+    [SerializeField] private AudioSource collectSound;
+
 
     private int gemCount = 0;
     private int keyCount = 0;
@@ -52,6 +54,7 @@ public class PlayerCollect : MonoBehaviour
                         break;
                 }
 
+                collectSound.Play();
                 Destroy(collision.gameObject); // Destroy the collectible item after collecting
             }
         }

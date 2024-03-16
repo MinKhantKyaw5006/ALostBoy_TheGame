@@ -21,6 +21,7 @@ TagManager:
   - Teleporter
   - CheckPoint
   - ObjectToPlace
+  - ThemeMusic
   layers:
   - Default
   - TransparentFX

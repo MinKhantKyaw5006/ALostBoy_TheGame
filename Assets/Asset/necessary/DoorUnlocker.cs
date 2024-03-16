@@ -8,6 +8,8 @@ public class DoorUnlocker : MonoBehaviour
     public int requiredItemCount = 1;
     public float moveUpDistance = 5f; // Distance to move up
     public float moveSpeed = 2f; // Speed of the move
+    [SerializeField] private AudioSource unlockSound;
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -24,6 +26,7 @@ public class DoorUnlocker : MonoBehaviour
 
     private IEnumerator UnlockDoor()
     {
+        unlockSound.Play();
         // Implement the logic to unlock the door here
         Debug.Log("Door Unlocked!");
 
