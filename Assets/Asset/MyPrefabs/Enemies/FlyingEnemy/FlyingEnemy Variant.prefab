@@ -13,11 +13,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9106347602683780664, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 39.71
+      value: 11.361067
       objectReference: {fileID: 0}
     - target: {fileID: 9106347602683780664, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.9900985
+      value: 1.8421929
       objectReference: {fileID: 0}
     - target: {fileID: 9106347602683780664, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
       propertyPath: m_LocalPosition.z
@@ -76,16 +76,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 9106347602683780670, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
+      propertyPath: enemyScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106347602683780670, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
       propertyPath: lineOfSite
       value: 20.54
       objectReference: {fileID: 0}
     - target: {fileID: 9106347602683780670, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
+      propertyPath: lineOfSight
+      value: 15.88
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106347602683780670, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
+      propertyPath: recoilSpeed
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106347602683780670, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
       propertyPath: recoilFactor
-      value: 100
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9106347602683780670, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
       propertyPath: recoilLength
-      value: 20
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9106347602683780670, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
+      propertyPath: recoilDistance
+      value: 67
       objectReference: {fileID: 0}
     - target: {fileID: 9106347602683780671, guid: 0226cbdd807dea8499a771f68003f3e4, type: 3}
       propertyPath: m_Name
@@ -123,3 +139,75 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!61 &1564238140
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265161520761462318}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.008010387, y: 2.0029984}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5.34, y: 4.19}
+    newSize: {x: 5.34, y: 4.19}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 3.1255655, y: 1.6007581}
+  m_EdgeRadius: 0
+--- !u!61 &1669130780644011069
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265161520761462318}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.008010387, y: 2.0029984}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5.34, y: 4.19}
+    newSize: {x: 5.34, y: 4.19}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 3.1255655, y: 1.6007581}
+  m_EdgeRadius: 0
+--- !u!95 &1564238141
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265161520761462318}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e05102a7b74cf8641b047feb4b09726d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0

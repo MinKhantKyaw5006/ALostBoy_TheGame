@@ -8,6 +8,8 @@ public class FireProjectile : MonoBehaviour
     [SerializeField] private float damageAmount; // Amount of damage the projectile inflicts
     private GameObject target;
     private Rigidbody2D bulletRb;
+    [SerializeField] private float lifespan = 5f; // Lifespan of the projectile in seconds
+
 
     // Start is called before the first frame update
     void Start()
@@ -17,7 +19,11 @@ public class FireProjectile : MonoBehaviour
         Vector2 moveDir = (target.transform.position - transform.position).normalized * fireSpeed;
         bulletRb.velocity = new Vector2(moveDir.x, moveDir.y);
 
+        Destroy(gameObject, lifespan); // Destroy the projectile after 'lifespan' seconds
     }
+
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Check if the projectile collided with the player
@@ -37,5 +43,7 @@ public class FireProjectile : MonoBehaviour
         }
     }
 
+
+   
 }
    

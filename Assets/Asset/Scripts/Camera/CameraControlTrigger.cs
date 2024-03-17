@@ -89,7 +89,7 @@ public class CustomInspectorObjects
     [HideInInspector] public float panTime = 0.35f;
 
     [HideInInspector] public ZoomDirection zoomDirection;
-    [HideInInspector] public float zoomAmount = 15f; // Or any default value you like
+     public float zoomAmount = 15f; // Or any default value you like
     [HideInInspector] public float zoomTime = 0.5f;
 
 

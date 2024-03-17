@@ -21,11 +21,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2256131405691641658, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 51
+      value: 41.69404
       objectReference: {fileID: 0}
     - target: {fileID: 2256131405691641658, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.6
+      value: -3.1885662
       objectReference: {fileID: 0}
     - target: {fileID: 2256131405691641658, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -119,9 +119,21 @@ PrefabInstance:
       propertyPath: m_FlipX
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2256131405691641661, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 69b1aceb55f88cf44a1940b6ee7d493f, type: 3}
+    - target: {fileID: 2256131405691641661, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
+      propertyPath: m_SortingLayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2256131405691641661, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 886204325
+      objectReference: {fileID: 0}
     - target: {fileID: 2256131405691641663, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
       propertyPath: m_Name
-      value: WalkshootEnemy
+      value: WalkshootEnemy Variant
       objectReference: {fileID: 0}
     - target: {fileID: 2256131405691641663, guid: 37f127833f982e749a7c6b8ec03d3e92, type: 3}
       propertyPath: m_Layer
@@ -177,7 +189,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 4.96, y: 3.9}
+    oldSize: {x: 6.8125, y: 5.53125}
     newSize: {x: 4.96, y: 3.9}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -186,3 +198,23 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 6.08226, y: 5.5490932}
   m_EdgeRadius: 0
+--- !u!95 &1114449863
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310355350877226829}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 054a33a093344df4e99651192748be59, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0

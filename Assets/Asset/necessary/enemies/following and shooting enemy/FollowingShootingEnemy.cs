@@ -11,22 +11,47 @@ public class FollowingShootingEnemy : Enemy // Derive from the Enemy class
     [SerializeField] private GameObject bullet;
     [SerializeField] private GameObject bulletPos;
     [SerializeField] private float enemyScale;
+    private BoxCollider2D mainCollider;
 
     private Transform player;
     private Transform enemyTransform;
     private float nextFireTime;
 
+    // Recoil properties
+    [SerializeField] private float recoilDistance = 1f;
+    [SerializeField] private float recoilSpeed = 5f;
+    private bool isRecoiling = false;
+    private Vector2 recoilDirection;
+    private float recoilStartTime;
+
     protected override void Start()
     {
-        base.Start(); // Call the base Start method from the Enemy class
+        base.Start();
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         enemyTransform = transform;
+        // Initialize mainCollider if not assigned
+        if (mainCollider == null) mainCollider = GetComponent<BoxCollider2D>();
     }
 
     protected override void Update()
     {
         base.Update(); // Call the base Update method from the Enemy class
-        FollowingEnemy();
+        if (isRecoiling)
+        {
+            float recoilDuration = 0.2f;
+            if (Time.time - recoilStartTime < recoilDuration)
+            {
+                transform.position += (Vector3)recoilDirection * recoilSpeed * Time.deltaTime;
+            }
+            else
+            {
+                isRecoiling = false;
+            }
+        }
+        else if (player != null)
+        {
+            FollowingEnemy();
+        }
         CheckHealth(); // Check health for destruction
     }
 
@@ -73,4 +98,30 @@ public class FollowingShootingEnemy : Enemy // Derive from the Enemy class
         Gizmos.DrawWireSphere(enemyTransform.position, lineOfSite);
         Gizmos.DrawWireSphere(enemyTransform.position, shootingRange);
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            mainCollider.enabled = false;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            mainCollider.enabled = true;
+        }
+    }
+
+    public override void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
+    {
+        base.EnemyHit(_damageDone, _hitDirection, _hitForce);
+        // Initiate recoil
+        isRecoiling = true;
+        recoilDirection = -_hitDirection.normalized;
+        recoilStartTime = Time.time;
+    }
+
 }

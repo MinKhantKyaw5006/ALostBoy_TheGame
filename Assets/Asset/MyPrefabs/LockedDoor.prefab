@@ -73,11 +73,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 2062790375
+  m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 3e946a31b10188f43a636c1a77723bf9, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 907542385, guid: 031c6bbbbe5c7ea42ad42c082af4621c, type: 3}
+  m_Color: {r: 0.15566039, g: 0.90702266, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -99,10 +99,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a76744599b46a2742bb620fda2c52db7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  requiredObjectsCount: 2
-  placementPoints: []
+  requiredItemType: 0
+  requiredItemCount: 3
   moveUpDistance: 5
   moveSpeed: 2
+  unlockSound: {fileID: 0}
+  requirementPanel: {fileID: 0}
+  messageUI: {fileID: 0}
+  collectiblePrefab: {fileID: 3140286777373569429, guid: 1a5683949e6dc7040a3d9fa3c96d2bd2, type: 3}
+  spawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!61 &4489929656547088240
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -120,7 +128,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 12, y: 12}
+    oldSize: {x: 5.96875, y: 11.375}
     newSize: {x: 12, y: 12}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -146,7 +154,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 12, y: 12}
+    oldSize: {x: 5.96875, y: 11.375}
     newSize: {x: 12, y: 12}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
