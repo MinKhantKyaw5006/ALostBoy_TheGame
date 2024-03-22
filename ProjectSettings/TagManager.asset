@@ -22,6 +22,8 @@ TagManager:
   - CheckPoint
   - ObjectToPlace
   - ThemeMusic
+  - ResetTrigger
+  - FallingPlatform
   layers:
   - Default
   - TransparentFX
@@ -65,11 +67,11 @@ TagManager:
   - name: MidGround
     uniqueID: 2062790375
     locked: 0
-  - name: Player
-    uniqueID: 886204325
-    locked: 0
   - name: Effect
     uniqueID: 3429769377
+    locked: 0
+  - name: Player
+    uniqueID: 886204325
     locked: 0
   - name: ForeGround
     uniqueID: 4185688371

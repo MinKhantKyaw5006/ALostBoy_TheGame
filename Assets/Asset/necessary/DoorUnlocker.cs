@@ -16,6 +16,8 @@ public class DoorUnlocker : MonoBehaviour
     [SerializeField] private Transform[] spawnPoints; // Array of spawn points for the collectibles
     private bool hasSpawnedCollectibles = false; // To ensure collectibles are spawned only once
     private bool isDoorUnlocked = false; // Add this line to declare the variable
+    private bool isUnlocking = false; // Indicates that the unlocking process has started
+
 
 
     /*
@@ -41,7 +43,7 @@ public class DoorUnlocker : MonoBehaviour
             if (playerCollect != null)
             {
                 // Check if the door is already unlocked
-                if (isDoorUnlocked)
+                if (isDoorUnlocked || isUnlocking)
                 {
                     // If the door is unlocked, do nothing or perform another action
                     return; // Exit the method early
@@ -51,6 +53,7 @@ public class DoorUnlocker : MonoBehaviour
                 {
                     playerCollect.UseItems(requiredItemType, requiredItemCount);
                     StartCoroutine(UnlockDoor());
+                    isUnlocking = true; // Add this line to indicate that unlocking has started
                 }
                 else
                 {
@@ -63,8 +66,8 @@ public class DoorUnlocker : MonoBehaviour
 
                     int itemsNeeded = requiredItemCount - currentItemCount;
                     messageUI.text = currentItemCount == 0 ?
-                        $"You need {requiredItemCount} {requiredItemType}(s) to unlock this door." :
-                        $"You have {currentItemCount}. You need {itemsNeeded} more {requiredItemType}(s) to unlock this door.";
+                        $"You need {requiredItemCount} {requiredItemType}s to unlock this door." :
+                        $"You have {currentItemCount}. You need {itemsNeeded} more {requiredItemType}s to unlock this door.";
                     requirementPanel.SetActive(true);
                     StartCoroutine(HideMessageAfterDelay(3f));
                 }
@@ -107,6 +110,7 @@ public class DoorUnlocker : MonoBehaviour
 
         // Uncomment and correctly position this line
         isDoorUnlocked = true; // Set the door as unlocked 
+        isUnlocking = true; // Add this line to indicate that unlocking has started
         // Optionally, disable the door collider to prevent further interaction
         /*
         Collider2D collider = GetComponent<Collider2D>();

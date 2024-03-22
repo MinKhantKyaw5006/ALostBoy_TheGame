@@ -7,6 +7,9 @@ public class MovingEnemy : Enemy
     [SerializeField] private Transform pointA;
     [SerializeField] private Transform pointB;
     [SerializeField] private float patrolSpeed = 2f;
+    [SerializeField] private DamageFlash damageFlash;
+    private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator animator;
 
     private Transform currentTarget;
 
@@ -14,6 +17,9 @@ public class MovingEnemy : Enemy
     {
         base.Start();
         currentTarget = pointA;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        // Initialize the animator reference
+        animator = GetComponent<Animator>();
     }
 
     protected override void Update()
@@ -54,4 +60,40 @@ public class MovingEnemy : Enemy
             transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
         }
     }
+
+    public override void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
+    {
+        base.EnemyHit(_damageDone, _hitDirection, _hitForce); // Call the base method to handle health reduction and recoil
+
+        // Check if health has dropped to zero or below, then handle death
+        if (health <= 0)
+        {
+            Die(); // Handle the enemy's death here
+        }
+
+        // Trigger animations or effects specific to RotatingEnemy
+        if (animator != null)
+        {
+            animator.SetTrigger("Hit"); // Assuming there's a "Hit" trigger in your animator
+        }
+
+        if (damageFlash != null)
+        {
+            damageFlash.Flash(); // Trigger the flash effect
+        }
+
+        // No need to handle the screen shake here if it's done in the base class
+    }
+
+    private void Die()
+    {
+        // Logic for handling the enemy's death specific to RotatingEnemy
+        Debug.Log($"{gameObject.name} died.");
+        Destroy(gameObject);
+        // Optionally, trigger any death animations or effects before destroying the object
+    }
+
+
+
+
 }

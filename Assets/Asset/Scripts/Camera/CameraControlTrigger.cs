@@ -19,6 +19,7 @@ public class CameraControlTrigger : MonoBehaviour
         _coll = GetComponent<Collider2D>();
     }
 
+    
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -47,6 +48,48 @@ public class CameraControlTrigger : MonoBehaviour
 
         }
     }
+    
+    /*
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            if (CustomInspectorObjects.panCameraOnContact && CustomInspectorObjects.zoomCameraOnContact)
+            {
+                // Determine whether to zoom in based on the ZoomDirection
+                bool zoomIn = CustomInspectorObjects.zoomDirection == ZoomDirection.In;
+
+                // Start both panning and zooming together
+                CameraManager.instance.StartPanAndZoom(
+                    CustomInspectorObjects.panDistance,
+                    CustomInspectorObjects.panTime,
+                    CustomInspectorObjects.panDirection,
+                    false, // Assuming you're not panning to a string position
+                    CustomInspectorObjects.zoomAmount,
+                    CustomInspectorObjects.zoomTime,
+                    zoomIn
+                );
+            }
+            else
+            {
+                if (CustomInspectorObjects.panCameraOnContact)
+                {
+                    //pan the camera
+                    CameraManager.instance.PanCameraOnContact(CustomInspectorObjects.panDistance, CustomInspectorObjects.panTime, CustomInspectorObjects.panDirection, false);
+                }
+
+                if (CustomInspectorObjects.zoomCameraOnContact)
+                {
+                    // Zoom the camera
+                    bool zoomIn = CustomInspectorObjects.zoomDirection == ZoomDirection.In;
+                    CameraManager.instance.ZoomCamera(CustomInspectorObjects.zoomAmount, CustomInspectorObjects.zoomTime, zoomIn);
+                }
+            }
+        }
+    }
+    */
+
+
 
     private void OnTriggerExit2D(Collider2D collision)
     {

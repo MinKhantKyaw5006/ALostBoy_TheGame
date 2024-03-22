@@ -231,10 +231,7 @@ public class DataPersistenceManager : MonoBehaviour
         //timestamp the data so we know when it was last saved
         gameData.lastUpdated = System.DateTime.Now.ToBinary();
 
-        //IMPORTANT TO NOTE!!!!!!
-        // Known issue: MissingReferenceException occurs when transitioning back to the main menu because
-        // objects implementing IDataPersistence (e.g., PlayerController) are destroyed before the DataPersistenceManager
-        // completes the save operation. Currently, this does not affect game functionality and is considered a low-priority issue.
+       
 
     }
 
@@ -323,91 +320,5 @@ public class DataPersistenceManager : MonoBehaviour
         }
     }
 
-    //original
-    /*
-    private void InitializeCheckpoints()
-    {
-        // Find all GameObjects with the "Checkpoint" tag
-        GameObject[] checkpointObjects = GameObject.FindGameObjectsWithTag("CheckPoint");
 
-        // Convert the GameObject array to a list of Checkpoint components
-        List<CheckPoint> checkpoints = checkpointObjects.Select(obj => obj.GetComponent<CheckPoint>()).ToList();
-
-        // Sort the checkpoints by their ID
-        checkpoints.Sort((a, b) => a.checkpointID.CompareTo(b.checkpointID));
-
-        // Optionally: Store the sorted checkpoint IDs in the GameData (assuming GameData has a list for this)
-        // Clear existing IDs to avoid duplicates
-        gameData.checkpointIDs.Clear();
-
-        foreach (var checkpoint in checkpoints)
-        {
-            gameData.checkpointIDs.Add(checkpoint.checkpointID);
-        }
-
-        // Debug: Print the ordered list of checkpoint IDs
-        Debug.Log("Ordered Checkpoint IDs: " + string.Join(", ", gameData.checkpointIDs));
-
-        SaveCheckpointsOnly();
-    }
-
-    
-    //current working codes
-    private void SaveCheckpointsOnly()
-    {
-        // Avoid saving checkpoint data when in the main menu scene
-        if (SceneManager.GetActiveScene().name == "GameMainMenu") // Adjust the scene name as per your main menu's scene name
-        {
-            Debug.Log("Currently in the Main Menu. Skipping checkpoint save.");
-            return;
-        }
-
-        if (gameData == null)
-        {
-            Debug.LogError("GameData is null. Cannot save checkpoints.");
-            return;
-        }
-
-        // Ensure we have a valid profile ID selected
-        if (string.IsNullOrEmpty(selectedProfileId))
-        {
-            Debug.LogError("No selected profile ID. Cannot save checkpoints.");
-            return;
-        }
-
-        // Extract only checkpoint data from gameData
-        var checkpointData = new CheckpointData
-        {
-            checkpointIDs = gameData.checkpointIDs
-            // Add any other checkpoint-specific data you might have
-        };
-
-        // Serialize the checkpoint data object to JSON
-        string jsonData = JsonUtility.ToJson(checkpointData, true);
-
-        // Define the path for the save file within the selected profile's directory
-        string profilePath = Path.Combine(Application.persistentDataPath, selectedProfileId);
-        if (!Directory.Exists(profilePath))
-        {
-            Directory.CreateDirectory(profilePath);
-        }
-        // Use a specific file name for checkpoint data
-        string filePath = Path.Combine(profilePath, "CheckpointData.json"); // Consider using a constant or a setting for file names
-
-        // Write the JSON string to the file
-        File.WriteAllText(filePath, jsonData);
-
-        Debug.Log($"Checkpoint data saved successfully for profile {selectedProfileId}.");
-    }
-
-
-    [System.Serializable]
-    public class CheckpointData
-    {
-        public List<int> checkpointIDs;
-        // Include other checkpoint-specific fields as needed
-
-        
-    }
-    */
 }

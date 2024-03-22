@@ -12,6 +12,9 @@ public class SaveSlotsMenu : Menu
     [Header("Menu Buttons")]
     [SerializeField] private Button backButton;
 
+    [Header("Loading Screen")]
+    [SerializeField] private GameObject loadingScreen; // Reference to your loading screen object
+
     private SaveSlot[] saveSlots;
 
     private bool isLoadingGame = false;
@@ -80,6 +83,11 @@ public class SaveSlotsMenu : Menu
         // Update the selected profile ID for data persistence
         string profileId = saveSlot.GetProfileId();
         DataPersistenceManager.instance.ChangeSelectedProfileId(profileId);
+
+        if (loadingScreen != null)
+        {
+            loadingScreen.SetActive(true); // Activate the loading screen
+        }
 
         string sceneToLoad;
 

@@ -7,7 +7,7 @@ using TMPro; // Make sure to use TextMeshPro
 public enum CollectibleType
 {
     Gem,
-    Key,
+    Jade,
     Stone,
     Diamond
 }
@@ -22,7 +22,7 @@ public class PlayerCollect : MonoBehaviour
 
 
     private int gemCount = 0;
-    private int keyCount = 0;
+    private int jadeCount = 0;
     private int stoneCount = 0;
     private int diamondCount = 0;
 
@@ -40,9 +40,9 @@ public class PlayerCollect : MonoBehaviour
                         gemCount++;
                         gemCountText.text = gemCount.ToString();
                         break;
-                    case CollectibleType.Key:
-                        keyCount++;
-                        keyCountText.text = keyCount.ToString();
+                    case CollectibleType.Jade:
+                        jadeCount++;
+                        keyCountText.text = jadeCount.ToString();
                         break;
                     case CollectibleType.Stone:
                         stoneCount++;
@@ -65,8 +65,8 @@ public class PlayerCollect : MonoBehaviour
         {
             case CollectibleType.Gem:
                 return gemCount >= count;
-            case CollectibleType.Key:
-                return keyCount >= count;
+            case CollectibleType.Jade:
+                return jadeCount >= count;
             case CollectibleType.Stone:
                 return stoneCount >= count;
             case CollectibleType.Diamond:
@@ -84,9 +84,9 @@ public class PlayerCollect : MonoBehaviour
                 gemCount = Mathf.Max(0, gemCount - count);
                 gemCountText.text = gemCount.ToString();
                 break;
-            case CollectibleType.Key:
-                keyCount = Mathf.Max(0, keyCount - count);
-                keyCountText.text = keyCount.ToString();
+            case CollectibleType.Jade:
+                jadeCount = Mathf.Max(0, jadeCount - count);
+                keyCountText.text = jadeCount.ToString();
                 break;
             case CollectibleType.Stone:
                 stoneCount = Mathf.Max(0, stoneCount - count);
@@ -105,8 +105,8 @@ public class PlayerCollect : MonoBehaviour
         {
             case CollectibleType.Gem:
                 return gemCount;
-            case CollectibleType.Key:
-                return keyCount;
+            case CollectibleType.Jade:
+                return jadeCount;
             case CollectibleType.Stone:
                 return stoneCount;
             case CollectibleType.Diamond:

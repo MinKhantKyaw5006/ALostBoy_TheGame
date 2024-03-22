@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   requiredItemType: 0
-  requiredItemCount: 3
+  requiredItemCount: 10
   moveUpDistance: 5
   moveSpeed: 2
   unlockSound: {fileID: 0}
@@ -108,6 +108,13 @@ MonoBehaviour:
   messageUI: {fileID: 0}
   collectiblePrefab: {fileID: 3140286777373569429, guid: 1a5683949e6dc7040a3d9fa3c96d2bd2, type: 3}
   spawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

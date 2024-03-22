@@ -92,6 +92,18 @@ public class Enemy : MonoBehaviour
         if (!isRecoiling)
         {
             rb.AddForce(-_hitForce * recoilFactor * _hitDirection);
+
+            // Trigger screen shake
+            ScreenShaker screenShaker = FindObjectOfType<ScreenShaker>(); // Consider using a more efficient way to reference this
+            if (screenShaker != null)
+            {
+                screenShaker.Shake(_hitDirection.normalized); // You might adjust the force
+            }
+            else
+            {
+                Debug.LogWarning("ScreenShaker not found in the scene.");
+            }
+
         }
     }
  

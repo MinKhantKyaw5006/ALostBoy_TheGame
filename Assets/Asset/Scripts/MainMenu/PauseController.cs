@@ -16,6 +16,10 @@ public class PauseController : MonoBehaviour
 
     //private PlayerControls playerControls; // Reference to the generated PlayerControls class
     private PlayerInput playerInput;
+    public GameObject tutorialPanel; // Assign this in the Inspector
+
+    [SerializeField] private GameObject loadingScreen; // Reference to your loading screen object
+
 
 
 
@@ -123,6 +127,12 @@ public class PauseController : MonoBehaviour
             // Ensure game time is resumed before reloading
             Time.timeScale = 1f;
 
+            if (loadingScreen != null)
+            {
+                loadingScreen.SetActive(true); // Activate the loading screen
+            }
+
+
             // Reload the current scene
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
@@ -138,6 +148,11 @@ public class PauseController : MonoBehaviour
         // Check if DataPersistenceManager instance is available
         if (DataPersistenceManager.instance != null)
         {
+            if (loadingScreen != null)
+            {
+                loadingScreen.SetActive(true); // Activate the loading screen
+            }
+
             // Reload the current scene
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
@@ -215,6 +230,20 @@ public class PauseController : MonoBehaviour
                 audioSource.UnPause(); // Resume the audio source
             }
         }
+    }
+
+
+    public void ShowTutorial()
+    {
+        tutorialPanel.SetActive(true); // Show the tutorial panel
+        pauseMenuUI.SetActive(false); // Optionally, hide the pause menu to only show the tutorial instructions
+    }
+
+    public void HideTutorial()
+    {
+        tutorialPanel.SetActive(false); // Hide the tutorial panel
+                                        // If you hide the pause menu when showing the tutorial, you might want to re-show the pause menu when the tutorial is closed
+        pauseMenuUI.SetActive(true);
     }
 
 

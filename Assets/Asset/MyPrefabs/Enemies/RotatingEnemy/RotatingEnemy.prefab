@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7423289822733282392}
   - component: {fileID: 7423289822733282393}
   - component: {fileID: 7423289822733282389}
+  - component: {fileID: 1712576561}
   m_Layer: 7
   m_Name: RotatingEnemy
   m_TagString: Enemy
@@ -55,7 +56,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: b61f1abd70bf65242ba1b2f3feb05769, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -73,11 +74,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 2062790375
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 8debe35a2c03af1419f3a39813ac41de, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5882353, g: 0.42352942, b: 0.4627451, a: 1}
   m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
@@ -100,7 +101,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.016531944, y: -0.6979594}
+  m_Offset: {x: -0.016531944, y: -0.29571533}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -111,7 +112,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 3.6121502, y: 2.8185854}
+  m_Size: {x: 3.6121502, y: 3.6230736}
   m_EdgeRadius: 0
 --- !u!114 &7423289822733282393
 MonoBehaviour:
@@ -125,19 +126,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bf4d8d8678a918428daf17789549154, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 10
+  health: 40
   recoilLength: 0
   recoilFactor: 0
   isRecoiling: 0
   player: {fileID: 0}
   speed: 0
-  damage: 2
+  damage: 30
   moveSpeed: 5
   wayPoints:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  yOffset: 1.6
+  xOffset: 0.59
+  xscale: 0.5
+  yscale: 0.5
+  damageFlash: {fileID: 1712576561}
+  animator: {fileID: 0}
 --- !u!50 &7423289822733282389
 Rigidbody2D:
   serializedVersion: 4
@@ -159,3 +166,17 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &1712576561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7423289822733282398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ce56e99acd6ffa4d8301b00839c01c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _color: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 0}
+  _flashTime: 0.25

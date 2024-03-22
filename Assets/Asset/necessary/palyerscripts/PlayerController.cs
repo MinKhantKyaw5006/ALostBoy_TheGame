@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     private bool attack = false;
     private float timeBetweenAttack, timeSinceAttack;
     private int stepXRecoiled, stepYRecoiled;
+    public bool isInDialogue = false;
+
 
     //camera follow settting---------------------------
     [Header("Camera Setting")]
@@ -40,6 +42,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private float timetoHeal;
     [SerializeField] private RectTransform heartFillRectTransform;
     [SerializeField] private float maxWidth = 100f;
+    [SerializeField] private DamageFlash damageFlash;
     // Reference to SaveGroundCP script
     //[SerializeField] private SaveGroundCP saveGroundCP;
 
@@ -102,6 +105,12 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     public float damage;
     [SerializeField] private GameObject slashEffect;
 
+    [Header("Attack Cooldown")]
+    [SerializeField] private float attackRate = 2f; // How many attacks per second
+    [SerializeField]private float nextAttackTime = 0f;
+    [SerializeField] private float attackCooldown = 1f; // Adjust this value as needed
+
+
     [Header("Recoil Setting")]
     [SerializeField] private int recoilXSteps = 5;
     [SerializeField] private int recoilYSteps = 5;
@@ -137,9 +146,11 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     private GameObject currentPlatform = null;
     private Vector3 lastPlatformPosition;
     private Rigidbody2D playerRigidbody;
-    private Vector2 platformVelocityLastFrame;
+    private Vector2 platformVelocityLastFrame;// Inside PlayerController
+    public event Action<bool> OnFlip;
 
     // Sound Effects
+    [Header("SoundEffects")]
     [SerializeField] private AudioSource jumpSoundEffect;
     [SerializeField] private AudioSource dashSoundEffect;
     [SerializeField] private AudioSource attackSoundEffect;
@@ -147,6 +158,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private AudioSource spellSoundEffect;
     [SerializeField] private AudioSource onGroundSoundEffect;
     [SerializeField] private AudioSource WalkingEffect;
+    [SerializeField] private AudioSource hitSound; // Drag your hit sound effect here in the Inspector
 
     public bool IsFacingRight
     {
@@ -214,7 +226,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         playerControls.Player.Attack.performed += OnAttackPerformed;
         playerControls.Player.Heal.performed += OnHealPerformed;
         playerControls.Player.Heal.canceled += OnHealCanceled;
-        playerControls.Player.SpellCast.performed += OnSpellCastPerformed;
+        //playerControls.Player.SpellCast.performed += OnSpellCastPerformed;
         playerControls.Enable();
     }
 
@@ -227,7 +239,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         playerControls.Player.Attack.performed -= OnAttackPerformed;
         playerControls.Player.Heal.performed -= OnHealPerformed;
         playerControls.Player.Heal.canceled -= OnHealCanceled;
-        playerControls.Player.SpellCast.performed -= OnSpellCastPerformed;  
+        //playerControls.Player.SpellCast.performed -= OnSpellCastPerformed;  
         playerControls.Disable();
 
     }
@@ -252,6 +264,11 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
+        if (isInDialogue)
+        {
+            return; // Ignore jump input if in dialogue
+        }
+
         // If jump is performed and player is on the ground or has air jumps left, make the player jump
         if (Grounded() || (airJumpCounter < MaxAirJumps && !pState.jumping))
         {
@@ -269,6 +286,11 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void OnDashPerformed(InputAction.CallbackContext context)
     {
+        if (isInDialogue)
+        {
+            return; // Ignore jump input if in dialogue
+        }
+
         // Check if dash is performed and the player can dash
         if (canDash && !Dashed)
         {
@@ -314,11 +336,22 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     void Update()
     {
+
+        if (isInDialogue)
+        {
+            // Halt player movement and skip the rest of the update if in dialogue
+            rb.velocity = Vector2.zero; // Explicitly reset the player's velocity
+            WalkingEffect.Stop(); // Stop the walking sound effect if in dialogue
+            anim.SetBool("Walking", false); // Ensure the walking animation is stopped
+            return; // Skip further processing
+        }
+
         // Get the movement input
         xAxis = currentMovementInput.x;
 
         if (pState.cutscene) return;
         GetInput();
+        timeSinceCast += Time.deltaTime;
         UpdateJumpVariable();
         if (pState.dashing) return;
 
@@ -326,6 +359,13 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         {
             pState.jumping = false;
         }
+        /*
+        if (Input.GetButtonDown("Cast"))
+        {
+            Debug.Log("Cast button pressed");
+            CastSpellTest();
+        }
+        */
 
         HandleWalkingSound();
         Flip();
@@ -335,7 +375,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         Attack();
         FlashWhileInvincible();
         Heal();
+       
         CastSpell();
+        
+
 
         //if we are falling past a certain speed thresold
         if (rb.velocity.y < _fallSpeedYDampingChangethresold && !CameraManager.instance.IsLerpingYDamping && !CameraManager.instance.LerpedFromPlayerFalling)
@@ -349,9 +392,25 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             CameraManager.instance.LerpedFromPlayerFalling = false;
             CameraManager.instance.LerpYDamping(false);
         }
+        
 
     }
 
+    void CastSpellTest()
+    {
+        Debug.Log($"Attempting to cast spell. Current Mana: {Mana}");
+        if (Mana >= manaSpellCost)
+        {
+            Debug.Log($"Casting spell. Mana before cast: {Mana}, Cost: {manaSpellCost}");
+            Mana -= manaSpellCost;
+            Debug.Log($"Mana after cast: {Mana}");
+            StartCoroutine(CastCoroutine());
+        }
+        else
+        {
+            Debug.Log("Not enough mana to cast.");
+        }
+    }
 
     void InitializeManaStorage()
     {
@@ -546,7 +605,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         pState.recoilingY = false;
     }
 
-
+    /*
     public void TakeDamage(float damage)
     {
         if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
@@ -563,17 +622,31 @@ public class PlayerController : MonoBehaviour, IDataPersistence
                 return; // Exit the function to not proceed further after death
             }
 
-            // If damage is not from a fall, perform flashing and make the player temporarily invincible
-            /*
-            if (!isFallDamage)
-            {
-                anim.SetTrigger("TakeDamage");
-                StartCoroutine(MakeInvincible(1.0f)); // Start invincibility and flashing
-            }
-            */
             StartCoroutine(MakeInvincible(1.0f)); // Make player invincible for 1 second after taking damage
         }
     }
+    */
+    public void TakeDamage(float damage)
+    {
+        if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
+        {
+            Debug.Log($"Before taking damage: Health = {health}");
+            health -= damage; // Directly subtract the floating-point damage value
+            health = Mathf.Clamp(health, 0, maxHealth); // Ensure health does not go below 0 or above maxHealth
+            UpdateHealthUI(); // Update heart UI based on new health
+            Debug.Log($"After taking damage: Health = {health}");
+
+            if (health <= 0)
+            {
+                StartCoroutine(Death()); // Trigger death sequence
+                return; // Exit the function to not proceed further after death
+            }
+
+            anim.SetTrigger("TakeDamage"); // Trigger the TakeDamage animation
+            StartCoroutine(MakeInvincible(1.0f, true)); // Make player invincible for 1 second after taking damage with flash effect
+        }
+    }
+
 
 
 
@@ -586,7 +659,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     }
 
 
-
+    /*
     IEnumerator MakeInvincible(float duration)
     {
         pState.invincible = true;
@@ -596,6 +669,28 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         StopCoroutine(FlashEffect()); // Ensure to stop the flashing effect
         sr.material.color = Color.white; // Reset sprite color back to normal
     }
+    */
+    IEnumerator MakeInvincible(float duration, bool shouldFlash)
+    {
+        pState.invincible = true;
+        if (shouldFlash)
+        {
+            //StartCoroutine(FlashEffect());
+            // Trigger the damage flash effect
+            if (damageFlash != null)
+            {
+                damageFlash.Flash();
+            }
+        }
+        yield return new WaitForSeconds(duration);
+        pState.invincible = false;
+        if (shouldFlash)
+        {
+            StopCoroutine(FlashEffect());
+            sr.material.color = Color.white; // Reset sprite color back to normal
+        }
+    }
+
 
     IEnumerator FlashEffect()
     {
@@ -658,7 +753,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         pState.alive = true;
 
         // Optionally, make the player invincible for a short duration after respawning
-        StartCoroutine(MakeInvincible(2.0f));
+        StartCoroutine(MakeInvincible(2.0f,true));
     }
     
 
@@ -731,17 +826,37 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         xAxis = currentMovementInput.x;
         yAxis = Input.GetAxisRaw("Vertical");
 
+        /*
         // Check for attack input
         attack = Input.GetButtonDown("Attack");
+        */
+
+        // Only set attack to true if the cooldown has passed
+        if (Input.GetButtonDown("Attack") && Time.time >= nextAttackTime)
+        {
+            attack = true;
+            // Update the next allowed attack time based on current time and cooldown duration
+            nextAttackTime = Time.time + attackCooldown; // Assume attackCooldown is a serialized field or constant
+            //Debug.Log("can attack");
+        }
+        else
+        {
+            attack = false; // This line can be omitted if you handle attack elsewhere
+            //Debug.Log("cannot attack");
+        }
 
 
-        if (Input.GetButton("Cast/Heal"))
+        if (Input.GetButton("Cast"))
         {
             castOrHealTimer += Time.deltaTime;
+            
+            //CastSpell();
+            
         }
         else
         {
             castOrHealTimer = 0;
+            
         }
     }
 
@@ -758,6 +873,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             transform.localScale = new Vector2(PlayerScale, transform.localScale.y);
             pState.lookingRight = true;
         }
+
+        OnFlip?.Invoke(pState.lookingRight); // Raise the event whenever the player flips
     }
 
     void StartDash()
@@ -771,6 +888,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
+    /*
     IEnumerator Dash()
     {
         canDash = false;
@@ -799,6 +917,28 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         canDash = true;
 
     }
+    */
+    IEnumerator Dash()
+    {
+        canDash = false;
+        pState.dashing = true;
+        StartCoroutine(MakeInvincible(dashTime, false)); // Make the player invincible during dash without flashing effect
+        anim.SetTrigger("Dashing");
+        rb.gravityScale = 0;
+        int _dir = pState.lookingRight ? 1 : -1;
+        rb.velocity = new Vector2(_dir * dashSpeed, 0);
+        if (Grounded()) Instantiate(dashEffect, transform);
+
+        WalkingEffect.Stop();
+        dashSoundEffect.Play();
+
+        yield return new WaitForSeconds(dashTime);
+        rb.gravityScale = gravity;
+        pState.dashing = false;
+        yield return new WaitForSeconds(dashCoolDown);
+        canDash = true;
+    }
+
 
     IEnumerator StopTakingDamage()
     {
@@ -814,10 +954,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     void Attack()
     {
         // Check if the mouse is currently over a UI element
-        if (EventSystem.current.IsPointerOverGameObject())
-        {
-            return; // If true, return early and do not proceed with the attack
-        }
+        //if (EventSystem.current.IsPointerOverGameObject())
+        //{
+        //    return; // If true, return early and do not proceed with the attack
+        //}
 
 
         timeSinceAttack += Time.deltaTime;
@@ -829,25 +969,29 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             // Update the Animator's Speed parameter even during the attack
             anim.SetFloat("Speed", Mathf.Abs(xAxis)); // Add this line
 
+            Vector3 effectScale = new Vector3(1f, 1f, 1f); // Define the desired scale for the slash effect
+
             // Perform the attack based on the vertical axis and grounded state
             if (yAxis == 0 || (yAxis < 0 && Grounded()))
             {
                 Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
-                Instantiate(slashEffect, SideAttackTransform);
+                float effectAngle = pState.lookingRight ? 0f : 180f;
+                SlashEffectAtAngle(slashEffect, effectAngle, SideAttackTransform.position, effectScale);
+                //Instantiate(slashEffect, SideAttackTransform.position, Quaternion.identity);
                 Debug.Log("Side Attack!");
                 attackSoundEffect.Play();
             }
             else if (yAxis > 0)
             {
                 Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
-                SlashEffectAtAngle(slashEffect, 80, UpAttackTransform);
+                SlashEffectAtAngle(slashEffect, 80, UpAttackTransform.position, effectScale);
                 Debug.Log("Up Attack!");
                 attackSoundEffect.Play();
             }
             else if (yAxis < 0 || !Grounded())
             {
                 Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
-                SlashEffectAtAngle(slashEffect, -90, DownAttackTransform);
+                SlashEffectAtAngle(slashEffect, -90, DownAttackTransform.position, effectScale);
                 Debug.Log("Down Attack!");
                 attackSoundEffect.Play();
             }
@@ -861,11 +1005,12 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
 
     // Helper method to instantiate slash effects at a given angle
+    /*
     void SlashEffectAtAngle(GameObject effect, float angle, Vector3 position)
     {
         var instantiatedEffect = Instantiate(effect, position, Quaternion.Euler(0f, 0f, angle));
         instantiatedEffect.transform.localScale = transform.localScale; // Ensure effect scales with player
-    }
+    }*/
 
 
 
@@ -877,6 +1022,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         {
             _recoilDir = true; // Set recoil direction to true if any object is hit
             //Debug.Log("Recoil triggered");
+            
         }
 
         for (int i = 0; i < objectsToHit.Length; i++)
@@ -892,19 +1038,51 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
                 if (objectsToHit[i].CompareTag("Enemy"))
                 {
+                    hitSound.Play();
                     Mana += manaGain;
                 }
             }
         }
     }
 
-
+    /*
     void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform)
     {
         _slashEffect = Instantiate(_slashEffect, _attackTransform);
         _slashEffect.transform.eulerAngles = new Vector3(0, 0, _effectAngle);
         _slashEffect.transform.localScale = new Vector2(transform.localScale.x, transform.localScale.y);
     }
+    */
+    void SlashEffectAtAngle(GameObject effectPrefab, float angle, Vector3 position, Vector3 effectScale)
+    {
+        GameObject effectInstance = Instantiate(effectPrefab, position, Quaternion.Euler(0f, 0f, angle));
+        effectInstance.transform.localScale = effectScale; // Apply the fixed scale
+
+        // Parent the effect instance to the player
+        effectInstance.transform.parent = transform;
+
+        // Optionally, adjust the position for up/down attacks if needed
+        if (angle == 80 || angle == -90) // Assuming 80 is for up and -90 is for down
+        {
+            effectInstance.transform.localPosition += new Vector3(0, 0.1f, 0); // Example adjustment
+        }
+
+        // Set up a coroutine to unparent the effect after a short duration
+        StartCoroutine(UnparentEffectAfterDuration(effectInstance, 0.5f)); // Adjust the duration as needed
+    }
+
+    IEnumerator UnparentEffectAfterDuration(GameObject effectInstance, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Unparent the effect and optionally adjust its settings
+        effectInstance.transform.parent = null;
+
+        // Here you can adjust the effect if needed, for example, start fading it out or destroy it
+        // Destroy(effectInstance, additionalDuration); // Destroy the effect after an additional duration if needed
+    }
+
+
 
     void Recoil()
     {
@@ -965,6 +1143,13 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void Move()
     {
+        if (isInDialogue)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y); // Stop horizontal movement
+            anim.SetBool("Walking", false); // Ensure the walking animation is not playing
+            return; // Skip the rest of the method
+        }
+
         // Use currentMovementInput to set the velocity
         float moveX = currentMovementInput.x * walkspeed;
         float moveY = rb.velocity.y;
@@ -1011,20 +1196,22 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             healTimer = 0;
         }
     }
+
+    /*
     private void OnSpellCastPerformed(InputAction.CallbackContext context)
     {
         // Check if it's the right time to cast a spell
-        if (castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
-        {
-            CastSpell();
-        }
-    }
 
- 
+        CastSpell();
+
+    }
+    */
+
+    
     void CastSpell()
     {
         // Check if mana is full and other conditions are met before casting
-        if (Input.GetButtonUp("Cast/Heal") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost && Mana == maxMana)
+        if (Input.GetButtonDown("Cast") && castOrHealTimer <= 0.05f && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost )
         {
             Debug.Log($"Mana before cast: {Mana}");
             Debug.Log($"Mana cost for casting: {manaSpellCost}");
@@ -1055,12 +1242,70 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             rb.velocity += downSpellForce * Vector2.down;
         }
     }
+    
+    /*
+    void CastSpell()
+    {
+        // Check if mana is full and other conditions are met before casting
+        if (Input.GetButtonDown("Cast")  && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        {
+            Debug.Log($"Mana before cast: {Mana}");
+            Debug.Log($"Mana cost for casting: {manaSpellCost}");
+
+            // Deduct the mana spell cost from the current mana
+            Mana -= manaSpellCost;
+
+            Debug.Log($"Mana after cast: {Mana}");
+
+            pState.casting = true;
+            timeSinceCast = 0;
+            StartCoroutine(CastCoroutine());
+        }
+        else
+        {
+            timeSinceCast += Time.deltaTime;
+        }
+
+        // Disable down spell on ground
+        if (Grounded())
+        {
+            downSpellFireball.SetActive(false);
+        }
+
+        // If down spell is active, force player down until ground
+        if (downSpellFireball.activeInHierarchy)
+        {
+            rb.velocity += downSpellForce * Vector2.down;
+        }
+    }
+    */
+
+    /*
+
+    void CastSpell()
+    {
+        // Ensure there's enough mana and cooldown period has passed
+        if (timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
+        {
+            Debug.Log($"Casting spell. Mana before cast: {Mana}");
+            Mana -= manaSpellCost;
+            Debug.Log($"Mana after cast: {Mana}");
+
+            pState.casting = true;
+            timeSinceCast = 0;
+            StartCoroutine(CastCoroutine());
+        }
+    }
+    */
+
+
 
 
 
 
     IEnumerator CastCoroutine()
     {
+        Debug.Log("Spell casting coroutine started.");
         anim.SetBool("Casting", true);
         yield return new WaitForSeconds(0.15f); //based on casting animtion, two parts, prep and cast state, take on frame on time 00:15 , frame time can change varies
 
@@ -1099,7 +1344,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             downSpellFireball.SetActive(true);
         }
 
-        Mana = manaSpellCost;
+        //Mana = manaSpellCost;
         yield return new WaitForSeconds(0.35f);
         anim.SetBool("Casting", false);
         pState.casting = false;
@@ -1124,6 +1369,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     void Jump()
     {
+        if (isInDialogue) return; // Skip if in dialogue
         // Jump logic is now handled by OnJumpPerformed.
         // The following is to handle the "letting go" of the jump button for variable jump height
 
@@ -1190,5 +1436,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             currentPlatform = null;
         }
     }
+
+
+
 
 }

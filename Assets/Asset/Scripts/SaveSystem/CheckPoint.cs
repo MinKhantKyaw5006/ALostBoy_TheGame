@@ -1,10 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class CheckPoint : MonoBehaviour
 {
     [SerializeField] private AudioSource checkpointSound;
+    [SerializeField] private TextMeshProUGUI checkpointSavedText;
+
 
     public int checkpointID; // Unique identifier for the checkpoint
 
@@ -27,6 +31,8 @@ public class CheckPoint : MonoBehaviour
 
                 DataPersistenceManager.instance.SaveGame();
                 Debug.Log("Game Saved at Checkpoint" + checkpointID);
+                // Now show the checkpoint saved message
+                StartCoroutine(ShowCheckpointSavedMessage());
                 checkpointSound.Play();
             }
             else
@@ -34,5 +40,13 @@ public class CheckPoint : MonoBehaviour
                 Debug.Log("Current checkpoint already exists in the list. Not saving.");
             }
         }
+    }
+
+
+    private IEnumerator ShowCheckpointSavedMessage()
+    {
+        checkpointSavedText.gameObject.SetActive(true);
+        yield return new WaitForSeconds(3); // Display the message for 3 seconds
+        checkpointSavedText.gameObject.SetActive(false);
     }
 }

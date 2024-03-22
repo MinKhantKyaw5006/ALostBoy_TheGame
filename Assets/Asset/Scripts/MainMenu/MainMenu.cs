@@ -15,8 +15,12 @@ public class MainMenu : Menu
     [SerializeField] private Button loadGameButton;
     [SerializeField] private Button quitGameButton; // Add this line
 
+    [Header("Loading Screen")]
+    [SerializeField] private GameObject loadingScreen; // Add this line
+
+
     ///original
-    
+
     public void Start()
     {
         
@@ -56,6 +60,8 @@ public class MainMenu : Menu
     {
         saveSlotsMenu.ActivateMenu(false);
         this.DeactivateMenu();
+
+  
     }
 
     public void OnContinueGameClicked()
@@ -74,6 +80,12 @@ public class MainMenu : Menu
         // Determine which scene to load based on saved scene data
         string sceneToLoad = DataPersistenceManager.instance.DetermineSceneToLoad();
         Debug.Log($"Loading scene: {sceneToLoad}");
+
+        // Activate the loading screen
+        if (loadingScreen != null)
+        {
+            loadingScreen.SetActive(true);
+        }
 
         SceneManager.LoadSceneAsync(sceneToLoad);
 

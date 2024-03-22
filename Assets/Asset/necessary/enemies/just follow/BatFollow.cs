@@ -8,6 +8,9 @@ public class BatFollow : Enemy
     [SerializeField] private float aboveDetectionWidth = 2f;
     [SerializeField] private float aboveDetectionHeight = 1f;
     [SerializeField] private float enemyScale;
+    [SerializeField] private Animator animator;
+    [SerializeField] private DamageFlash damageFlash;
+    private SpriteRenderer spriteRenderer;
 
     private Transform player;
     // References to the enemy's colliders
@@ -26,6 +29,9 @@ public class BatFollow : Enemy
     {
         base.Start();
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        // Initialize the animator reference
+        animator = GetComponent<Animator>();
         // Assume the main Collider is the first BoxCollider2D component
         mainCollider = GetComponent<BoxCollider2D>();
         // Add or get the second BoxCollider2D component for detecting the player above
@@ -40,11 +46,10 @@ public class BatFollow : Enemy
         base.Update();
         FollowPlayer();
 
-        if (player != null)
+        if (!isRecoiling && player != null)
         {
             FollowPlayer();
-            // Determine if the enemy should flip based on the player's position
-            FlipObject(player.position.x > transform.position.x);
+            FlipTowardsPlayer();
         }
 
         if (isRecoiling)
@@ -74,6 +79,11 @@ public class BatFollow : Enemy
             Vector2 targetPosition = new Vector2(player.position.x, player.position.y);
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
         }
+    }
+    private void FlipTowardsPlayer()
+    {
+        // Flipping based on the player's position
+        spriteRenderer.flipX = player.position.x < transform.position.x;
     }
 
     private void FlipObject(bool shouldFlip)
@@ -123,6 +133,18 @@ public class BatFollow : Enemy
         isRecoiling = true;
         recoilDirection = -_hitDirection.normalized; // Recoil in the opposite direction of the hit
         recoilStartTime = Time.time;
+
+        // Trigger the squash animation
+        if (animator != null)
+        {
+            animator.SetTrigger("Squash");
+        }
+        // Trigger the damage flash effect
+        if (damageFlash != null)
+        {
+            damageFlash.Flash();
+        }
+
     }
 
 

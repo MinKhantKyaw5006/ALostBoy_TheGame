@@ -11,7 +11,11 @@ public class FollowingShootingEnemy : Enemy // Derive from the Enemy class
     [SerializeField] private GameObject bullet;
     [SerializeField] private GameObject bulletPos;
     [SerializeField] private float enemyScale;
+    [SerializeField] private Animator animator;
+    [SerializeField] private DamageFlash damageFlash;
+
     private BoxCollider2D mainCollider;
+    [SerializeField] private SpriteRenderer sr;
 
     private Transform player;
     private Transform enemyTransform;
@@ -27,10 +31,14 @@ public class FollowingShootingEnemy : Enemy // Derive from the Enemy class
     protected override void Start()
     {
         base.Start();
+        sr = GetComponent<SpriteRenderer>();
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         enemyTransform = transform;
         // Initialize mainCollider if not assigned
         if (mainCollider == null) mainCollider = GetComponent<BoxCollider2D>();
+
+        // Initialize the animator reference
+        animator = GetComponent<Animator>();
     }
 
     protected override void Update()
@@ -67,17 +75,23 @@ public class FollowingShootingEnemy : Enemy // Derive from the Enemy class
             enemyTransform.position = Vector2.MoveTowards(enemyTransform.position, player.position, moveSpeed * Time.deltaTime);
 
             // Determine the direction of movement
-            float xAxis = player.position.x - enemyTransform.position.x;
-            bool movingRight = xAxis > 0;
+            //float xAxis = player.position.x - enemyTransform.position.x;
+            //bool movingRight = xAxis > 0;
 
             // Flip the enemy object based on movement direction
-            FlipObject(movingRight);
+            //FlipObject(movingRight);
+
+            // Flip the enemy to always face the player
+            FlipTowardsPlayer();
         }
         else if (distanceFromPlayer <= shootingRange && Time.time >= nextFireTime)
         {
             // Shoot at the player
             Instantiate(bullet, bulletPos.transform.position, Quaternion.identity);
             nextFireTime = Time.time + fireRate;
+
+            // Ensure the enemy is facing the player when shooting
+            FlipTowardsPlayer();
         }
     }
 
@@ -87,6 +101,16 @@ public class FollowingShootingEnemy : Enemy // Derive from the Enemy class
         float newScale = shouldFlip ? -enemyScale : enemyScale;
         enemyTransform.localScale = new Vector3(newScale, enemyTransform.localScale.y, enemyTransform.localScale.z);
     }
+    private void FlipTowardsPlayer()
+    {
+        if (player == null) return; // Safety check
+
+        bool isPlayerToRight = player.position.x > transform.position.x;
+        // Assuming the sprite faces right by default. Flip it if the player is to the left.
+        sr.flipX = !isPlayerToRight;
+    }
+
+
 
 
 
@@ -122,6 +146,17 @@ public class FollowingShootingEnemy : Enemy // Derive from the Enemy class
         isRecoiling = true;
         recoilDirection = -_hitDirection.normalized;
         recoilStartTime = Time.time;
+
+        // Trigger the squash animation
+        if (animator != null)
+        {
+            animator.SetTrigger("Squash");
+        }
+        // Trigger the damage flash effect
+        if (damageFlash != null)
+        {
+            damageFlash.Flash();
+        }
     }
 
 }

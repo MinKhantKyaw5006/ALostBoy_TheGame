@@ -27,6 +27,11 @@ public class CameraFollowObject : MonoBehaviour
         //make the camerafollowobject follow the player's position
         transform.position = _playerTransforms.position;
 
+        // If the player's facing direction has changed, call to rotate the camera
+        if (_player.IsFacingRight != _isFacingRight)
+        {
+            CallTurn();
+        }
 
     }
 

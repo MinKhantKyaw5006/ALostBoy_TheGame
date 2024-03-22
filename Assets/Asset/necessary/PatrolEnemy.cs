@@ -11,6 +11,10 @@ public class PatrolEnemy : Enemy
     [SerializeField] private Transform platformCheck; // Assign this in the Inspector
     [SerializeField] private float forwardCheckDistance = 1f; // Adjust this value based on your needs
     [SerializeField] private float maxJumpHeight = 1f; // Adjust this value as needed
+    [SerializeField] private DamageFlash damageFlash;
+
+
+    [SerializeField] private Animator animator;
 
 
 
@@ -30,6 +34,8 @@ public class PatrolEnemy : Enemy
         UpdateCheckPositions();
 
         rb = GetComponent<Rigidbody2D>();
+        // Initialize the animator reference
+        animator = GetComponent<Animator>();
     }
 
     protected override void Update()
@@ -95,6 +101,24 @@ public class PatrolEnemy : Enemy
         groundCheck.localPosition = new Vector3(localXPosition, groundCheck.localPosition.y, groundCheck.localPosition.z);
         heightCheck.localPosition = new Vector3(localXPosition, heightCheck.localPosition.y, heightCheck.localPosition.z);
     }
+    public override void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
+    {
+        // Call the base version to ensure base functionality is maintained
+        base.EnemyHit(_damageDone, _hitDirection, _hitForce);
+
+        // Trigger the squash animation
+        if (animator != null)
+        {
+            animator.SetTrigger("Squash");
+        }
+
+        // Trigger the damage flash effect
+        if (damageFlash != null)
+        {
+            damageFlash.Flash();
+        }
+    }
+
 }
 
 /*

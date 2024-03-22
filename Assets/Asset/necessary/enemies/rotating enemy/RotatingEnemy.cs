@@ -14,6 +14,9 @@ public class RotatingEnemy : Enemy
 
     private int nextWaypoint = 1;
     private float disToPoint; // This will store the remaining distance between player and next waypoint
+    [SerializeField] private DamageFlash damageFlash;
+    [SerializeField] private Animator animator; // Only if you have animations to trigger
+
 
     private void OnDrawGizmos()
     {
@@ -74,4 +77,25 @@ public class RotatingEnemy : Enemy
             nextWaypoint = 0;
         }
     }
+    public override void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
+    {
+        base.EnemyHit(_damageDone, _hitDirection, _hitForce); // Call the base method to handle health reduction and recoil
+
+        // Example: Trigger an animation or effect specific to RotatingEnemy
+        if (animator != null)
+        {
+            animator.SetTrigger("Hit"); // Assuming there's a "Hit" trigger in your animator
+        }
+
+        // Assuming you have a DamageFlash component attached to this enemy
+        DamageFlash damageFlash = GetComponent<DamageFlash>();
+        if (damageFlash != null)
+        {
+            damageFlash.Flash(); // Trigger the flash effect
+        }
+
+        // The screen shake is already handled in the base EnemyHit method
+    }
+
+
 }
