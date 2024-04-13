@@ -160,6 +160,11 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private AudioSource WalkingEffect;
     [SerializeField] private AudioSource hitSound; // Drag your hit sound effect here in the Inspector
 
+    //tutorial session
+    public bool canMoveLeft = true;
+    public bool canMoveRight = true;
+    public bool canJump = true;
+
     public bool IsFacingRight
     {
         get { return pState.lookingRight; } // Assuming pState.lookingRight exists and indicates facing direction
@@ -299,13 +304,35 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
-
+    /*
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
         // Set the current movement input to the value of the input
         currentMovementInput = context.ReadValue<Vector2>();
 
         WalkingEffect.Play();
+    }
+    */
+
+    // Modify existing methods to check these flags
+    private void OnMovePerformed(InputAction.CallbackContext context)
+    {
+        if (!isInDialogue) // Only proceed if not in dialogue
+        {
+            float moveInput = context.ReadValue<Vector2>().x;
+            // Implement movement restrictions based on flags
+            if ((moveInput < 0 && canMoveLeft) || (moveInput > 0 && canMoveRight))
+            {
+                currentMovementInput = context.ReadValue<Vector2>();
+                WalkingEffect.Play();
+            }
+            else
+            {
+                // If movement is restricted, stop the movement and walking sound effect
+                rb.velocity = new Vector2(0, rb.velocity.y);
+                WalkingEffect.Stop();
+            }
+        }
     }
 
     private void OnMoveCanceled(InputAction.CallbackContext context)

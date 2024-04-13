@@ -108,7 +108,7 @@ public class SaveSlotsMenu : Menu
         }
 
         //save game data
-        DataPersistenceManager.instance.SaveGame();
+        //DataPersistenceManager.instance.SaveGame();
 
         // Load the determined scene
         SceneManager.LoadSceneAsync(sceneToLoad);

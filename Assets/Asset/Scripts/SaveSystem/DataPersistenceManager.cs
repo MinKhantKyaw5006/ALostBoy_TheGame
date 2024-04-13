@@ -169,7 +169,7 @@ public class DataPersistenceManager : MonoBehaviour
             Debug.Log("Resetting game data as requested.");
             NewGame();
             shouldReset = false; // Reset the flag after handling
-            SaveGame(); // Optionally save immediately to persist the reset state
+            //SaveGame(); // Optionally save immediately to persist the reset state
         }
         else
         {

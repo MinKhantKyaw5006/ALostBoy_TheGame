@@ -30,7 +30,9 @@ public class GameData
     public float health;
     public float mana = 0; // Default mana value
     public List<int> checkpointIDs = new List<int>();// IDs of checkpoints the player has activated
-    
+    public List<int> completedTutorialIDs = new List<int>(); // Track completed tutorials by ID using a List
+
+    public bool tutorialStarted = false; // Add this line
 
 
 
