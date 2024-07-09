@@ -1,3 +1,4 @@
+//-------------------------------------------------------------------------DEPEDENCIES
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,9 +7,11 @@ using System; // Add this line
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement; // Add this line for scene management
 using UnityEngine.InputSystem;
+//-------------------------------------------------------------------------DEPEDENCIES
 
 public class PlayerController : MonoBehaviour, IDataPersistence
 {
+
     [HideInInspector] public PlayerStateList pState;
     private Rigidbody2D rb;
     private float xAxis, yAxis;
@@ -22,6 +25,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     private float timeBetweenAttack, timeSinceAttack;
     private int stepXRecoiled, stepYRecoiled;
     public bool isInDialogue = false;
+    public bool isControlDisabled;
+    private Coroutine dashCoroutine;
 
 
     //camera follow settting---------------------------
@@ -48,7 +53,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
 
     [Header("Mana Setting")]
-    [SerializeField] private Image manaStorage;
+    //[SerializeField] private Image manaStorage;
     [SerializeField] private float mana;
     [SerializeField] private float manaDrainSpeed;
     [SerializeField] private float manaGain;
@@ -104,6 +109,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private LayerMask attackableLayer;
     public float damage;
     [SerializeField] private GameObject slashEffect;
+    [SerializeField] private LayerMask attackableItemMask; // Layer mask for attackable items
+    [SerializeField] private float attackRange = 1f; // Range of the player's attack
 
     [Header("Attack Cooldown")]
     [SerializeField] private float attackRate = 2f; // How many attacks per second
@@ -269,9 +276,9 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        if (isInDialogue)
+        if (isInDialogue || isControlDisabled)
         {
-            return; // Ignore jump input if in dialogue
+            return; // Ignore jump input if in dialogue or controls are disabled
         }
 
         // If jump is performed and player is on the ground or has air jumps left, make the player jump
@@ -285,15 +292,16 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             }
             anim.SetBool("Jumping", true);
 
-            jumpSoundEffect.Play();
+            jumpSoundEffect.Play(); // Play jump sound effect only when jump is performed
         }
     }
 
+
     private void OnDashPerformed(InputAction.CallbackContext context)
     {
-        if (isInDialogue)
+        if (isInDialogue || isControlDisabled)
         {
-            return; // Ignore jump input if in dialogue
+            return; // Ignore dash input if in dialogue or controls are disabled
         }
 
         // Check if dash is performed and the player can dash
@@ -304,15 +312,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
-    /*
-    private void OnMovePerformed(InputAction.CallbackContext context)
-    {
-        // Set the current movement input to the value of the input
-        currentMovementInput = context.ReadValue<Vector2>();
 
-        WalkingEffect.Play();
-    }
-    */
 
     // Modify existing methods to check these flags
     private void OnMovePerformed(InputAction.CallbackContext context)
@@ -418,9 +418,55 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             //reset so it can be called again
             CameraManager.instance.LerpedFromPlayerFalling = false;
             CameraManager.instance.LerpYDamping(false);
-        }
+        } 
         
 
+    }
+    public void DisableControls()
+    {
+        isControlDisabled = true;
+        rb.velocity = Vector2.zero;
+        WalkingEffect.Stop();
+        anim.SetBool("Walking", false);
+        anim.SetBool("Jumping", false);
+
+        // Stop dashing if the player is dashing
+        if (pState.dashing && dashCoroutine != null)
+        {
+            StopCoroutine(dashCoroutine);
+            rb.gravityScale = gravity;
+            pState.dashing = false;
+            canDash = true; // Reset ability to dash
+
+            // Stop the dash effect
+            if (dashEffect != null && dashEffect.activeInHierarchy)
+            {
+                Destroy(dashEffect);
+            }
+
+            // Stop the dash sound effect
+            if (dashSoundEffect.isPlaying)
+            {
+                dashSoundEffect.Stop();
+            }
+        }
+
+        // Stop jumping sound effect
+        if (jumpSoundEffect.isPlaying)
+        {
+            jumpSoundEffect.Stop();
+        }
+    }
+
+
+    public void EnableControls()
+    {
+        isControlDisabled = false;
+        if (Grounded())
+        {
+            Dashed = false;
+            airJumpCounter = 0; // Reset air jump counter when grounded
+        }
     }
 
     void CastSpellTest()
@@ -476,26 +522,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     }
 
 
-    /*
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        InitializeManaStorage();
-        InitializeHeartUI(); // Call initialization explicitly here // Ensure heart UI reflects current health
-        //UpdateHeartUI(); // Ensure this updates UI based on current health.
-        if (scene.name == "MainMenu")
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            Destroy(gameObject);
 
-
-            //return; // Add return here so that we don't attempt to reinitialize after destruction
-        }
-        // Perform the same initialization as in Start().
-        Debug.Log("Scene loaded, attempting to reinitialize.");
-        //InitializeManaStorage();
-        // Other necessary reinitializations.
-    }
-    */
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -521,42 +548,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         */
     }
 
-    //original for now
-    /*
-    private void InitializeHeartUI()
-    {
-        // Attempt to find the heartFill if not manually assigned
-        if (heartFillRectTransform == null)
-        {
-            GameObject heartFillObject = GameObject.FindGameObjectWithTag("HeartFillTag");
-            if (heartFillObject)
-            {
-                heartFillRectTransform = heartFillObject.GetComponent<RectTransform>();
-                if (heartFillRectTransform != null)
-                {
-                    Debug.Log("HeartFill found and assigned dynamically.");
-                    Debug.Log("HeartFill width after found: " + heartFillRectTransform.rect.width);
-                    maxWidth = heartFillRectTransform.rect.width;
-                    UpdateHeartUI(); // Update immediately to ensure UI is correct
-                    Debug.Log("HeartFill width after UpdateHeartUI call: " + heartFillRectTransform.rect.width);
-                }
-                else
-                {
-                    Debug.LogError("HeartFill GameObject found, but it does not have a RectTransform component.");
-                }
-            }
-            else
-            {
-                Debug.LogError("Failed to find HeartFill GameObject. Check if the tag is correctly applied.");
-            }
-        }
-        else
-        {
-            Debug.Log("HeartFill already assigned through Inspector with width: " + heartFillRectTransform.rect.width);
-            UpdateHeartUI(); // Update again to be certain UI is correct
-        }
-    }
-    */
+  
 
     void InitializeHealthUI()
     {
@@ -632,27 +624,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         pState.recoilingY = false;
     }
 
-    /*
-    public void TakeDamage(float damage)
-    {
-        if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
-        {
-            Debug.Log($"Before taking damage: Health = {health}");
-            health -= damage; // Directly subtract the floating-point damage value
-            health = Mathf.Clamp(health, 0, maxHealth); // Ensure health does not go below 0 or above maxHealth
-            UpdateHealthUI(); // Update heart UI based on new health
-            Debug.Log($"After taking damage: Health = {health}");
 
-            if (health <= 0)
-            {
-                StartCoroutine(Death()); // Trigger death sequence
-                return; // Exit the function to not proceed further after death
-            }
-
-            StartCoroutine(MakeInvincible(1.0f)); // Make player invincible for 1 second after taking damage
-        }
-    }
-    */
     public void TakeDamage(float damage)
     {
         if (!pState.invincible && pState.alive) // Only take damage if not already invincible and alive
@@ -686,17 +658,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     }
 
 
-    /*
-    IEnumerator MakeInvincible(float duration)
-    {
-        pState.invincible = true;
-        StartCoroutine(FlashEffect()); // Start flashing
-        yield return new WaitForSeconds(duration);
-        pState.invincible = false;
-        StopCoroutine(FlashEffect()); // Ensure to stop the flashing effect
-        sr.material.color = Color.white; // Reset sprite color back to normal
-    }
-    */
     IEnumerator MakeInvincible(float duration, bool shouldFlash)
     {
         pState.invincible = true;
@@ -887,13 +848,14 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
-    void Flip()
+    private void Flip()
     {
+        if (isControlDisabled) return;
+
         if (xAxis < 0)
         {
             transform.localScale = new Vector2(-PlayerScale, transform.localScale.y);
             pState.lookingRight = false;
-
         }
         else if (xAxis > 0)
         {
@@ -915,77 +877,34 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
+
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        pState.dashing = true;
+        dashCoroutine = StartCoroutine(MakeInvincible(dashTime, false)); // Make the player invincible during dash without flashing effect
+        anim.SetTrigger("Dashing");
+        rb.gravityScale = 0;
+        int _dir = pState.lookingRight ? 1 : -1;
+        rb.velocity = new Vector2(_dir * dashSpeed, 0);
+        if (Grounded()) Instantiate(dashEffect, transform);
+
+        WalkingEffect.Stop();
+        dashSoundEffect.Play();
+
+        yield return new WaitForSeconds(dashTime);
+        rb.gravityScale = gravity;
+        pState.dashing = false;
+        yield return new WaitForSeconds(dashCoolDown);
+        canDash = true;
+    }
+
+
+
     /*
-    IEnumerator Dash()
-    {
-        canDash = false;
-        pState.dashing = true;
-        pState.invincible = true; // Make the player invincible during dash
-        anim.SetTrigger("Dashing");
-        rb.gravityScale = 0;
-        int _dir = pState.lookingRight ? 1 : -1;
-        rb.velocity = new Vector2(_dir * dashSpeed, 0);
-        if (Grounded()) Instantiate(dashEffect, transform);
-
-        //not sure
-        WalkingEffect.Stop();
-        // Play dash sound effect
-        dashSoundEffect.Play();
-
-
-
-
-
-        yield return new WaitForSeconds(dashTime);
-        rb.gravityScale = gravity;
-        pState.dashing = false;
-        yield return new WaitForSeconds(dashCoolDown);
-        pState.invincible = false; // Reset invincibility
-        canDash = true;
-
-    }
-    */
-    IEnumerator Dash()
-    {
-        canDash = false;
-        pState.dashing = true;
-        StartCoroutine(MakeInvincible(dashTime, false)); // Make the player invincible during dash without flashing effect
-        anim.SetTrigger("Dashing");
-        rb.gravityScale = 0;
-        int _dir = pState.lookingRight ? 1 : -1;
-        rb.velocity = new Vector2(_dir * dashSpeed, 0);
-        if (Grounded()) Instantiate(dashEffect, transform);
-
-        WalkingEffect.Stop();
-        dashSoundEffect.Play();
-
-        yield return new WaitForSeconds(dashTime);
-        rb.gravityScale = gravity;
-        pState.dashing = false;
-        yield return new WaitForSeconds(dashCoolDown);
-        canDash = true;
-    }
-
-
-    IEnumerator StopTakingDamage()
-    {
-        pState.invincible = true;
-
-        anim.SetTrigger("TakeDamage");
-
-        yield return new WaitForSeconds(1f);
-        pState.invincible = false;
-    }
-
-    
     void Attack()
     {
-        // Check if the mouse is currently over a UI element
-        //if (EventSystem.current.IsPointerOverGameObject())
-        //{
-        //    return; // If true, return early and do not proceed with the attack
-        //}
-
+        if (isInDialogue || isControlDisabled) return; // Skip attack logic if in dialogue or controls are disabled
 
         timeSinceAttack += Time.deltaTime;
         if (attack && timeSinceAttack >= timeBetweenAttack)
@@ -1004,40 +923,107 @@ public class PlayerController : MonoBehaviour, IDataPersistence
                 Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
                 float effectAngle = pState.lookingRight ? 0f : 180f;
                 SlashEffectAtAngle(slashEffect, effectAngle, SideAttackTransform.position, effectScale);
-                //Instantiate(slashEffect, SideAttackTransform.position, Quaternion.identity);
                 Debug.Log("Side Attack!");
-                attackSoundEffect.Play();
+                PlayAttackSound();
             }
             else if (yAxis > 0)
             {
                 Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, 80, UpAttackTransform.position, effectScale);
                 Debug.Log("Up Attack!");
-                attackSoundEffect.Play();
+                PlayAttackSound();
             }
             else if (yAxis < 0 || !Grounded())
             {
                 Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
                 SlashEffectAtAngle(slashEffect, -90, DownAttackTransform.position, effectScale);
                 Debug.Log("Down Attack!");
-                attackSoundEffect.Play();
+                PlayAttackSound();
+            }
+        }
+
+        // Set the Idle parameter based on the xAxis value and whether the player is grounded
+        anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
+    }*/
+
+    void Attack()
+    {
+        if (isInDialogue || isControlDisabled) return; // Skip attack logic if in dialogue or controls are disabled
+
+        timeSinceAttack += Time.deltaTime;
+        if (attack && timeSinceAttack >= timeBetweenAttack)
+        {
+            timeSinceAttack = 0;
+            anim.SetTrigger("Attacking");
+
+            // Update the Animator's Speed parameter even during the attack
+            anim.SetFloat("Speed", Mathf.Abs(xAxis)); // Add this line
+
+            Vector3 effectScale = new Vector3(1f, 1f, 1f); // Define the desired scale for the slash effect
+
+            // Perform the attack based on the vertical axis and grounded state
+            if (yAxis == 0 || (yAxis < 0 && Grounded()))
+            {
+                Hit(SideAttackTransform, SideAttackArea, ref pState.recoilingX, recoilXSpeed);
+                float effectAngle = pState.lookingRight ? 0f : 180f;
+                SlashEffectAtAngle(slashEffect, effectAngle, SideAttackTransform.position, effectScale);
+                Debug.Log("Side Attack!");
+                PlayAttackSound();
+                CheckForAttackableItems(SideAttackTransform);
+            }
+            else if (yAxis > 0)
+            {
+                Hit(UpAttackTransform, UpAttackArea, ref pState.recoilingY, recoilYSpeed);
+                SlashEffectAtAngle(slashEffect, 80, UpAttackTransform.position, effectScale);
+                Debug.Log("Up Attack!");
+                PlayAttackSound();
+                CheckForAttackableItems(UpAttackTransform);
+            }
+            else if (yAxis < 0 || !Grounded())
+            {
+                Hit(DownAttackTransform, DownAttackArea, ref pState.recoilingY, recoilYSpeed);
+                SlashEffectAtAngle(slashEffect, -90, DownAttackTransform.position, effectScale);
+                Debug.Log("Down Attack!");
+                PlayAttackSound();
+                CheckForAttackableItems(DownAttackTransform);
             }
         }
 
         // Set the Idle parameter based on the xAxis value and whether the player is grounded
         anim.SetBool("Idle", xAxis == 0 && Grounded() && !pState.dashing);
     }
-    
 
-
-
-    // Helper method to instantiate slash effects at a given angle
-    /*
-    void SlashEffectAtAngle(GameObject effect, float angle, Vector3 position)
+    private void CheckForAttackableItems(Transform attackTransform)
     {
-        var instantiatedEffect = Instantiate(effect, position, Quaternion.Euler(0f, 0f, angle));
-        instantiatedEffect.transform.localScale = transform.localScale; // Ensure effect scales with player
-    }*/
+        Collider2D[] hitItems = Physics2D.OverlapCircleAll(attackTransform.position, attackRange, attackableItemMask);
+
+        foreach (Collider2D hit in hitItems)
+        {
+            // Check if the item has an AttackableItem component
+            AttackableItem attackableItem = hit.GetComponent<AttackableItem>();
+            if (attackableItem != null)
+            {
+                attackableItem.OnHit(); // Trigger the item's hit behavior
+            }
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(SideAttackTransform.position, attackRange);
+        Gizmos.DrawWireSphere(UpAttackTransform.position, attackRange);
+        Gizmos.DrawWireSphere(DownAttackTransform.position, attackRange);
+    }
+
+    void PlayAttackSound()
+    {
+        // Check if attack sound effect is already playing to avoid overlapping
+        if (!attackSoundEffect.isPlaying)
+        {
+            attackSoundEffect.Play();
+        }
+    }
 
 
 
@@ -1072,14 +1058,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
-    /*
-    void SlashEffectAtAngle(GameObject _slashEffect, int _effectAngle, Transform _attackTransform)
-    {
-        _slashEffect = Instantiate(_slashEffect, _attackTransform);
-        _slashEffect.transform.eulerAngles = new Vector3(0, 0, _effectAngle);
-        _slashEffect.transform.localScale = new Vector2(transform.localScale.x, transform.localScale.y);
-    }
-    */
+
     void SlashEffectAtAngle(GameObject effectPrefab, float angle, Vector3 position, Vector3 effectScale)
     {
         GameObject effectInstance = Instantiate(effectPrefab, position, Quaternion.Euler(0f, 0f, angle));
@@ -1170,7 +1149,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void Move()
     {
-        if (isInDialogue)
+        if (isInDialogue || isControlDisabled)
         {
             rb.velocity = new Vector2(0, rb.velocity.y); // Stop horizontal movement
             anim.SetBool("Walking", false); // Ensure the walking animation is not playing
@@ -1224,16 +1203,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
 
-    /*
-    private void OnSpellCastPerformed(InputAction.CallbackContext context)
-    {
-        // Check if it's the right time to cast a spell
-
-        CastSpell();
-
-    }
-    */
-
+   
     
     void CastSpell()
     {
@@ -1270,65 +1240,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         }
     }
     
-    /*
-    void CastSpell()
-    {
-        // Check if mana is full and other conditions are met before casting
-        if (Input.GetButtonDown("Cast")  && timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
-        {
-            Debug.Log($"Mana before cast: {Mana}");
-            Debug.Log($"Mana cost for casting: {manaSpellCost}");
-
-            // Deduct the mana spell cost from the current mana
-            Mana -= manaSpellCost;
-
-            Debug.Log($"Mana after cast: {Mana}");
-
-            pState.casting = true;
-            timeSinceCast = 0;
-            StartCoroutine(CastCoroutine());
-        }
-        else
-        {
-            timeSinceCast += Time.deltaTime;
-        }
-
-        // Disable down spell on ground
-        if (Grounded())
-        {
-            downSpellFireball.SetActive(false);
-        }
-
-        // If down spell is active, force player down until ground
-        if (downSpellFireball.activeInHierarchy)
-        {
-            rb.velocity += downSpellForce * Vector2.down;
-        }
-    }
-    */
-
-    /*
-
-    void CastSpell()
-    {
-        // Ensure there's enough mana and cooldown period has passed
-        if (timeSinceCast >= timeBetweenCast && Mana >= manaSpellCost)
-        {
-            Debug.Log($"Casting spell. Mana before cast: {Mana}");
-            Mana -= manaSpellCost;
-            Debug.Log($"Mana after cast: {Mana}");
-
-            pState.casting = true;
-            timeSinceCast = 0;
-            StartCoroutine(CastCoroutine());
-        }
-    }
-    */
-
-
-
-
-
 
     IEnumerator CastCoroutine()
     {
@@ -1396,22 +1307,21 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     void Jump()
     {
-        if (isInDialogue) return; // Skip if in dialogue
-        // Jump logic is now handled by OnJumpPerformed.
-        // The following is to handle the "letting go" of the jump button for variable jump height
+        if (isInDialogue || isControlDisabled) return; // Skip if in dialogue or controls are disabled
+                                                       // Jump logic is now handled by OnJumpPerformed.
+                                                       // The following is to handle the "letting go" of the jump button for variable jump height
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 3)
         {
             pState.jumping = false;
             rb.velocity = new Vector2(rb.velocity.x, 0);
             Debug.Log("PlayerJumped");
-            //jumpSoundEffect.Play();
-            
+            // jumpSoundEffect.Play(); // Commented out to prevent jump sound effect when releasing jump button
         }
 
         anim.SetBool("Jumping", !Grounded());
-
     }
+
 
 
 

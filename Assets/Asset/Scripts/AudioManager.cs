@@ -17,4 +17,14 @@ public class AudioManager : MonoBehaviour
         backgroundSound.loop = true;
         backgroundSound.Play();
     }
+
+    public void DisableThemeSound()
+    {
+        themeSound.Pause();
+    }
+
+    public void EnableThemeSound()
+    {
+        themeSound.UnPause();
+    }
 }

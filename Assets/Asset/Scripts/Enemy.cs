@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Enemy : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class Enemy : MonoBehaviour
     protected float recoilTimer;
     protected Rigidbody2D rb;
     protected SpriteRenderer sr;
+
+    // Define a delegate and event for the enemy's death
+    // Event to notify when the enemy dies
+    public event Action<GameObject> OnEnemyDeath;
 
     // Static reference to the instance
     private PlayerController playerController;
@@ -82,6 +87,7 @@ public class Enemy : MonoBehaviour
     {
         if (health <= 0)
         {
+            OnEnemyDeath?.Invoke(gameObject); // Invoke the death event
             Destroy(gameObject);
         }
     }
