@@ -320,5 +320,12 @@ public class DataPersistenceManager : MonoBehaviour
         }
     }
 
+    //----------------------new addition
+    public void SaveLastPlayedScene(string sceneName)
+{
+    SaveSlotData saveSlotData = new SaveSlotData { lastPlayedScene = sceneName };
+    dataHandler.SaveSaveSlotData(selectedProfileId, saveSlotData);
+}
+
 
 }

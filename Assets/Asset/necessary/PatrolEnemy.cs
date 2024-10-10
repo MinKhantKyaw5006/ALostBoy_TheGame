@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PatrolEnemy : Enemy
@@ -7,23 +6,17 @@ public class PatrolEnemy : Enemy
     [SerializeField] private float patrolSpeed = 2f;
     [SerializeField] private LayerMask platformLayerMask;
     [SerializeField] private Transform groundCheck;
-    [SerializeField] private Transform heightCheck; // Ensure you assign this in the Inspector
-    [SerializeField] private Transform platformCheck; // Assign this in the Inspector
-    [SerializeField] private float forwardCheckDistance = 1f; // Adjust this value based on your needs
-    [SerializeField] private float maxJumpHeight = 1f; // Adjust this value as needed
+    [SerializeField] private Transform heightCheck;
+    [SerializeField] private Transform platformCheck;
+    [SerializeField] private float forwardCheckDistance = 1f;
+    [SerializeField] private float maxJumpHeight = 1f;
     [SerializeField] private DamageFlash damageFlash;
-
-
     [SerializeField] private Animator animator;
-
-
-
-
 
     private bool isFacingLeft = true;
     private SpriteRenderer spriteRenderer;
     private float groundCheckDistance = 0.1f;
-
+    private Rigidbody2D rb;
 
     protected override void Start()
     {
@@ -34,22 +27,23 @@ public class PatrolEnemy : Enemy
         UpdateCheckPositions();
 
         rb = GetComponent<Rigidbody2D>();
-        // Initialize the animator reference
-        animator = GetComponent<Animator>();
+        animator = GetComponent<Animator>(); // Ensure the animator is assigned
     }
 
     protected override void Update()
     {
         base.Update();
-        Move();
-        CheckForPlatformEdge();
 
+        // Move and check for platform edge only when grounded
         if (IsGrounded())
         {
             Move();
             CheckForPlatformEdge();
-            
-
+        }
+        else
+        {
+            // Stop moving if not grounded
+            rb.velocity = Vector2.zero;
         }
     }
 
@@ -59,66 +53,81 @@ public class PatrolEnemy : Enemy
         transform.Translate(Vector2.right * moveSpeed * Time.deltaTime);
     }
 
-
-
-
-
-
-
     private void CheckForPlatformEdge()
     {
+        // Cast a ray downward to check for ground ahead
         bool isGroundAhead = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, platformLayerMask);
         Debug.DrawRay(groundCheck.position, Vector2.down * groundCheckDistance, Color.red);
+
+        // If no ground ahead, flip direction
         if (!isGroundAhead)
         {
+            Debug.Log("No ground ahead, flipping direction.");
             Flip();
         }
     }
 
     private bool IsGrounded()
     {
-        float checkRadius = 0.2f; // Adjust as necessary for your game
+        // Check for ground beneath the enemy
+        float checkRadius = 0.2f;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(platformCheck.position, checkRadius, platformLayerMask);
-        return colliders.Length > 0;
+        bool isGrounded = colliders.Length > 0;
+        Debug.Log(isGrounded ? "Enemy is grounded." : "Enemy is not grounded.");
+        return isGrounded;
     }
-
 
     private void Flip()
     {
-        if (!IsGrounded()) return; // Prevent flipping in mid-air
+        if (!IsGrounded()) return; // Don't flip if in the air
 
         isFacingLeft = !isFacingLeft;
         spriteRenderer.flipX = !spriteRenderer.flipX;
         UpdateCheckPositions();
-
-        //Debug.Log(isFacingLeft ? "Now facing left." : "Now facing right.");
+        Debug.Log(isFacingLeft ? "Now facing left." : "Now facing right.");
     }
 
     private void UpdateCheckPositions()
     {
-        // Update the local position of the groundCheck and heightCheck to be in front of the sprite
+        // Adjust groundCheck and heightCheck positions based on facing direction
         float localXPosition = Mathf.Abs(groundCheck.localPosition.x) * (isFacingLeft ? -1 : 1);
         groundCheck.localPosition = new Vector3(localXPosition, groundCheck.localPosition.y, groundCheck.localPosition.z);
         heightCheck.localPosition = new Vector3(localXPosition, heightCheck.localPosition.y, heightCheck.localPosition.z);
     }
+
     public override void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
     {
-        // Call the base version to ensure base functionality is maintained
-        base.EnemyHit(_damageDone, _hitDirection, _hitForce);
+        // Ensure the enemy's health does not go below zero
+        health -= _damageDone;
+        health = Mathf.Max(health, 0); // Clamp health to 0
 
-        // Trigger the squash animation
+        Debug.Log($"Enemy took {_damageDone} damage. Current health: {health}");
+
+        // Trigger squash animation and damage flash effect
         if (animator != null)
         {
             animator.SetTrigger("Squash");
         }
 
-        // Trigger the damage flash effect
         if (damageFlash != null)
         {
             damageFlash.Flash();
         }
+
+        // Check if the enemy's health has reached zero
+        if (health <= 0)
+        {
+            Debug.Log("Enemy health is 0. Destroying the enemy.");
+            DestroyEnemy();
+        }
     }
 
+    private void DestroyEnemy()
+    {
+        // Any destruction effects, such as playing a death animation, can be added here.
+        Destroy(gameObject);
+        Debug.Log("Enemy destroyed.");
+    }
 }
 
 /*

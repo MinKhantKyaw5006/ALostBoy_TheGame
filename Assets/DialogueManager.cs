@@ -19,6 +19,18 @@ public class DialogueManager : MonoBehaviour
     public float typingSpeed = 0.05f; // Speed of typing effect in seconds per character
     private Coroutine typingCoroutine; // Store the reference to the typing coroutine
 
+    // New variable to enable or disable skipping
+    public bool canSkipDialogue = true;
+
+    void Update()
+    {
+        // Check for input if skipping is allowed and dialogue is active
+        if (canSkipDialogue && isActive && Input.anyKeyDown)
+        {
+            SkipCurrentMessage();
+        }
+    }
+
     public void OpenDialogue(Message[] messages, Actor[] actors)
     {
         currentMessages = messages;
@@ -83,5 +95,18 @@ public class DialogueManager : MonoBehaviour
             isActive = false;
             backgroundBox.gameObject.SetActive(false); // Hide the dialogue UI
         }
+    }
+
+    // Updated function to skip the current message and go to the next one
+    public void SkipCurrentMessage()
+    {
+        // Stop the current typing coroutine
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+        }
+
+        // Immediately jump to the next message
+        NextMessage();
     }
 }

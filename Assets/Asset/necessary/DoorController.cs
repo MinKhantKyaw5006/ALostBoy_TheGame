@@ -75,7 +75,7 @@ public class DoorController : MonoBehaviour
     {
         closedPosition = transform.position;
         openPosition = closedPosition + new Vector3(0, moveUpDistance, 0);
-        Debug.Log("Door initialized at position: " + closedPosition);
+        //Debug.Log("Door initialized at position: " + closedPosition);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

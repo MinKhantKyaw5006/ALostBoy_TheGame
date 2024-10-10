@@ -80,7 +80,7 @@ public class InputManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("InputManager: PlayerInput component found and assigned automatically.");
+                //Debug.Log("InputManager: PlayerInput component found and assigned automatically.");
             }
         }
     }

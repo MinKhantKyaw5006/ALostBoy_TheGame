@@ -12,12 +12,16 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour, IDataPersistence
 {
 
+    //public static PlayerController Instance;
+    public static PlayerController Instance { get; private set; }
+
+
     [HideInInspector] public PlayerStateList pState;
     private Rigidbody2D rb;
     private float xAxis, yAxis;
     private SpriteRenderer sr;
     private Animator anim;
-    public static PlayerController Instance;
+    
     private bool canDash = true;
     private bool Dashed;
     private float gravity;
@@ -34,6 +38,9 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     [SerializeField] private GameObject _cameraFollowGo;
     private CameraFollowObject _cameraFollowObject;
     private float _fallSpeedYDampingChangethresold;
+    // Define the loadingScreen as a serialized field
+    [SerializeField] private GameObject loadingScreen; // Drag and drop the loading screen object from the inspector
+
     //camera follow settting---------------------------
 
     [Header("Health Setting")]
@@ -181,7 +188,17 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     private void Awake()
     {
-   
+
+        // Singleton pattern
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+
 
         // Initialize the input controls
         playerControls = new PlayerControls();
@@ -198,6 +215,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
     void Start()
     {
+  
+
         pState = GetComponent<PlayerStateList>();
         playerRigidbody = GetComponent<Rigidbody2D>();
 
@@ -369,6 +388,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             // Halt player movement and skip the rest of the update if in dialogue
             rb.velocity = Vector2.zero; // Explicitly reset the player's velocity
             WalkingEffect.Stop(); // Stop the walking sound effect if in dialogue
+
+
             anim.SetBool("Walking", false); // Ensure the walking animation is stopped
             return; // Skip further processing
         }
@@ -430,6 +451,12 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         anim.SetBool("Walking", false);
         anim.SetBool("Jumping", false);
 
+        // Stop any walking sound if it's still playing
+        if (WalkingEffect != null && WalkingEffect.isPlaying)
+        {
+            WalkingEffect.Stop();  // Add this line to stop walking sound
+        }
+
         // Stop dashing if the player is dashing
         if (pState.dashing && dashCoroutine != null)
         {
@@ -455,7 +482,9 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         if (jumpSoundEffect.isPlaying)
         {
             jumpSoundEffect.Stop();
+           
         }
+
     }
 
 
@@ -700,50 +729,94 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         StartCoroutine(FlashEffect());
     }
 
-    
+
+    //original death function 9/24/2024
+    //IEnumerator Death()
+    //{
+    //    pState.alive = false;
+    //    //Time.timeScale = 1f;
+    //    // anim.SetBool("IsAlive", false); // Indicate death in the Animator
+    //    anim.SetBool("IsDead", true); // Trigger death animation
+    //    Debug.Log("Player Death Animation Triggered");
+
+    //    yield return new WaitForSeconds(0f); // Wait time could be adjusted based on your death animation length
+
+    //    // Additional wait time before warping
+    //    //float warpUpDelay = 4f; // Adjust this value to match your needs
+    //    //yield return new WaitForSeconds(warpUpDelay);
+
+
+
+
+    //    if (saveGroundCP != null)
+    //    {
+
+    //        transform.position = saveGroundCP.safeGroundLocation;
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError("SaveGroundCP reference not set in PlayerController.");
+    //    }
+
+
+
+
+    //    // Set the player to alive again for the Animator and state
+    //    // Respawn logic here
+    //    anim.SetBool("IsDead", false); // Exit death animation
+    //                                   // Reset health to full and update UI
+    //    Health = maxHealth;
+    //    UpdateHeartUI();
+    //    anim.SetBool("IsAlive", true);
+    //    pState.alive = true;
+
+    //    // Optionally, make the player invincible for a short duration after respawning
+    //    StartCoroutine(MakeInvincible(2.0f,true));
+    //}
+
     IEnumerator Death()
     {
         pState.alive = false;
-        //Time.timeScale = 1f;
-        // anim.SetBool("IsAlive", false); // Indicate death in the Animator
         anim.SetBool("IsDead", true); // Trigger death animation
         Debug.Log("Player Death Animation Triggered");
 
-        yield return new WaitForSeconds(0f); // Wait time could be adjusted based on your death animation length
+        // Optionally wait for the death animation to play out
+        yield return new WaitForSeconds(0f); // Adjust this if you have a specific death animation duration
 
-        // Additional wait time before warping
-        //float warpUpDelay = 4f; // Adjust this value to match your needs
-        //yield return new WaitForSeconds(warpUpDelay);
-
-        
-
-       
-        if (saveGroundCP != null)
+        // If DataPersistenceManager is available, reload the last checkpoint
+        if (DataPersistenceManager.instance != null)
         {
-            
-            transform.position = saveGroundCP.safeGroundLocation;
+            // If there's a loading screen, activate it
+            if (loadingScreen != null)
+            {
+                loadingScreen.SetActive(true);
+            }
+
+            // Reload the current scene (simulating a respawn from the last checkpoint)
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+            // Load the most recent game state, which should be the last checkpoint
+            DataPersistenceManager.instance.LoadGame();
+
+            Debug.Log("Player respawned from last checkpoint");
+
+            // Optionally, make the player invincible for a short duration after respawning
+            StartCoroutine(MakeInvincible(2.0f, true));
+
+            // Reset player state and health (if applicable in the loaded game state)
+            pState.alive = true;
+            anim.SetBool("IsAlive", true);
+            anim.SetBool("IsDead", false); // Reset death animation
+            Health = maxHealth;
+            UpdateHeartUI(); // Update health UI
         }
         else
         {
-            Debug.LogError("SaveGroundCP reference not set in PlayerController.");
+            Debug.LogError("DataPersistenceManager instance not found. Cannot restart from last checkpoint.");
         }
-       
-
-       
-
-        // Set the player to alive again for the Animator and state
-        // Respawn logic here
-        anim.SetBool("IsDead", false); // Exit death animation
-                                       // Reset health to full and update UI
-        Health = maxHealth;
-        UpdateHeartUI();
-        anim.SetBool("IsAlive", true);
-        pState.alive = true;
-
-        // Optionally, make the player invincible for a short duration after respawning
-        StartCoroutine(MakeInvincible(2.0f,true));
     }
-    
+
+
 
 
 
@@ -756,7 +829,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             {
                 health = Mathf.Clamp(value, 0f, maxHealth);
                 UpdateHeartUI(); // Update the heart UI to reflect the change.
-                Debug.Log($"health updated to: {health}");
+                //Debug.Log($"health updated to: {health}");
             }
         }
     }
@@ -775,7 +848,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
         {
             mana = Mathf.Clamp(value, 0, 1);
             UpdateManaUI(mana); // Update the UI with the current mana percentage
-            Debug.Log($"Mana updated to: {mana}");
+            //Debug.Log($"Mana updated to: {mana}");
         }
     }
 
@@ -1163,6 +1236,20 @@ public class PlayerController : MonoBehaviour, IDataPersistence
 
         // Update the animator with the walking state
         anim.SetBool("Walking", moveX != 0 && Grounded());
+
+        // Check if the player is walking
+        bool isWalking = moveX != 0 && Grounded(); // Declare isWalking here
+        anim.SetBool("Walking", isWalking);
+
+        // Play/Stop walking sound based on movement
+        if (isWalking && !WalkingEffect.isPlaying)
+        {
+            WalkingEffect.Play();
+        }
+        else if (!isWalking && WalkingEffect.isPlaying)
+        {
+            WalkingEffect.Stop();
+        }
     }
 
 

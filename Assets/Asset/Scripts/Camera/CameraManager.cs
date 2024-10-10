@@ -87,7 +87,7 @@ public class CameraManager : MonoBehaviour
     public void LerpYDamping(bool isPlayerFalling)
     {
         _lerpYPanCoroutine = StartCoroutine(LerpYAction(isPlayerFalling));
-        Debug.Log("Player falling");
+        //Debug.Log("Player falling");
     }
 
     private IEnumerator LerpYAction(bool isPlayerFalling)

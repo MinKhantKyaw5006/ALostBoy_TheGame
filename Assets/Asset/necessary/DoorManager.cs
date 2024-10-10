@@ -26,7 +26,7 @@ public class DoorManager : MonoBehaviour
     {
         if (enemySpawner != null)
         {
-            enemySpawner.OnAllEnemiesDefeated -= HandleAllEnemiesDefeated;
+            enemySpawner.OnAllEnemiesDefeated -= HandleAllEnemiesDefeated;  
         }
     }
 

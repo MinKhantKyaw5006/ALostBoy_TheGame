@@ -1,0 +1,673 @@
+fileFormatVersion: 2
+guid: 7952cbd13e025b84c8a55d367fd08ba5
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 12
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Server
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_0
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 1502
+        width: 324
+        height: 527
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 27c1bec9b4b80ad4f8f2f0a46ccd68a5
+      internalID: -1073403556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_1
+      rect:
+        serializedVersion: 2
+        x: 354
+        y: 1423
+        width: 292
+        height: 614
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cb409fde30d51142af2a0fac0708aad
+      internalID: 62081152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_2
+      rect:
+        serializedVersion: 2
+        x: 667
+        y: 1480
+        width: 295
+        height: 556
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 78771083084df6d48b6fb3a5aa08a457
+      internalID: 136488401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_3
+      rect:
+        serializedVersion: 2
+        x: 985
+        y: 1442
+        width: 273
+        height: 596
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b44d38e18495e584ba793283dc5fa423
+      internalID: -585762691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_4
+      rect:
+        serializedVersion: 2
+        x: 1294
+        y: 1496
+        width: 211
+        height: 525
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff7795c6c382f4c4d993af842e6dbc8b
+      internalID: -1283152540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_5
+      rect:
+        serializedVersion: 2
+        x: 1619
+        y: 1436
+        width: 158
+        height: 556
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1db35041aa790094db2565c009dfc024
+      internalID: -1187372434
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_6
+      rect:
+        serializedVersion: 2
+        x: 1820
+        y: 1266
+        width: 153
+        height: 726
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a2f121d2baeab8e47991c6915ce1b819
+      internalID: -324276289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_7
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 679
+        width: 322
+        height: 767
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b72d05ffebeabb6489ca89e943b5ff93
+      internalID: -1859142491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_8
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 597
+        width: 472
+        height: 788
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4fe53862302a5214d8f271e5996304c4
+      internalID: -868931801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_9
+      rect:
+        serializedVersion: 2
+        x: 891
+        y: 644
+        width: 151
+        height: 666
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a4c7212d1771c1499cba250bac369d2
+      internalID: 2056237483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_10
+      rect:
+        serializedVersion: 2
+        x: 1098
+        y: 642
+        width: 150
+        height: 651
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 526b8c6fc24d26a459b1d8a6c7357507
+      internalID: 1818080432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_11
+      rect:
+        serializedVersion: 2
+        x: 1343
+        y: 644
+        width: 151
+        height: 616
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 487669f52bf9e544e992803d25821a3d
+      internalID: -1452629310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_12
+      rect:
+        serializedVersion: 2
+        x: 1552
+        y: 999
+        width: 484
+        height: 191
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2da1d9a56e331f3408ac5de888c801fa
+      internalID: -1896498908
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_13
+      rect:
+        serializedVersion: 2
+        x: 1683
+        y: 782
+        width: 277
+        height: 156
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8db8fd2ee0a096641a08d3195663e51f
+      internalID: -412248138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_14
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 288
+        width: 150
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0063a477232444641899e7afa0a58a7b
+      internalID: -487535867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_15
+      rect:
+        serializedVersion: 2
+        x: 966
+        y: 50
+        width: 190
+        height: 475
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2fb32abd6d6ae8148804ed8687f4ec52
+      internalID: 1201284972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_16
+      rect:
+        serializedVersion: 2
+        x: 1534
+        y: 495
+        width: 490
+        height: 234
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9f9864793459df4880ab019856781a9
+      internalID: -1989610275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_17
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 44
+        width: 90
+        height: 366
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: add99cbcc837d024b9de48999f0204d7
+      internalID: -1103678592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_18
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 40
+        width: 116
+        height: 437
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d227b11488e3b4a4ca50ca8b6d3cad72
+      internalID: 359426491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_19
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 48
+        width: 118
+        height: 350
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bad6cff876e1ca945af78aad0f4a4118
+      internalID: -1555538727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_20
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 24
+        width: 164
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f04055bf5fb50ba44873d16f35311bc2
+      internalID: 1522387489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_21
+      rect:
+        serializedVersion: 2
+        x: 736
+        y: 50
+        width: 133
+        height: 383
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0a793f069d88dc4787aab01e548c5c2
+      internalID: -1631943643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_22
+      rect:
+        serializedVersion: 2
+        x: 1248
+        y: 56
+        width: 85
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4d3a98fc47126d54b9ecb17fc882e09d
+      internalID: 1568736611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_23
+      rect:
+        serializedVersion: 2
+        x: 1436
+        y: 18
+        width: 282
+        height: 348
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b02e5d010d72025439f487285c8ccf32
+      internalID: 699022725
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Fungal - DecorationsB_24
+      rect:
+        serializedVersion: 2
+        x: 1807
+        y: 30
+        width: 230
+        height: 434
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7763a4e8d5259e343b0dbb39aeffbb22
+      internalID: 676811747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      Fungal - DecorationsB_0: -1073403556
+      Fungal - DecorationsB_1: 62081152
+      Fungal - DecorationsB_10: 1818080432
+      Fungal - DecorationsB_11: -1452629310
+      Fungal - DecorationsB_12: -1896498908
+      Fungal - DecorationsB_13: -412248138
+      Fungal - DecorationsB_14: -487535867
+      Fungal - DecorationsB_15: 1201284972
+      Fungal - DecorationsB_16: -1989610275
+      Fungal - DecorationsB_17: -1103678592
+      Fungal - DecorationsB_18: 359426491
+      Fungal - DecorationsB_19: -1555538727
+      Fungal - DecorationsB_2: 136488401
+      Fungal - DecorationsB_20: 1522387489
+      Fungal - DecorationsB_21: -1631943643
+      Fungal - DecorationsB_22: 1568736611
+      Fungal - DecorationsB_23: 699022725
+      Fungal - DecorationsB_24: 676811747
+      Fungal - DecorationsB_3: -585762691
+      Fungal - DecorationsB_4: -1283152540
+      Fungal - DecorationsB_5: -1187372434
+      Fungal - DecorationsB_6: -324276289
+      Fungal - DecorationsB_7: -1859142491
+      Fungal - DecorationsB_8: -868931801
+      Fungal - DecorationsB_9: 2056237483
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

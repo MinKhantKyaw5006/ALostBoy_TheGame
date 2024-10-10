@@ -1066,9 +1066,9 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: cc8a93acf306c7f41abf82bbdfdec284, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 3c0d53b27e14e254d806cd71a91a4083, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.614
+  m_Volume: 1
   m_Pitch: 1.68
   Loop: 0
   Mute: 0
@@ -1194,7 +1194,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 6cf358a37fd23ba469ec5e6096fbc604, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 1968c284f23dd5b45817ebeb3c7a69a5, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.614
   m_Pitch: 1
@@ -1329,7 +1329,10 @@ GameObject:
   - component: {fileID: 1215503223016288135}
   - component: {fileID: 7963651614745018247}
   - component: {fileID: 1958108618}
-  m_Layer: 0
+  - component: {fileID: 2074037472}
+  - component: {fileID: 2074037481}
+  - component: {fileID: 2074037489}
+  m_Layer: 11
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1406,8 +1409,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 886204325
-  m_SortingLayer: 4
+  m_SortingLayerID: 2062790375
+  m_SortingLayer: 2
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 08e5b9805976582419691a365f750293, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1454,7 +1457,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pState: {fileID: 0}
+  isInDialogue: 0
+  isControlDisabled: 0
   _cameraFollowGo: {fileID: 0}
+  loadingScreen: {fileID: 0}
   health: 0
   maxHealth: 100
   bloodSpurt: {fileID: 5680099737411559056, guid: 369ac0e3a5e5b9f4dbf66f264b5291d2, type: 3}
@@ -1462,17 +1468,17 @@ MonoBehaviour:
   timetoHeal: 1
   heartFillRectTransform: {fileID: 0}
   maxWidth: 100
-  manaStorage: {fileID: 0}
+  damageFlash: {fileID: 2074037472}
   mana: 0
   manaDrainSpeed: 0.02
   manaGain: 0.05
   manaBarRectTransform: {fileID: 0}
   maxManaHeight: 160
-  manaChangeSpeed: 2
+  manaChangeSpeed: 6
   maxMana: 1
   fullManaY: 160
   emptyManaY: -100
-  manaSpellCost: 1.01
+  manaSpellCost: 1
   timeBetweenCast: 0.5
   spellDamage: 10000
   downSpellForce: 2
@@ -1504,9 +1510,13 @@ MonoBehaviour:
   attackableLayer:
     serializedVersion: 2
     m_Bits: 128
-  damage: 10
+  damage: 5
   slashEffect: {fileID: 4106265945382460276, guid: f9ed95e9ac9c2cb478e5b94a904fa1de, type: 3}
-  attackRate: 2
+  attackableItemMask:
+    serializedVersion: 2
+    m_Bits: 128
+  attackRange: 1
+  attackRate: 1
   nextAttackTime: 0
   attackCooldown: 0.25
   recoilXSteps: 2
@@ -1525,6 +1535,9 @@ MonoBehaviour:
   onGroundSoundEffect: {fileID: 0}
   WalkingEffect: {fileID: 4564350397132696505}
   hitSound: {fileID: 1861896719}
+  canMoveLeft: 1
+  canMoveRight: 1
+  canJump: 1
 --- !u!95 &4926894689176328906
 Animator:
   serializedVersion: 5
@@ -1625,9 +1638,63 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.5845618, y: -0.1732512}
-  m_Size: {x: 1.5201349, y: 5.052255}
+  m_Offset: {x: -0.5845618, y: -0.18601349}
+  m_Size: {x: 1.5201349, y: 5.07778}
   m_Direction: 0
+--- !u!114 &2074037472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4926894689176328908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ce56e99acd6ffa4d8301b00839c01c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _color: {r: 1, g: 1, b: 1, a: 0}
+  _flashTime: 0.25
+--- !u!114 &2074037481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4926894689176328908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632ae7eb1d4ce49d38a1e38ee7efe7c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  guid: d4e85e7bb5c66f4a-22140b7211ec645e
+--- !u!114 &2074037489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4926894689176328908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_ComponentVersion: 1
+  m_HasRenderer: 1
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_ApplyToSortingLayers: 000000003dadf369e7aef37aa1206ecca567d23433897cf9616b1b55
+  m_ShapePath:
+  - {x: -2.6710024, y: -2.7357972, z: -0.0000000017943247}
+  - {x: -0.8529072, y: 2.007882, z: -0.0000000017943247}
+  - {x: -0.4029274, y: 2.062066, z: -0.0000000017943247}
+  - {x: 0.82287884, y: -2.7083972, z: -0.0000000017943247}
+  m_ShapePathHash: -590401775
+  m_Mesh: {fileID: 0}
+  m_InstanceId: -881944
 --- !u!1 &4926894690032258411
 GameObject:
   m_ObjectHideFlags: 0
@@ -1868,7 +1935,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6304185436184744468}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.74, y: -0.1, z: 0.059703644}
+  m_LocalPosition: {x: -0.74, y: 0.25, z: 0.059703644}
   m_LocalScale: {x: 2, y: 2.015357, z: 2.015357}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1890,12 +1957,12 @@ MonoBehaviour:
   m_ComponentVersion: 1
   m_LightType: 3
   m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.719
+  m_FalloffIntensity: 0.774
   m_Color: {r: 0.5990566, g: 0.876072, b: 1, a: 1}
-  m_Intensity: 1.15
+  m_Intensity: 2
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 000000003dadf369e7aef37aa1206ecc33897cf9616b1b55a567d234
+  m_ApplyToSortingLayers: 000000003dadf369e7aef37aa1206ecc616b1b55a567d234
   m_LightCookieSprite: {fileID: 21300000, guid: 119f93d0bcbf1e743bf5fcf237507d39, type: 3}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1904,9 +1971,9 @@ MonoBehaviour:
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
   m_UseNormalMap: 0
-  m_ShadowIntensityEnabled: 0
-  m_ShadowIntensity: 0.75
-  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowIntensityEnabled: 1
+  m_ShadowIntensity: 0.527
+  m_ShadowVolumeIntensityEnabled: 1
   m_ShadowVolumeIntensity: 0.75
   m_Vertices:
   - position: {x: 0.9985302, y: 0.9985302, z: 0}
@@ -1943,7 +2010,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.33
-  m_PointLightOuterRadius: 2
+  m_PointLightOuterRadius: 1.39
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1
