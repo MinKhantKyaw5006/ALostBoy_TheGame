@@ -7,6 +7,9 @@ using UnityEngine;
 public class BossFight : Enemy
 {
     public static BossFight Instance;
+    private BossFight_Event bossFightEvent; // Reference to BossFight_Event
+    [SerializeField] private float knockbackForce = 5f; // Adjust this value in the inspector
+    [SerializeField] private float bossMoveDistance = 1f; // Distance to move the boss when colliding with the player
 
     //point at which wall check happens
 
@@ -22,8 +25,15 @@ public class BossFight : Enemy
 
     public float attackRange;
     public float attackTimer;
+    public LayerMask playerLayer; // Assign this in the inspector to the layer the player is on.
+
 
     [HideInInspector] public bool facingRight;
+
+    // Serialized fields to set health thresholds in the Inspector
+    [SerializeField] private float stage1HealthThreshold = 170f;
+    [SerializeField] private float stage2HealthThreshold = 125f;
+    [SerializeField] private float stage3HealthThreshold = 80f;
 
     [Header("Wall Check Settings")]
     public Transform wallCheckPoint;
@@ -74,6 +84,7 @@ public class BossFight : Enemy
         {
             Instance = this;
         }
+        bossFightEvent = GetComponent<BossFight_Event>(); // Get the BossFight_Event component
     }
     // Start is called before the first frame update
     protected override void Start()
@@ -163,28 +174,25 @@ public class BossFight : Enemy
             case EnemyStates.BossFight_Stage1:
                 canStun = true;
                 attackTimer = 6;
-                runSpeed = speed; 
+                runSpeed = speed; // Normal speed
                 break;
 
             case EnemyStates.BossFight_Stage2:
                 canStun = true;
-                attackTimer = 5;
-                runSpeed = speed; 
+                attackTimer = 5; // Faster attacks
+                runSpeed = speed; // Same speed
                 break;
 
             case EnemyStates.BossFight_Stage3:
                 canStun = true;
-                attackTimer = 8; 
-                break;
-
-            case EnemyStates.BossFight_Stage4:
-                canStun = false;
-                attackTimer = 10;
-                runSpeed = speed / 2; 
+                attackTimer = 8; // Slightly slower, longer attacks
                 break;
 
             default:
+                Debug.LogError("Invalid boss state!");
                 break;
+
+        
         }
     }
 
@@ -195,122 +203,114 @@ public class BossFight : Enemy
 
     public void AttackHandler()
     {
+        // Stage 1
         if (currentEnemyState == EnemyStates.BossFight_Stage1)
         {
             Debug.Log("Instantiating attacks in Boss Fight Stage 1");
+
+            if (Vector2.Distance(PlayerController.Instance.transform.position, rb.position) <= attackRange)
+            {
+                //StartCoroutine(TripleSlash());
+                StartCoroutine(Outbreak());
+                Debug.Log("Triple Slash Coroutine Started");
+
+                //DiveAttackJump();
+                //Debug.Log("Instantiate Dive Jump Attack");
+
+                //OutbreakBendDown();
+                //Debug.Log("outbreak attack");
+            }
+            else
+            {
+                StartCoroutine(Outbreak());
+                //StartCoroutine(Lunge());
+                Debug.Log("Lunge Coroutine Started");
+                //StartCoroutine(Outbreak());
+
+                //DiveAttackJump();
+                //Debug.Log("Instantiate Dive Jump Attack");
+                //OutbreakBendDown();
+                //Debug.Log("outbreak attack");
+            }
+        }
+
+        // Stage 2
+        else if (currentEnemyState == EnemyStates.BossFight_Stage2)
+        {
+            Debug.Log("Instantiating attacks in Boss Fight Stage 2");
+
             if (Vector2.Distance(PlayerController.Instance.transform.position, rb.position) <= attackRange)
             {
                 StartCoroutine(TripleSlash());
-                Debug.Log("Instantiate Bounce Attack");
+                Debug.Log("Triple Slash Coroutine Started");
             }
-
             else
             {
- 
-               
-                StartCoroutine(Lunge());
-                Debug.Log("Lunge Coroutine Started"); 
-              
+                int _attackChoosen = Random.Range(1, 4);
+
+                if (_attackChoosen == 1)
+                {
+                    StartCoroutine(Lunge());
+                    Debug.Log("Lunge Coroutine Started");
+                }
+                else if (_attackChoosen == 2)
+                {
+                    DiveAttackJump();
+                    Debug.Log("Instantiate Dive Jump Attack");
+                }
+                else if (_attackChoosen == 3)
+                {
+                    BarrageBendDown();
+                    Debug.Log("Instantiate Barrage Benddown Attack");
+                }
+                else
+                {
+                    Debug.LogError("Error in choosing attack for Stage 2");
+                }
             }
         }
 
-        
-    if(currentEnemyState == EnemyStates.BossFight_Stage2)
-    {
-        Debug.Log("Instantiating attacks in Boss Fight Stage 2");
-        if(Vector2.Distance(PlayerController.Instance.transform.position, rb.position) <= attackRange)
+        // Stage 3
+        else if (currentEnemyState == EnemyStates.BossFight_Stage3)
         {
-            StartCoroutine(TripleSlash());
-            Debug.Log("Triple Slash Coroutine Started");
-        }
+            Debug.Log("Instantiating attacks in Boss Fight Stage 3");
 
-        else
-        {
-            int _attackChoosen = Random.Range(1, 3);
-            if(_attackChoosen == 1)
+            int _attackChoosen = Random.Range(1, 5);
+
+            if (_attackChoosen == 1)
             {
-                StartCoroutine(Lunge());
-                Debug.Log("Lunge Coroutine Started"); 
+                //OutbreakBendDown();
+                BarrageBendDown();
+                Debug.Log("Instantiate Outbreak Benddown Attack");
             }
-
-            else if(_attackChoosen == 2)
+            else if (_attackChoosen == 2)
             {
                 DiveAttackJump();
-                Debug.Log("Instantiate Dive Jump Attack"); 
+                Debug.Log("Instantiate Dive Jump Attack");
             }
-
-            else if(_attackChoosen == 3)
+            else if (_attackChoosen == 3)
             {
                 BarrageBendDown();
                 Debug.Log("Instantiate Barrage Benddown Attack");
             }
-
+            else if (_attackChoosen == 4)
+            {
+                StartCoroutine(TripleSlash());
+                Debug.Log("Triple Slash Coroutine Started");
+            }
             else
             {
-                Debug.LogError("Can not instantiate any attack in Boss Fight Stage 2");
+                Debug.LogError("Error in choosing attack for Stage 3");
             }
         }
-    }
 
-    if (currentEnemyState == EnemyStates.BossFight_Stage3)
-    {
-        Debug.Log("Instantiating attacks in Boss Fight Stage 3"); 
-        int _attackChoosen = Random.Range(1, 4);
-
-
-        if(_attackChoosen == 1)
-        {
-            OutbreakBendDown();
-            Debug.Log("Instatiate Outbreak Benddown Attack"); 
-        }
-
-        else if(_attackChoosen == 2)
-        {
-            DiveAttackJump();
-            Debug.Log("Instatiate Dive Jump Attack");
-
-        }
-
-        else if(_attackChoosen == 3)
-        {
-            BarrageBendDown();
-            Debug.Log("Instantiate Barrage Benddown Attack");
-        }
-
-        else if(_attackChoosen == 4)
-        {
-            BounceAttack();
-            Debug.Log("Instantiate Bounce Attack");
-        }
-
+        // Error handling if no state matches
         else
         {
-            Debug.LogError("Can not instantiate any attack in Boss Fight Stage 3"); 
+            Debug.LogError("Can not instantiate any of the attacks.");
         }
     }
 
-    else if (currentEnemyState == Enemy.EnemyStates.BossFight_Stage4)
-    {
-        Debug.Log("Instantiating attacks in Boss Fight Stage 4");
-        if(Vector2.Distance(PlayerController.Instance.transform.position, rb.position) <= attackRange)
-        {
-            StartCoroutine(Slash() );
-            Debug.Log("Slash Coroutine Started");
-        }
-
-        else 
-        {
-            BounceAttack();
-            Debug.Log("Instantiate Bounce Atttack");
-        }
-    }
-
-    else
-    {
-        Debug.LogError("Can not instantiate any of the attacks.");
-    }
- 
-    }
 
 
     public void ResetAttacks()
@@ -328,28 +328,66 @@ public class BossFight : Enemy
         Debug.LogWarning("All attack has been reset");
     }
 
+    /*
     private IEnumerator TripleSlash()
     {
         attacking = true;
         rb.velocity = Vector2.zero;
 
+        // First Slash
         anim.SetTrigger("Slash");
         SlashAngle();
         yield return new WaitForSeconds(0.3f);
+        ApplyDamageToPlayer(); // Check and apply damage
         anim.ResetTrigger("Slash");
 
+        // Second Slash
         anim.SetTrigger("Slash");
         SlashAngle();
         yield return new WaitForSeconds(0.5f);
+        ApplyDamageToPlayer(); // Check and apply damage
         anim.ResetTrigger("Slash");
 
+        // Third Slash
         anim.SetTrigger("Slash");
         SlashAngle();
         yield return new WaitForSeconds(0.2f);
+        ApplyDamageToPlayer(); // Check and apply damage
         anim.ResetTrigger("Slash");
 
         ResetAttacks();
     }
+    */
+    private IEnumerator TripleSlash()
+    {
+        attacking = true;
+        rb.velocity = Vector2.zero;
+
+        // First Slash
+        anim.SetTrigger("Slash");
+        SlashAngle(); // Assuming this method sets the correct attack angle/position
+        yield return new WaitForSeconds(0.3f);
+        bossFightEvent.Hit(sideAttack, sideAttackArea); // Call Hit method from BossFight_Event
+        anim.ResetTrigger("Slash");
+
+        // Second Slash
+        anim.SetTrigger("Slash");
+        SlashAngle();
+        yield return new WaitForSeconds(0.5f);
+        bossFightEvent.Hit(upAttack, upAttackArea);
+        anim.ResetTrigger("Slash");
+
+        // Third Slash
+        anim.SetTrigger("Slash");
+        SlashAngle();
+        yield return new WaitForSeconds(0.2f);
+        bossFightEvent.Hit(downAttack, downAttackArea);
+        anim.ResetTrigger("Slash");
+
+        ResetAttacks();
+    }
+
+
 
     private void SlashAngle()
     {
@@ -393,6 +431,7 @@ public class BossFight : Enemy
         rb.velocity = Vector2.zero;
         anim.SetBool("Parry", true);
         yield return new WaitForSeconds(0.8f);
+       
         anim.SetBool("Parry", false);
 
         parrying = false;
@@ -407,10 +446,55 @@ public class BossFight : Enemy
         anim.SetTrigger("Slash");
         SlashAngle();
         yield return new WaitForSeconds(0.2f);
+        bossFightEvent.Hit(sideAttack, sideAttackArea);
         anim.ResetTrigger("Slash");
 
         ResetAttacks();
     }
+
+    //public override void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
+    //{
+    //    if (!stunned)
+    //    {
+    //        if (!parrying)
+    //        {
+    //            if (canStun)
+    //            {
+    //                hitCounter++;
+    //                if(hitCounter >= 3)
+    //                {
+    //                    ResetAttacks();
+    //                    StartCoroutine(Stunned());
+    //                }
+    //            }
+
+    //            ResetAttacks();
+    //            base.EnemyHit(_damageDone, _hitDirection, _hitForce);
+
+    //            if(currentEnemyState != EnemyStates.BossFight_Stage3)
+    //            {
+    //                ResetAttacks() ;
+    //                StartCoroutine(Parry());
+    //            }
+    //        }
+
+    //        else
+    //        {
+    //            StopCoroutine(Parry());
+    //            parrying = false;
+    //            ResetAttacks();
+    //            StartCoroutine(Slash());
+    //        }
+
+    //    }
+    //    else
+    //    {
+    //        StopCoroutine(Stunned());
+    //        anim.SetBool("Stunned", false);
+    //        stunned = false;
+    //    }
+    //    CheckHealth();
+    //}
 
     public override void EnemyHit(float _damageDone, Vector2 _hitDirection, float _hitForce)
     {
@@ -421,7 +505,7 @@ public class BossFight : Enemy
                 if (canStun)
                 {
                     hitCounter++;
-                    if(hitCounter >= 3)
+                    if (hitCounter >= 3)
                     {
                         ResetAttacks();
                         StartCoroutine(Stunned());
@@ -429,15 +513,33 @@ public class BossFight : Enemy
                 }
 
                 ResetAttacks();
-                base.EnemyHit(_damageDone, _hitDirection, _hitForce);
 
-                if(currentEnemyState != EnemyStates.BossFight_Stage4)
+                // Cap the damage at the maxDamagePerHit
+                float finalDamage = Mathf.Min(_damageDone, maxDamagePerHit); // Assuming maxDamagePerHit is defined in the parent class
+                health -= finalDamage; // Subtract the capped damage from current health
+
+                rb.AddForce(-_hitForce * recoilFactor * _hitDirection);
+
+                // Trigger screen shake
+                ScreenShaker screenShaker = FindObjectOfType<ScreenShaker>();
+                if (screenShaker != null)
                 {
-                    ResetAttacks() ;
+                    screenShaker.Shake(_hitDirection.normalized);
+                }
+                else
+                {
+                    Debug.LogWarning("ScreenShaker not found in the scene.");
+                }
+
+                // Check health after taking damage
+                CheckHealth();
+
+                if (currentEnemyState != EnemyStates.BossFight_Stage3)
+                {
+                    ResetAttacks();
                     StartCoroutine(Parry());
                 }
             }
-
             else
             {
                 StopCoroutine(Parry());
@@ -445,7 +547,6 @@ public class BossFight : Enemy
                 ResetAttacks();
                 StartCoroutine(Slash());
             }
-                
         }
         else
         {
@@ -453,34 +554,32 @@ public class BossFight : Enemy
             anim.SetBool("Stunned", false);
             stunned = false;
         }
+
         CheckHealth();
     }
 
+
     protected override void CheckHealth()
     {
-        if (health > 170)
+        if (health > stage1HealthThreshold)
         {
             ChangeState(EnemyStates.BossFight_Stage1);
         }
-        else if (health <= 125 && health > 80)
+        else if (health <= stage2HealthThreshold && health > stage3HealthThreshold)
         {
             ChangeState(EnemyStates.BossFight_Stage2);
         }
-        else if (health <= 80 && health > 40)
+        else if (health <= stage3HealthThreshold && health > 0)
         {
             ChangeState(EnemyStates.BossFight_Stage3);
         }
-        else if (health <= 40 && health > 0) 
-        {
-            ChangeState(EnemyStates.BossFight_Stage4);
-        }
-        else if (health <= 0 && alive) 
+        else if (health <= 0 && alive)
         {
             Death(0);
         }
         else
         {
-            Debug.LogError("Can not check for enemy health");
+            Debug.LogError("Cannot check for enemy health");
         }
     }
     private void DiveAttackJump()
@@ -497,6 +596,7 @@ public class BossFight : Enemy
         anim.SetBool("Jump", false);
     }
 
+    /*
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.GetComponent<PlayerController>() != null && (diveAttack || bounceAttack))
@@ -505,20 +605,71 @@ public class BossFight : Enemy
             PlayerController.Instance.pState.recoilingX = true;
         }
     }
+    */
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Check if the attack is a dive attack or bounce attack
+        if (diveAttack || bounceAttack)
+        {
+            // Check if the collided object is on the Player layer
+            if (((1 << collision.gameObject.layer) & playerLayer) != 0)
+            {
+                // Get the PlayerController component
+                PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+
+                if (player != null)
+                {
+                    // Apply damage to the player
+                    player.TakeDamage(BossFight.Instance.damage);
+                    PlayerController.Instance.pState.recoilingX = true;
+                    Debug.Log("Player taking damage from dive/bounce attack!");
+
+                    // Calculate knockback direction and apply knockback to the player
+                    Vector2 knockbackDirection = (collision.transform.position - transform.position).normalized; // Direction to move the player
+                    Vector2 knockback = knockbackDirection * knockbackForce; // Scale by knockback force value
+                    player.ApplyKnockback(knockback); // Apply knockback
+
+                    // Move the boss away (optional)
+                    Vector2 bossKnockbackDirection = (transform.position - collision.transform.position).normalized; // Direction away from player
+                    Vector2 newPosition = (Vector2)transform.position + (bossKnockbackDirection * bossMoveDistance);
+                    transform.position = newPosition;
+                    //transform.position = newPosition; // Move the boss to the new position
+
+                    // Optional: Add some vertical offset if needed
+                    transform.position = new Vector2(transform.position.x, transform.position.y + 0.5f); // Adjust Y position
+
+                }
+                else
+                {
+                    Debug.LogWarning("Collider detected does not have a PlayerController component!");
+                }
+            }
+            else
+            {
+                Debug.Log($"Collider detected with tag: {collision.gameObject.tag}. Not a Player.");
+            }
+        }
+        else
+        {
+            Debug.Log("Attack is not a dive or bounce attack. No damage will be dealt.");
+        }
+    }
+
+
 
     public void DivingPillars()
     {
         Vector2 _impactPoint = groundCheckPoint.position;
         float _spawnDistance = 5f;
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 30; i++)
         {
             Vector2 _pillarSpawnPointRight = _impactPoint + new Vector2(_spawnDistance, 0);
             Vector2 _pillarSpawnPointLeft = _impactPoint - new Vector2(_spawnDistance, 0);
             Instantiate(pillar, _pillarSpawnPointRight, Quaternion.Euler(0, 0, -90));
             Instantiate(pillar, _pillarSpawnPointLeft, Quaternion.Euler(0, 0, -90));
 
-            _spawnDistance += 5f;
+            _spawnDistance += 7f;
         }
 
         ResetAttacks();
@@ -532,27 +683,78 @@ public class BossFight : Enemy
         anim.SetTrigger("BendDown");
     }
 
+    //public IEnumerator Barrage()
+    //{
+    //    rb.velocity = Vector2.zero;
+
+    //    float _currentAngle = 10f;
+    //    for (int i = 0; i < 50; i++)
+    //    {
+    //        GameObject _projectile = Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, _currentAngle));
+
+    //        if (facingRight)
+    //        {
+    //            _projectile.transform.eulerAngles = new Vector3(_projectile.transform.eulerAngles.x, 0, _currentAngle); ;
+    //        }
+
+    //        else
+    //        {
+    //            _projectile.transform.eulerAngles = new Vector3(_projectile.transform.eulerAngles.x, 180, _currentAngle);
+    //        }
+
+    //        _currentAngle += 5f;
+    //        yield return new WaitForSeconds(0.15f);
+    //    }
+
+    //    yield return new WaitForSeconds(0.1f);
+    //    anim.SetBool("Cast", false);
+    //    ResetAttacks();
+    //}
+
     public IEnumerator Barrage()
     {
         rb.velocity = Vector2.zero;
 
-        float _currentAngle = 30f;
-        for (int i = 0; i < 10; i++)
+        float _currentAngle = 0f; // Start angle
+        bool increasing = true; // Track whether we're increasing or decreasing the angle
+        int totalProjectiles = 50; // Number of fireballs
+        float maxAngle = 90f; // Maximum angle (0 to 90 degrees)
+
+        for (int i = 0; i < totalProjectiles; i++)
         {
+            // Instantiate the projectile at the current angle
             GameObject _projectile = Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, _currentAngle));
 
             if (facingRight)
             {
-                _projectile.transform.eulerAngles = new Vector3(_projectile.transform.eulerAngles.x, 0, _currentAngle); ;
+                _projectile.transform.eulerAngles = new Vector3(_projectile.transform.eulerAngles.x, 0, _currentAngle);
             }
-
             else
             {
                 _projectile.transform.eulerAngles = new Vector3(_projectile.transform.eulerAngles.x, 180, _currentAngle);
             }
 
-            _currentAngle += 5f;
-            yield return new WaitForSeconds(0.3f);
+            // Alternate the angle back and forth between 0 and 90 degrees
+            if (increasing)
+            {
+                _currentAngle += 10f; // Adjust this value for how much you want to increment per fireball
+                if (_currentAngle >= maxAngle)
+                {
+                    _currentAngle = maxAngle;
+                    increasing = false; // Start decreasing after hitting max
+                }
+            }
+            else
+            {
+                _currentAngle -= 10f; // Adjust this value for how much you want to decrement per fireball
+                if (_currentAngle <= 0f)
+                {
+                    _currentAngle = 0f;
+                    increasing = true; // Start increasing again after hitting min
+                }
+            }
+
+            yield return new WaitForSeconds(0.1f); // Time between fireballs
         }
 
         yield return new WaitForSeconds(0.1f);
@@ -560,12 +762,103 @@ public class BossFight : Enemy
         ResetAttacks();
     }
 
+
+    //private void OutbreakBendDown()
+    //{
+    //    attacking = true;
+    //    rb.velocity = Vector2.zero;
+
+    //    // Disable the boss's collider to prevent unwanted collisions during the attack
+    //    Collider2D bossCollider = GetComponent<Collider2D>();
+    //    bossCollider.enabled = false;  // Disable the collider
+
+    //    // Freeze rotation to prevent unwanted rotation during the attack
+    //    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+    //    moveToPosition = new Vector2(transform.position.x, rb.position.y + 7);
+    //    outbreakAttack = true;
+    //    anim.SetTrigger("BendDown");
+    //}
+
+    //public IEnumerator Outbreak()
+    //{
+    //    // Disable the boss's collider to prevent unwanted collisions during the attack
+    //    Collider2D bossCollider = GetComponent<Collider2D>();
+    //    //bossCollider.enabled = false;  // Disable the collider
+
+    //    yield return new WaitForSeconds(1f);
+    //    anim.SetBool("Cast", true);
+
+    //    rb.velocity = Vector2.zero;
+
+    //    // Define the number of directions and the rotation speed
+    //    int numDirections = 8;
+    //    float rotationSpeed = 45f; // degrees per second
+    //    float angleStep = 360f / numDirections; // angle between each fireball direction
+
+    //    // Cast fireballs in a rotating manner
+    //    for (int i = 0; i < 30; i++)
+    //    {
+    //        // Calculate the current angle for rotation
+    //        float currentAngle = (i * rotationSpeed * Time.deltaTime) % 360;
+
+    //        // Cast fireballs at each direction
+    //        for (int j = 0; j < numDirections; j++)
+    //        {
+    //            // Calculate the final angle for the current direction
+    //            float angle = currentAngle + (j * angleStep);
+    //            Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, angle));
+    //        }
+
+    //        yield return new WaitForSeconds(0.2f);
+    //    }
+
+    //    //for (int i = 0; i < 30; i++)
+    //    //{
+    //    //    Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, Random.Range(110, 130)));
+    //    //    Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, Random.Range(50, 70)));
+    //    //    Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, Random.Range(260, 280)));
+
+    //    //    yield return new WaitForSeconds(0.2f);
+    //    //}
+
+    //    // Small pause before dropping down
+    //    yield return new WaitForSeconds(0.1f);
+
+    //    // Apply downward velocity to simulate falling
+    //    rb.velocity = new Vector2(rb.velocity.x, -10);
+
+    //    // Unfreeze the Rigidbody constraints to allow falling
+    //    rb.constraints = RigidbodyConstraints2D.FreezeRotation;  // Only freeze rotation, not position
+
+    //    // Ensure gravity is enabled
+    //    rb.gravityScale = 1f;  // Ensure gravity is enabled
+
+
+    //    // Wait a short time during the fall
+    //    yield return new WaitForSeconds(0.1f);
+
+    //    // Unset casting state after the fall
+    //    anim.SetBool("Cast", false);
+
+    //    // Re-enable the boss's collider after the attack is finished
+    //    bossCollider.enabled = true;  // Re-enable the collider
+
+    //    // Reset attack state
+    //    ResetAttacks();
+    //}
+
+
     private void OutbreakBendDown()
     {
         attacking = true;
         rb.velocity = Vector2.zero;
 
-        moveToPosition = new Vector2(transform.position.x, rb.position.y + 5);
+        // Temporarily disable gravity and freeze vertical movement
+        rb.gravityScale = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+
+        moveToPosition = new Vector2(transform.position.x, rb.position.y + 7);
         outbreakAttack = true;
         anim.SetTrigger("BendDown");
     }
@@ -576,23 +869,49 @@ public class BossFight : Enemy
         anim.SetBool("Cast", true);
 
         rb.velocity = Vector2.zero;
+
+        // Define the number of directions and the rotation speed
+        int numDirections = 8;
+        float rotationSpeed = 45f; // degrees per second
+        float angleStep = 360f / numDirections; // angle between each fireball direction
+
+        // Cast fireballs in a rotating manner
         for (int i = 0; i < 30; i++)
         {
-            Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, Random.Range(110, 130)));
-            Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, Random.Range(50, 70)));
-            Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, Random.Range(260, 280)));
+            // Calculate the current angle for rotation
+            float currentAngle = (i * rotationSpeed * Time.deltaTime) % 360;
+
+            // Cast fireballs at each direction
+            for (int j = 0; j < numDirections; j++)
+            {
+                // Calculate the final angle for the current direction
+                float angle = currentAngle + (j * angleStep);
+                Instantiate(barrageFireball, transform.position, Quaternion.Euler(0, 0, angle));
+            }
 
             yield return new WaitForSeconds(0.2f);
         }
 
+        // Small pause before dropping down
         yield return new WaitForSeconds(0.1f);
-        rb.constraints = RigidbodyConstraints2D.None;
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        // Apply downward velocity to simulate falling
         rb.velocity = new Vector2(rb.velocity.x, -10);
+
+        // Re-enable gravity and unfreeze Y position to allow falling
+        rb.gravityScale = 1f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;  // Only freeze rotation, not position
+
+        // Wait a short time during the fall
         yield return new WaitForSeconds(0.1f);
+
+        // Unset casting state after the fall
         anim.SetBool("Cast", false);
+
+        // Reset attack state
         ResetAttacks();
     }
+
 
     private void BounceAttack()
     {
@@ -653,6 +972,18 @@ public class BossFight : Enemy
 
     public void DestroyAfterDeath()
     {
-        Destroy(gameObject);
+        // Find the child object (the light) by name or tag
+        Transform lightObject = transform.Find("Light 2D"); // Replace "LightObjectName" with the actual name of your child object
+
+        if (lightObject != null)
+        {
+            Destroy(lightObject.gameObject); // Destroy the child light object
+        }
+        else
+        {
+            Debug.LogWarning("Light object not found!");
+        }
+
+        Destroy(gameObject); // Destroy the boss object
     }
 }

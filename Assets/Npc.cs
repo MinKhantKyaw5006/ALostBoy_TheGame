@@ -11,8 +11,10 @@ public class Npc : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && !hasInteracted)
         {
+            Debug.Log("player detcted npc");
             hasInteracted = true; // Set the flag to true after interaction
             trigger.StartDialogue();
+            
         }
     }
 }

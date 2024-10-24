@@ -246,6 +246,7 @@ public class FileDataHandler
 public class SaveSlotData
 {
     public string lastPlayedScene;
+    public DateTime lastSavedTime; // New field to store the last saved time
 }
 
 
@@ -337,6 +338,34 @@ public class FileDataHandler
         catch (Exception e)
         {
             Debug.LogError("Error occured when trying to save data to file" + fullPath + "\n" + e);
+        }
+    }
+
+    public void Delete(string profileId)
+    {
+        //base case -if the profile id is null, return right away
+        if(profileId == null)
+        {
+            return;
+        }
+        string fullPath = Path.Combine(dataDirPath, profileId, dataFileName);
+        try
+        {
+            //ensure the data files exists at this path before deleting the directory
+            if (File.Exists(fullPath))
+            {
+                //delete the project folder and everything within it
+                Directory.Delete(Path.GetDirectoryName(fullPath), true);
+                //use file.delete if worry about deleting directory
+            }
+            else
+            {
+                Debug.LogWarning("Tried to delete profile data, but the data was not found at path:" + fullPath);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to delete profile data for profileId:" + profileId + "at path" + fullPath + "\n" + e);
         }
     }
 

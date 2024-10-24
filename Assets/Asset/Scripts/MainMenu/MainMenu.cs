@@ -23,9 +23,21 @@ public class MainMenu : Menu
 
     public void Start()
     {
-        
 
+        DisableButtonDependingOnData();
         //check if game has data, if no data, initialize new game
+        //if (!DataPersistenceManager.instance.HasGameData())
+        //{
+        //    //disable continue button   
+        //    continueGameButton.interactable = false;
+        //    loadGameButton.interactable = false;
+
+        //}
+       
+    }
+    
+    private void DisableButtonDependingOnData()
+    {
         if (!DataPersistenceManager.instance.HasGameData())
         {
             //disable continue button   
@@ -33,10 +45,7 @@ public class MainMenu : Menu
             loadGameButton.interactable = false;
 
         }
-       
     }
-    
-    
 
     
 
@@ -127,6 +136,7 @@ public class MainMenu : Menu
     {
         //enable savemenu when activate
         this.gameObject.SetActive(true);
+        DisableButtonDependingOnData();
     }
 
     public void DeactivateMenu()

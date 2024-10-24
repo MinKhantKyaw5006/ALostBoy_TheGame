@@ -12,6 +12,9 @@ public class SaveSlotsMenu : Menu
     [Header("Menu Buttons")]
     [SerializeField] private Button backButton;
 
+    [Header("Confirmation Popup")]
+    [SerializeField] private ConfirmationPopUpMenu confirmationPopUpMenu;
+
     [Header("Loading Screen")]
     [SerializeField] private GameObject loadingScreen; // Reference to your loading screen object
 
@@ -74,7 +77,69 @@ public class SaveSlotsMenu : Menu
 
 
     //original
-    
+
+    //public void OnSaveSlotClicked(SaveSlot saveSlot)
+    //{
+    //    // Disable all buttons
+    //    DisableMenuButtons();
+
+    //    // Update the selected profile ID for data persistence
+    //    string profileId = saveSlot.GetProfileId();
+    //    DataPersistenceManager.instance.ChangeSelectedProfileId(profileId);
+
+    //    //loading screen
+    //    if (loadingScreen != null)
+    //    {
+    //        loadingScreen.SetActive(true); // Activate the loading screen
+    //    }
+
+    //    string sceneToLoad;
+
+    //    // Check whether we are loading a game or starting a new game
+    //    if (isLoadingGame)
+    //    {
+
+    //        // If loading a game, attempt to load the last played scene
+    //        SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
+    //        sceneToLoad = saveSlotData != null && !string.IsNullOrEmpty(saveSlotData.lastPlayedScene)
+    //                      ? saveSlotData.lastPlayedScene
+    //                      : "Chapter1"; // Fallback to "Chapter1" if no data found
+    //    }
+    //    else
+    //    {
+    //        // If starting a new game, ignore last played scene and load "Chapter1"
+    //        //DataPersistenceManager.instance.NewGame();
+    //        Debug.Log("starting new game called for confirmation");
+
+    //        confirmationPopUpMenu.ActivateMenu(
+    //           "Starting a New Game with this slot will override the currently saved data. Are you sure?",
+    //           //function to execute if we select 'yes'
+    //           () =>
+    //           {
+    //               DataPersistenceManager.instance.ChangeSelectedProfileId(saveSlot.GetProfileId());
+    //               DataPersistenceManager.instance.NewGame();
+    //           },
+    //           //function to execute if we select 'no'
+    //           () =>
+    //           {
+    //               this.ActivateMenu(isLoadingGame);
+    //           }
+    //       );
+    //        sceneToLoad = "Chapter1";
+    //    }
+
+    //    ////save game data
+    //    ////DataPersistenceManager.instance.SaveGame();
+
+    //    //// Load the determined scene
+    //    DataPersistenceManager.instance.ChangeSelectedProfileId(saveSlot.GetProfileId());
+    //    DataPersistenceManager.instance.NewGame();
+
+
+    //    SceneManager.LoadSceneAsync(sceneToLoad);
+    //    //SaveGameAndLoadGame();
+    //}
+
     public void OnSaveSlotClicked(SaveSlot saveSlot)
     {
         // Disable all buttons
@@ -84,39 +149,95 @@ public class SaveSlotsMenu : Menu
         string profileId = saveSlot.GetProfileId();
         DataPersistenceManager.instance.ChangeSelectedProfileId(profileId);
 
-        if (loadingScreen != null)
-        {
-            loadingScreen.SetActive(true); // Activate the loading screen
-        }
+        // Load the save slot data to check if it contains saved game data
+        SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
 
-        string sceneToLoad;
-
-        // Check whether we are loading a game or starting a new game
-        if (isLoadingGame)
+        // Check if we're starting a new game or loading a saved game
+        if (!isLoadingGame)
         {
-            // If loading a game, attempt to load the last played scene
-            SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
-            sceneToLoad = saveSlotData != null && !string.IsNullOrEmpty(saveSlotData.lastPlayedScene)
-                          ? saveSlotData.lastPlayedScene
-                          : "Chapter1"; // Fallback to "Chapter1" if no data found
+            // If there is existing data in the save slot, show the confirmation popup
+            if (saveSlotData != null)
+            {
+                confirmationPopUpMenu.ActivateMenu(
+                    "Starting a New Game with this slot will override the currently saved data. Are you sure?",
+                    // Function to execute if we select 'yes'
+                    () =>
+                    {
+                        DataPersistenceManager.instance.ChangeSelectedProfileId(saveSlot.GetProfileId());
+                        DataPersistenceManager.instance.NewGame();
+
+                    // After confirming, load the new game scene
+                    LoadGame("Chapter1");
+                    },
+                    // Function to execute if we select 'no'
+                    () =>
+                    {
+                        this.ActivateMenu(isLoadingGame);
+                    }
+                );
+            }
+            else
+            {
+                // No saved data, so just start a new game
+                DataPersistenceManager.instance.NewGame();
+                LoadGame("Chapter1");
+            }
         }
         else
         {
-            // If starting a new game, ignore last played scene and load "Chapter1"
-            DataPersistenceManager.instance.NewGame();
-            sceneToLoad = "Chapter1";
+            // Load the saved game if the mode is loading
+            string sceneToLoad = saveSlotData != null && !string.IsNullOrEmpty(saveSlotData.lastPlayedScene)
+                ? saveSlotData.lastPlayedScene
+                : "Chapter1"; // Fallback to "Chapter1" if no data found
+
+            LoadGame(sceneToLoad);
+        }
+    }
+
+    // Utility method to load the game and show the loading screen
+    private void LoadGame(string sceneToLoad)
+    {
+        // Show the loading screen if it exists
+        if (loadingScreen != null)
+        {
+            loadingScreen.SetActive(true);
         }
 
+        // Load the scene asynchronously
+        SceneManager.LoadSceneAsync(sceneToLoad);
+    }
+
+
+    private void SaveGameAndLoadGame()
+    {
         //save game data
         //DataPersistenceManager.instance.SaveGame();
 
         // Load the determined scene
-        SceneManager.LoadSceneAsync(sceneToLoad);
+        //SceneManager.LoadSceneAsync(sceneToLoad);
     }
-    
-    
- 
 
+    public void OnClearClicked(SaveSlot saveSlot)
+    {
+        DisableMenuButtons();
+        confirmationPopUpMenu.ActivateMenu(
+            "Are you sure you want to delete this saved data?",
+            //function to execute if we select 'yes'
+            () =>
+            {
+                DataPersistenceManager.instance.DeleteProfileData(saveSlot.GetProfileId());
+                ActivateMenu(isLoadingGame);
+            },
+            //function to execute if we select 'no'
+            () =>
+            {
+                ActivateMenu(isLoadingGame);
+            }
+            );
+
+
+       
+    }
 
 
 
@@ -181,6 +302,9 @@ public class SaveSlotsMenu : Menu
 
         //load all of  the profiles that exist
         Dictionary<string, GameData> profilesGameData = DataPersistenceManager.instance.GetAllProfilesGameData();
+
+        //ensure the back button is enabled when we activate the menu
+        backButton.interactable = true;
 
         //loop through each save slot in the UI and set the content appropriately
         GameObject firstSelected = backButton.gameObject;

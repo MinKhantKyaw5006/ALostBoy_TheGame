@@ -73,7 +73,7 @@ public class PatrolEnemy : Enemy
         float checkRadius = 0.2f;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(platformCheck.position, checkRadius, platformLayerMask);
         bool isGrounded = colliders.Length > 0;
-        Debug.Log(isGrounded ? "Enemy is grounded." : "Enemy is not grounded.");
+        Debug.Log(isGrounded ? "Enemy is grounded." : "Enemy is not grounded.");    
         return isGrounded;
     }
 

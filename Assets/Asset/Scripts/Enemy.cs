@@ -165,6 +165,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected PlayerController player;
     [SerializeField] public float speed;
     [SerializeField] public float damage;
+    // Define maxDamagePerHit
+    [SerializeField] protected float maxDamagePerHit = 200f; // Set your desired maximum damage here
 
     protected float recoilTimer;
     public Rigidbody2D rb;

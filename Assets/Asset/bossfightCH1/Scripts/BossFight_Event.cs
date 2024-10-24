@@ -26,6 +26,9 @@ public class BossFight_Event : MonoBehaviour
             Debug.Log("Down Attack!!!");
         }
     }
+
+
+    /*
     private void Hit(Transform _attackTransform, Vector2 _attackArea)
     {
         Collider2D _objectsToHit = Physics2D.OverlapBox(_attackTransform.position, _attackArea, 0);
@@ -34,6 +37,25 @@ public class BossFight_Event : MonoBehaviour
             _objectsToHit.GetComponent<PlayerController>().TakeDamage(BossFight.Instance.damage);
         }
     }
+    */
+    public void Hit(Transform _attackTransform, Vector2 _attackArea)
+    {
+        // Use OverlapBoxAll to get all colliders within the specified area
+        Collider2D[] _objectsToHit = Physics2D.OverlapBoxAll(_attackTransform.position, _attackArea, 0);
+
+        // Iterate through all colliders detected
+        foreach (Collider2D collider in _objectsToHit)
+        {
+            // Check if the collider has a PlayerController component
+            PlayerController player = collider.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                player.TakeDamage(BossFight.Instance.damage);
+                Debug.Log("Player taking damage from hit!");
+            }
+        }
+    }
+
 
     void Parrying()
     {

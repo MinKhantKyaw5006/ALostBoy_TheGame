@@ -61,17 +61,20 @@ public class DataPersistenceManager : MonoBehaviour
         }
 
         this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName);
-        this.selectedProfileId = dataHandler.GetMostRecentlyUpdatedProfile();
-        this.gameData = new GameData(); // Make sure this line is executed
 
-        sceneDataHandler = new SceneDataHandler(Application.persistentDataPath, sceneDataFileName);
-        sceneData = sceneDataHandler.LoadSceneData(); // Load scene data at start
+        //this.selectedProfileId = dataHandler.GetMostRecentlyUpdatedProfile();
+        //this.gameData = new GameData(); // Make sure this line is executed
 
-        if (overrideSelectedProfileId)
-        {
-            this.selectedProfileId = testSelectedProfileId;
-            Debug.LogWarning("Overrode selected profile id with test id" + testSelectedProfileId);
-        }
+        //sceneDataHandler = new SceneDataHandler(Application.persistentDataPath, sceneDataFileName);
+        //sceneData = sceneDataHandler.LoadSceneData(); // Load scene data at start
+
+        //if (overrideSelectedProfileId)
+        //{
+        //    this.selectedProfileId = testSelectedProfileId;
+        //    Debug.LogWarning("Overrode selected profile id with test id" + testSelectedProfileId);
+        //}
+
+        InitializeSelectedProfileId();
     }
 
     private void OnEnable()
@@ -231,13 +234,44 @@ public class DataPersistenceManager : MonoBehaviour
         //timestamp the data so we know when it was last saved
         gameData.lastUpdated = System.DateTime.Now.ToBinary();
 
-       
+
+        // Update the save slot's last saved time for display purposes
+        SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(selectedProfileId);
+        if (saveSlotData != null)
+        {
+            saveSlotData.lastSavedTime = System.DateTime.Now;
+        }
+
+        // You can add any additional logging or processing after the timestamp update
+        Debug.Log("Game data saved at: " + System.DateTime.Now);
 
     }
 
+    public void DeleteProfileData(string profileId)
+    {
+        // delete the data for this profile id
+        dataHandler.Delete(profileId);
+        //initialize the selected profile id
+        InitializeSelectedProfileId();
+        //reload the game so that our data matches the newly selected profile id
+        LoadGame();
 
+    }
 
+    private void InitializeSelectedProfileId()
+    {
+        this.selectedProfileId = dataHandler.GetMostRecentlyUpdatedProfile();
+        this.gameData = new GameData(); // Make sure this line is executed
 
+        sceneDataHandler = new SceneDataHandler(Application.persistentDataPath, sceneDataFileName);
+        sceneData = sceneDataHandler.LoadSceneData(); // Load scene data at start
+
+        if (overrideSelectedProfileId)
+        {
+            this.selectedProfileId = testSelectedProfileId;
+            Debug.LogWarning("Overrode selected profile id with test id" + testSelectedProfileId);
+        }
+    }
 
     private List<IDataPersistence> FindAllDataPersistenceObjects()
     {

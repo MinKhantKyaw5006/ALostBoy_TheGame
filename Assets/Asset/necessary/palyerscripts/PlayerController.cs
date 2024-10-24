@@ -774,24 +774,66 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     //    StartCoroutine(MakeInvincible(2.0f,true));
     //}
 
+    //IEnumerator Death()
+    //{
+    //    pState.alive = false;
+    //    anim.SetBool("IsDead", true); // Trigger death animation
+    //    Debug.Log("Player Death Animation Triggered");
+
+    //    // Optionally wait for the death animation to play out
+    //    yield return new WaitForSeconds(1f); // Adjust this if you have a specific death animation duration
+
+    //    // If DataPersistenceManager is available, reload the last checkpoint
+    //    if (DataPersistenceManager.instance != null)
+    //    {
+    //        // If there's a loading screen, activate it
+    //        if (loadingScreen != null)
+    //        {
+    //            loadingScreen.SetActive(true);
+    //        }
+
+    //        // Reload the current scene (simulating a respawn from the last checkpoint)
+    //        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+    //        // Load the most recent game state, which should be the last checkpoint
+    //        DataPersistenceManager.instance.LoadGame();
+
+    //        Debug.Log("Player respawned from last checkpoint");
+
+    //        // Optionally, make the player invincible for a short duration after respawning
+    //        StartCoroutine(MakeInvincible(2.0f, true));
+
+    //        // Reset player state and health (if applicable in the loaded game state)
+    //        pState.alive = true;
+    //        anim.SetBool("IsAlive", true);
+    //        anim.SetBool("IsDead", false); // Reset death animation
+    //        Health = maxHealth;
+    //        UpdateHeartUI(); // Update health UI
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError("DataPersistenceManager instance not found. Cannot restart from last checkpoint.");
+    //    }
+    //}
+
     IEnumerator Death()
     {
         pState.alive = false;
         anim.SetBool("IsDead", true); // Trigger death animation
         Debug.Log("Player Death Animation Triggered");
 
-        // Optionally wait for the death animation to play out
-        yield return new WaitForSeconds(0f); // Adjust this if you have a specific death animation duration
+        // If there's a loading screen, activate it immediately
+        if (loadingScreen != null)
+        {
+            loadingScreen.SetActive(true);
+        }
+
+        // Optionally wait for a short duration to show the loading screen
+        yield return new WaitForSeconds(1.0f); // Adjust this duration for how long you want the loading screen to display
 
         // If DataPersistenceManager is available, reload the last checkpoint
         if (DataPersistenceManager.instance != null)
         {
-            // If there's a loading screen, activate it
-            if (loadingScreen != null)
-            {
-                loadingScreen.SetActive(true);
-            }
-
             // Reload the current scene (simulating a respawn from the last checkpoint)
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
@@ -815,6 +857,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence
             Debug.LogError("DataPersistenceManager instance not found. Cannot restart from last checkpoint.");
         }
     }
+
 
 
 
@@ -1410,6 +1453,17 @@ public class PlayerController : MonoBehaviour, IDataPersistence
     }
 
 
+    public void ApplyKnockback(Vector2 knockbackForce)
+    {
+        // Assuming there's a Rigidbody2D on the player
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero; // Optionally reset the velocity before applying knockback
+            rb.AddForce(knockbackForce, ForceMode2D.Impulse); // Apply the knockback force
+            Debug.Log("Player knocked back!");
+        }
+    }
 
 
 

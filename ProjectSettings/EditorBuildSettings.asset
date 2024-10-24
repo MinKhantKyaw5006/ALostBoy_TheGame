@@ -17,8 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Asset/Scenes/Chapter3.unity
     guid: edd6351d51dd1b54e98a9b18cd32ffbd
-  - enabled: 0
+  - enabled: 1
     path: Assets/Asset/Scenes/Chapter4.unity
-    guid: 85732f1466b82ff4ebf782c32b75c5c3
+    guid: d2dc5206107b72945b7105b0019b03a0
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 819e4af8a2aae344f9f840699bb50647, type: 2}
