@@ -246,7 +246,8 @@ public class FileDataHandler
 public class SaveSlotData
 {
     public string lastPlayedScene;
-    public DateTime lastSavedTime; // New field to store the last saved time
+    public long lastSavedTime; // New field to store the last saved time
+
 }
 
 

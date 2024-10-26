@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
+
 
 public class SaveSlotsMenu : Menu
 {
@@ -145,6 +147,15 @@ public class SaveSlotsMenu : Menu
         // Disable all buttons
         DisableMenuButtons();
 
+        // Get the current date and time
+        System.DateTime currentDateTime = System.DateTime.Now;
+
+        // Format the date and time string
+        string formattedDateTime = currentDateTime.ToString("dd/MM/yyyy HH:mm:ss");
+
+        // Log to the debug console
+        Debug.Log("Save slot clicked at: " + formattedDateTime);
+
         // Update the selected profile ID for data persistence
         string profileId = saveSlot.GetProfileId();
         DataPersistenceManager.instance.ChangeSelectedProfileId(profileId);
@@ -166,8 +177,12 @@ public class SaveSlotsMenu : Menu
                         DataPersistenceManager.instance.ChangeSelectedProfileId(saveSlot.GetProfileId());
                         DataPersistenceManager.instance.NewGame();
 
-                    // After confirming, load the new game scene
-                    LoadGame("Chapter1");
+                        // Update the last updated timestamp
+                        GameData gameData = new GameData(); // Assuming you instantiate GameData here
+                        gameData.lastUpdated = ((DateTimeOffset)currentDateTime).ToUnixTimeMilliseconds();
+
+                        // After confirming, load the new game scene
+                        LoadGame("Chapter1");
                     },
                     // Function to execute if we select 'no'
                     () =>

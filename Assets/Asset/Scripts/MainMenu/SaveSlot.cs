@@ -21,6 +21,10 @@ public class SaveSlot : MonoBehaviour
     [Header("Clear Data Button")]
     [SerializeField] private Button clearButton;
 
+    [Header("Timestamp Display")]
+    [SerializeField] private TextMeshProUGUI timestampDisplay;
+
+
     public bool hasData { get; private set; } = false;
 
     private Button saveSlotButton;
@@ -54,7 +58,48 @@ public class SaveSlot : MonoBehaviour
     */
 
     //original working code
-    
+
+    //public void SetData(GameData data, string profileId)
+    //{
+    //    // Check if there's no data for this profileId
+    //    if (data == null)
+    //    {
+    //        hasData = false;
+    //        noDataContent.SetActive(true);
+    //        hasDataContent.SetActive(false);
+
+    //        //set clear button
+    //        clearButton.gameObject.SetActive(false);
+    //    }
+    //    else
+    //    {
+    //        hasData = true;
+    //        noDataContent.SetActive(false);
+    //        hasDataContent.SetActive(true);
+
+    //        //set clear button
+    //        clearButton.gameObject.SetActive(true);
+
+    //        // Load the save slot data for this profile
+    //        SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
+    //        if (saveSlotData != null && !string.IsNullOrEmpty(saveSlotData.lastPlayedScene))
+    //        {
+    //            // Directly use the scene name as the level display
+    //            levelDisplay.text = saveSlotData.lastPlayedScene;
+    //        }
+    //        else
+    //        {
+    //            // Use a default text or placeholder if no specific scene data found
+    //            levelDisplay.text = "Start Your Adventure!"; // Or "Level 1" if you prefer
+    //        }
+
+    //        // Update the game progress percentage text
+    //        percentageCompleteText.text = "Game In Progress"; // Update this based on your game's logic
+
+
+    //    }
+    //}
+
     public void SetData(GameData data, string profileId)
     {
         // Check if there's no data for this profileId
@@ -80,13 +125,29 @@ public class SaveSlot : MonoBehaviour
             SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
             if (saveSlotData != null && !string.IsNullOrEmpty(saveSlotData.lastPlayedScene))
             {
+
+
                 // Directly use the scene name as the level display
                 levelDisplay.text = saveSlotData.lastPlayedScene;
+
+                // Log the lastUpdated value before using it
+                Debug.Log($"lastUpdated value: {data.lastUpdated}");
+
+                //Convert the last saved time from long (ticks) to DateTime
+                System.DateTime lastSavedTime = new System.DateTime(data.lastUpdated);
+                timestampDisplay.text = $"Saved at: {lastSavedTime:dd/MM/yyyy HH:mm:ss}"; // Format timestamp
+
+                //long lastSavedTimeTicks = saveSlotData.lastSavedTime;
+                //System.DateTime lastSavedTime = new System.DateTime(lastSavedTimeTicks);
+                //timestampDisplay.text = $"Saved at: {lastSavedTime:dd/MM/yyyy HH:mm:ss}"; // Format timestamp
+
+
             }
             else
             {
                 // Use a default text or placeholder if no specific scene data found
                 levelDisplay.text = "Start Your Adventure!"; // Or "Level 1" if you prefer
+                timestampDisplay.text = ""; // Clear the timestamp if no save data
             }
 
             // Update the game progress percentage text
@@ -95,7 +156,52 @@ public class SaveSlot : MonoBehaviour
 
         }
     }
-    
+
+    //timestamp working one
+    //public void SetData(GameData data, string profileId)
+    //{
+    //    // Check if there's no data for this profileId
+    //    if (data == null)
+    //    {
+    //        hasData = false;
+    //        noDataContent.SetActive(true);
+    //        hasDataContent.SetActive(false);
+
+    //        // Set clear button
+    //        clearButton.gameObject.SetActive(false);
+    //        timestampDisplay.text = ""; // Clear the timestamp if there's no data
+    //    }
+    //    else
+    //    {
+    //        hasData = true;
+    //        noDataContent.SetActive(false);
+    //        hasDataContent.SetActive(true);
+
+    //        // Load the save slot data for this profile
+    //        SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(profileId);
+    //        if (saveSlotData != null)
+    //        {
+    //            // Set the level display
+    //            levelDisplay.text = !string.IsNullOrEmpty(saveSlotData.lastPlayedScene)
+    //                ? saveSlotData.lastPlayedScene
+    //                : "Start Your Adventure!"; // Default text if no scene data found
+
+    //            // Convert the last saved time from long (ticks) to DateTime
+    //            System.DateTime lastSavedTime = new System.DateTime(data.lastUpdated);
+    //            timestampDisplay.text = $"Saved at: {lastSavedTime:dd/MM/yyyy HH:mm:ss}"; // Format timestamp
+
+    //        }
+    //        else
+    //        {
+    //            levelDisplay.text = "Start Your Adventure!";
+    //            timestampDisplay.text = ""; // Clear the timestamp if no save data
+    //        }
+
+    //        // Update the game progress percentage text
+    //        percentageCompleteText.text = "Game In Progress"; // Update based on your game's logic
+    //    }
+    //}
+
 
 
 

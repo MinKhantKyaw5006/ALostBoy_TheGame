@@ -210,8 +210,8 @@ public class BossFight : Enemy
 
             if (Vector2.Distance(PlayerController.Instance.transform.position, rb.position) <= attackRange)
             {
-                //StartCoroutine(TripleSlash());
-                StartCoroutine(Outbreak());
+                StartCoroutine(TripleSlash());
+                //StartCoroutine(Outbreak());
                 Debug.Log("Triple Slash Coroutine Started");
 
                 //DiveAttackJump();
@@ -222,8 +222,8 @@ public class BossFight : Enemy
             }
             else
             {
-                StartCoroutine(Outbreak());
-                //StartCoroutine(Lunge());
+                //StartCoroutine(Outbreak());
+                StartCoroutine(Lunge());
                 Debug.Log("Lunge Coroutine Started");
                 //StartCoroutine(Outbreak());
 
@@ -573,7 +573,7 @@ public class BossFight : Enemy
         {
             ChangeState(EnemyStates.BossFight_Stage3);
         }
-        else if (health <= 0 && alive)
+        else if (health <= 10 && alive)
         {
             Death(0);
         }
@@ -854,7 +854,10 @@ public class BossFight : Enemy
         attacking = true;
         rb.velocity = Vector2.zero;
 
-        // Temporarily disable gravity and freeze vertical movement
+        // Apply upward force to make the boss jump
+        rb.velocity = new Vector2(rb.velocity.x, 10f); // Apply an upward force (adjust the value if needed)
+
+        // Temporarily disable gravity and freeze vertical movement after the jump
         rb.gravityScale = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
 
@@ -865,7 +868,9 @@ public class BossFight : Enemy
 
     public IEnumerator Outbreak()
     {
-        yield return new WaitForSeconds(1f);
+        // Wait for the boss to jump into the air
+        yield return new WaitForSeconds(0.5f);  // Adjust the time for how long it takes to jump
+
         anim.SetBool("Cast", true);
 
         rb.velocity = Vector2.zero;
@@ -911,6 +916,7 @@ public class BossFight : Enemy
         // Reset attack state
         ResetAttacks();
     }
+
 
 
     private void BounceAttack()

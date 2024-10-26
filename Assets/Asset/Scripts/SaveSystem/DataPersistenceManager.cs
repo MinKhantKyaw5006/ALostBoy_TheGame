@@ -205,47 +205,113 @@ public class DataPersistenceManager : MonoBehaviour
 
 
 
+    //public void SaveGame()
+    //{
+    //    //return right away if data  persistence is disabled
+    //    if (disableDataPersistence)
+    //    {
+    //        return;
+    //    }
+
+    //    //if we dont have any data to save, log a warning here
+    //    if (this.gameData == null)
+    //    {
+    //        Debug.LogWarning("No data was found. A new game needs to be started before data can be saved.");
+    //        return;
+    //    }
+    //    // pass the data to other scripts so they can update it
+    //    foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
+    //    {
+    //        dataPersistenceObj.SaveData(ref gameData);
+    //    }
+
+    //    // Log the player's position at the time of saving (assuming player's data is part of gameData).
+    //    //Debug.Log($"Player position saved: {gameData.playerPosition}");
+
+    //    // save that data to a file using file data handler
+    //    dataHandler.Save(gameData, selectedProfileId);
+
+
+    //    //timestamp the data so we know when it was last saved
+    //    //gameData.lastUpdated = System.DateTime.Now.ToBinary();
+    //    gameData.lastUpdated = System.DateTime.Now.Ticks;
+
+    //    Debug.Log(" lastupdated saved time (ticks): " + gameData.lastUpdated);
+
+    //    // Log the time when the game data was saved
+    //    Debug.Log("Game data saved at: " + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
+
+
+
+    //    // Update the save slot's last saved time for display purposes
+    //    SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(selectedProfileId);
+    //    if (saveSlotData != null)
+    //    {
+    //        // Log the previous last saved time
+    //        Debug.Log("Previous last saved time (ticks): " + saveSlotData.lastSavedTime);
+
+    //        //gameData.lastUpdated = System.DateTime.Now.Ticks;
+    //        saveSlotData.lastSavedTime = System.DateTime.Now.Ticks; // Save the timestamp as long
+    //                                                                // Save the timestamp as long // Save as ticks (long)
+    //                                                                // Save the timestamp as long
+
+    //        // Log the new last saved time
+    //        Debug.Log("Updated last saved time (ticks): " + saveSlotData.lastSavedTime);
+    //    }
+
+    //    // You can add any additional logging or processing after the timestamp update
+    //    //Debug.Log("Game data saved at: " + System.DateTime.Now);
+
+    //}
+
     public void SaveGame()
     {
-        //return right away if data  persistence is disabled
+        // Return right away if data persistence is disabled
         if (disableDataPersistence)
         {
             return;
         }
 
-        //if we dont have any data to save, log a warning here
+        // If we don't have any data to save, log a warning
         if (this.gameData == null)
         {
             Debug.LogWarning("No data was found. A new game needs to be started before data can be saved.");
             return;
         }
-        // pass the data to other scripts so they can update it
+
+        // Pass the data to other scripts so they can update it
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects)
         {
             dataPersistenceObj.SaveData(ref gameData);
         }
 
-        // Log the player's position at the time of saving (assuming player's data is part of gameData).
-        //Debug.Log($"Player position saved: {gameData.playerPosition}");
+        // Log the player's position at the time of saving (if applicable)
+        // Debug.Log($"Player position saved: {gameData.playerPosition}");
 
-        // save that data to a file using file data handler
+        // Update the timestamp for lastUpdated and lastSavedTime
+        gameData.lastUpdated = System.DateTime.Now.Ticks; // Save the last updated time
+        Debug.Log("Last updated time (ticks): " + gameData.lastUpdated);
+
+        // Save the data to a file using the data handler
         dataHandler.Save(gameData, selectedProfileId);
-
-        //timestamp the data so we know when it was last saved
-        gameData.lastUpdated = System.DateTime.Now.ToBinary();
-
 
         // Update the save slot's last saved time for display purposes
         SaveSlotData saveSlotData = DataPersistenceManager.instance.LoadSaveSlotData(selectedProfileId);
         if (saveSlotData != null)
         {
-            saveSlotData.lastSavedTime = System.DateTime.Now;
+            // Update lastSavedTime to current time
+            saveSlotData.lastSavedTime = System.DateTime.Now.Ticks; // Save the timestamp as long
+            Debug.Log("Updated last saved time (ticks): " + saveSlotData.lastSavedTime);
+
+            // Log the time when the game data was saved
+            Debug.Log("Game data saved at: " + System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"));
         }
-
-        // You can add any additional logging or processing after the timestamp update
-        Debug.Log("Game data saved at: " + System.DateTime.Now);
-
+        else
+        {
+            Debug.LogWarning("No save slot data found for selected profile ID: " + selectedProfileId);
+        }
     }
+
 
     public void DeleteProfileData(string profileId)
     {
