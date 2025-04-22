@@ -23,6 +23,7 @@
 5. [Detail Architecture](#detail-architecture)
 6. [Game Play](#game-play)
 7. [Tech Stack](#tech-stack)
+8. [Download and play my game at Itch.io](#downad-and-play-my-game-at-itch.io)
 
 
 ## Introduction
@@ -178,6 +179,11 @@ Seven enemy types with unique behaviors:
 
 
 ## Tech Stack
+![stack1](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/sketchbook.png)
+![stack2](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/blender.png)
+![stack3](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/spine.png)
+![stack4](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/unity.png)
 
-
+## Download and play my game at Itch.io
+[![Play on Itch.io](https://img.shields.io/badge/Play_on-Itch.io-red?style=for-the-badge&logo=itchdotio)](https://lucasmin.itch.io/alostboyversion10)
 
