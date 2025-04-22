@@ -43,6 +43,9 @@ Game development education often lacks guidance on originality and hands-on prac
 ### System Architecture
 ![System](https://raw.githubusercontent.com/MinKhantKyaw5006/ALostBoy_TheGame/71adca0393dcf14bf4d4dcf52e906c27548a6ce5/system.png)
 
+![Subsystem](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/b8a25d9ecfea32a00386c91cf009c603551b01f8/subsystem.png)
+
+
 ### Not Covered
 - Extensive sound design beyond basic effects and themes
 - Fully original asset creation (uses free resources with minor modifications)
