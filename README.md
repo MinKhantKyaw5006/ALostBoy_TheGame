@@ -40,6 +40,9 @@ Game development education often lacks guidance on originality and hands-on prac
 | Animation Methods      | Manual and Unity-built animation workflows        |
 | Basic Sound Design     | Effects, background audio, and thematic tracks    |
 
+### System Architecture
+![System](https://raw.githubusercontent.com/MinKhantKyaw5006/ALostBoy_TheGame/71adca0393dcf14bf4d4dcf52e906c27548a6ce5/system.png)
+
 ### Not Covered
 - Extensive sound design beyond basic effects and themes
 - Fully original asset creation (uses free resources with minor modifications)
