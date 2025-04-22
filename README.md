@@ -83,12 +83,16 @@ We follow a structured pipeline:
 - Continue Game
 - Load Game
 - Quit
+![main menu](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/e33b402e8e33bbe6c94e465fb1318dfa9ab61d82/main%20menu.png)
+![save](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/e33b402e8e33bbe6c94e465fb1318dfa9ab61d82/save%20menu.png)
+
 
 **Pause Menu**:
 - Resume
 - Restart from Checkpoint
 - Restart Chapter
 - Return to Main Menu (saves current checkpoint)
+![pause](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/e33b402e8e33bbe6c94e465fb1318dfa9ab61d82/pause%20menu.png)
 
 ### Advanced Camera System
 - Delayed follow for smooth movement feel
