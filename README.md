@@ -113,6 +113,8 @@ Seven enemy types with unique behaviors:
 5. Vertical small spiders
 6. Horizontal/diagonal big spiders
 7. 360° rotating platform enemies
+![enemy1](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/bb170f26d8478949c41637f40a48a7adad21caf9/enemy%20one.png)
+![enemy2](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/bb170f26d8478949c41637f40a48a7adad21caf9/enemy%20two.png)
    
 
 ### Boss Fight AI
@@ -120,6 +122,11 @@ Seven enemy types with unique behaviors:
 - Attacks: lunge, triple slash, parry, jump slam, fireball barrages, airborne phase
 - Stun windows for player counterattacks
 - Randomized AI patterns for unpredictability
+  ![boss1](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/bb170f26d8478949c41637f40a48a7adad21caf9/boss%201.png)
+  ![boss2](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/bb170f26d8478949c41637f40a48a7adad21caf9/boss%202.png)
+  ![boss3](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/bb170f26d8478949c41637f40a48a7adad21caf9/boss%20three.png)
+  ![boss4](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/bb170f26d8478949c41637f40a48a7adad21caf9/boss%20four.png)
+  ![boss5](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/bb170f26d8478949c41637f40a48a7adad21caf9/boss%20five.png)
 
 ### Level Design
 - Stage 1: Cave
