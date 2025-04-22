@@ -165,8 +165,17 @@ Seven enemy types with unique behaviors:
 
 ## Detail Architecture 
 ![major](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/10cf0f1d16377772cb6c7154b173fc13ec589755/majorsystem.png)
+![minor](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/b22cd647d496818197ba50ae7247a36a68401199/minorsystem.png)
 
 ## Game Play
+### 🎮 Gameplay Videos
+
+[![Watch Gameplay 1](https://img.youtube.com/vi/VCyRH2romLA/0.jpg)](https://youtu.be/VCyRH2romLA)
+*Gameplay Video 1*
+
+[![Watch Gameplay 2](https://img.youtube.com/vi/fAzMbpfR3A8/0.jpg)](https://youtu.be/fAzMbpfR3A8)
+*Gameplay Video 2*
+
 
 ## Tech Stack
 
