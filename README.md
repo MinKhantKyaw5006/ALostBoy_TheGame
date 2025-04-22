@@ -1,5 +1,6 @@
 # Lost Boy Adventure
 ![Screenshot 2024-10-14 112219](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d2ff7b9774495cbd018c0d2790c01b6187f62146/Screenshot%202024-10-14%20112219.png)
+[![Play on Itch.io](https://img.shields.io/badge/Play_on-Itch.io-red?style=for-the-badge&logo=itchdotio)](https://lucasmin.itch.io/alostboyversion10)
 
 
 
