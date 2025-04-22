@@ -56,8 +56,11 @@ Game development education often lacks guidance on originality and hands-on prac
 ## Project Overview & Methodology
 We follow a structured pipeline:
 1. **Asset Preparation**: Create or source assets from the Unity Asset Store, then slice and import into Unity.
-2. **Animation**: Combine manual rig-and-mesh workflows (Spine 3D) with Unity’s animation system for efficiency and quality.
-3. **Development**: Set up a 2D Unity project, organize folders, and implement systems iteratively using Git for version control.
+2. ![asset]( https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/87459420dceb72bf67c7bad6ee1709370297f9bf/asset%20preparation.png)
+3. **Animation**: Combine manual rig-and-mesh workflows (Spine 3D) with Unity’s animation system for efficiency and quality.
+4. ![asset](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/87459420dceb72bf67c7bad6ee1709370297f9bf/character%20design.png)
+5. ![animation](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/87459420dceb72bf67c7bad6ee1709370297f9bf/character%20animation.png)
+6. **Development**: Set up a 2D Unity project, organize folders, and implement systems iteratively using Git for version control.
 
 ## Features
 ### Player Controls & Combat System
