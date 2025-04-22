@@ -21,10 +21,9 @@
    - [Interactable Objects & Challenges](#interactable-objects--challenges)
    - [Sound & Graphic Design](#sound--graphic-design)
 5. [Project Structure](#project-structure)
-6. [Installation](#installation)
-7. [Usage](#usage)
-8. [Tech Stack](#tech-stack)
-9. [License](#license)
+6. [Game Play](#game-play)
+7. [Tech Stack](#tech-stack)
+
 
 ## Introduction
 Game development education often lacks guidance on originality and hands-on practice, resulting in student projects that are simplistic remakes of popular titles. **Lost Boy Adventure** aims to address this gap by equipping students with the tools, knowledge, and creative freedom to develop engaging, original 2D games featuring unique characters, narratives, and mechanics inspired by industry standards.
@@ -165,19 +164,10 @@ Seven enemy types with unique behaviors:
 - Door interaction SFX
 
 ## Project Structure
-```
-Assets/
-  ├─ Scripts/
-  ├─ Graphics/
-  ├─ Animations/
-  ├─ Audio/
-  ├─ Scenes/
-  └─ Prefabs/
-Packages/
-ProjectSettings/
-.gitignore
-README.md
-```
+
+## Game Play
+
+## Tech Stack
 
 
 
