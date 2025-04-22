@@ -100,6 +100,9 @@ We follow a structured pipeline:
 - Rapid downward pan during falls
 - Cinematic camera shake on impact
 - Scene boundaries to constrain view
+![cam1](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/0d76e86211f586ba139df5a5e8fd4f9ea10e5edd/cam%20pan%201.png)
+![cam2](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/0d76e86211f586ba139df5a5e8fd4f9ea10e5edd/cam%20pan%202.png)
+![cam3](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/0d76e86211f586ba139df5a5e8fd4f9ea10e5edd/cam%20pan%203.png)
 
 ### Enemy System
 Seven enemy types with unique behaviors:
@@ -110,6 +113,7 @@ Seven enemy types with unique behaviors:
 5. Vertical small spiders
 6. Horizontal/diagonal big spiders
 7. 360° rotating platform enemies
+   
 
 ### Boss Fight AI
 - Three-stage encounter with idle, run, and attack modes
