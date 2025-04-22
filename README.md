@@ -130,9 +130,21 @@ Seven enemy types with unique behaviors:
 
 ### Level Design
 - Stage 1: Cave
+![lvl1](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/lvl1.png)
+![scene1](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/scene1.png)
+
 - Stage 2: Rainforest
+![lvl2](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/lvl2.png)
+![secen2](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/scene2.png)
+
 - Stage 3: Mushroom Valley
+![lvl3](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/lvl3.png)
+![scene3](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/scene3.png)
+
 - Stage 4: Boss Cave
+![lvl4](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/lvl4.png)
+![scene4](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/scene4.png)
+  
 
 ### Scene Animation & Dialogue System
 - Cinematic cutscenes with widescreen bars
@@ -144,6 +156,7 @@ Seven enemy types with unique behaviors:
 - One-way and mission doors, teleportation portals
 - Normal and falling platforms, spikes, traps, jump pads
 - Fall damage and respawn logic
+![mission](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/d26962b2834402c4099b0821be6d3ee7b3534651/mission.png)
 
 ### Sound & Graphic Design
 - Four thematic background tracks
