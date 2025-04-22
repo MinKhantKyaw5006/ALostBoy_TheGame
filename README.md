@@ -61,6 +61,7 @@ We follow a structured pipeline:
 4. ![asset](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/87459420dceb72bf67c7bad6ee1709370297f9bf/character%20design.png)
 5. ![animation](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/87459420dceb72bf67c7bad6ee1709370297f9bf/character%20animation.png)
 6. **Development**: Set up a 2D Unity project, organize folders, and implement systems iteratively using Git for version control.
+   ![projectstructure](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/0dbd391b1e91652d68f445884b6969049132bd4f/project%20structure.png)
 
 ## Features
 ### Player Controls & Combat System
@@ -68,11 +69,13 @@ We follow a structured pipeline:
 - Dash, jump, and double-jump mechanics for mobility
 - Health and mana bars, with mana gained on enemy defeat
 - Special directional superpowers consuming mana
+![playercontrol](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/0dbd391b1e91652d68f445884b6969049132bd4f/playercontrol.png)
 
 ### Checkpoint Saving System
 - Automatic save at checkpoints (position, inventory, state)
 - Resume from last checkpoint on death, crash, or restart
 - Pause menu options to resume, restart checkpoint, or restart chapter
+![checkpoint](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/0dbd391b1e91652d68f445884b6969049132bd4f/checkpoint.png)
 
 ### Menu System
 **Main Menu**:
