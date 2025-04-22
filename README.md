@@ -1,4 +1,6 @@
 # Lost Boy Adventure
+![image alt]([path/to/image.png](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/26c1af9c1440ef5b2f24b9dfb0e3c756634c5a4c/Screenshot%202024-10-14%20112219.png))
+
 
 ## Table of Contents
 1. [Introduction](#introduction)
