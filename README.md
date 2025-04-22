@@ -180,10 +180,19 @@ Seven enemy types with unique behaviors:
 
 
 ## Tech Stack
-![stack1](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/sketchbook.png)
-![stack2](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/blender.png)
-![stack3](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/spine.png)
-![stack4](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/unity.png)
+The game was developed using the following tools:
+
+![Sketchbook](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/sketchbook.png)
+![Blender](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/blender.png)
+![Spine](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/spine.png)
+![Unity](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/53d6b8e8accf14ea583e2dcc04fa8fd0bf5b07e7/unity.png)
+
+---
+
+📄 **Game Development Report**  
+We’ve documented the full development process, including design choices, tools used, workflow, and testing strategies.  
+**[👉 Read the full report here (PDF)](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/raw/bda47ec1a717017cb5b2dc6a205286987131c0cd/LostBoy%20Game%20report.pdf)**  
+
 
 ## Download and play my game at Itch.io
 [![Play on Itch.io](https://img.shields.io/badge/Play_on-Itch.io-red?style=for-the-badge&logo=itchdotio)](https://lucasmin.itch.io/alostboyversion10)
