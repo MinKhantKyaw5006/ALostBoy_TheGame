@@ -136,27 +136,5 @@ ProjectSettings/
 README.md
 ```
 
-## Installation
-1. Clone the repository:
-   ```bash
-git clone https://github.com/your-username/lost-boy-adventure.git
-cd lost-boy-adventure
-```
-2. Open Unity Hub and add the project using the 2D template.
-3. Ensure Unity version matches `ProjectSettings/ProjectVersion.txt`.
 
-## Usage
-- Press **Play** in Unity to start the game.
-- Use **WASD** or arrow keys for movement, **Space** to jump, and **Shift** to dash.
-- Interact with UI menus using mouse or controller.
-
-## Tech Stack
-- **Engine**: Unity 2D
-- **Animation**: Spine 3D & Unity Animator
-- **Modeling/Effects**: Blender
-- **Version Control**: Git & GitHub
-- **IDE**: Visual Studio / VS Code
-
-## License
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
