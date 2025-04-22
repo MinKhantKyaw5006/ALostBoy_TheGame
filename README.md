@@ -20,7 +20,7 @@
    - [Scene Animation & Dialogue System](#scene-animation--dialogue-system)
    - [Interactable Objects & Challenges](#interactable-objects--challenges)
    - [Sound & Graphic Design](#sound--graphic-design)
-5. [Project Structure](#project-structure)
+5. [Detail Architecture](#detail-architecture)
 6. [Game Play](#game-play)
 7. [Tech Stack](#tech-stack)
 
@@ -163,7 +163,8 @@ Seven enemy types with unique behaviors:
 - Player action SFX (jump, run, attack)
 - Door interaction SFX
 
-## Project Structure
+## Detail Architecture 
+![major](https://github.com/MinKhantKyaw5006/ALostBoy_TheGame/blob/10cf0f1d16377772cb6c7154b173fc13ec589755/majorsystem.png)
 
 ## Game Play
 
